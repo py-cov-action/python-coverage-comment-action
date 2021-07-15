@@ -1,21 +1,13 @@
-name: 'Hello World'
-description: 'Greet someone'
+name: 'Coverage'
+description: 'Publish diff coverage report as PR comment
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  GITHUB_TOKEN:  # id of input
+    description: 'GitHub token'
     required: true
-    default: 'World'
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
   using: "composite"
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
+    - run: echo ${{ inputs.GITHUB_TOKEN }} | gh auth login --with-token
       shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
-    - run: ${{ github.action_path }}/goodbye.sh
+    - run: echo "AAAA" && gh repo view && echo "BBBB"
       shell: bash
