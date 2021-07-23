@@ -6,5 +6,4 @@ def code(arg: Optional[bool]) -> str:
         return "a"
     elif arg is True:
         return "b"
-    else:
-        return "c"
+    return "c"
