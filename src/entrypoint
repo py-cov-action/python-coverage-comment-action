@@ -57,7 +57,6 @@ class Config:
     GITHUB_BASE_REF: str
     GITHUB_TOKEN: str
     GITHUB_REPOSITORY: str
-    GITHUB_HEAD_REF: str
     GITHUB_REF: str
     BADGE_FILENAME: str = "coverage-comment-badge.json"
     COVERAGE_FILE: str = "coverage.xml"
@@ -194,8 +193,11 @@ def get_markdown_comment(
 
 def is_main_branch(gh: github.Github, config: Config) -> bool:
     repo = gh.get_repo(config.GITHUB_REPOSITORY)
-    print(repo, repo.default_branch, config.GITHUB_HEAD_REF)
-    return repo.default_branch == config.GITHUB_HEAD_REF
+    # refs/heads/<branch_name>
+    if not config.GITHUB_REF.startswith("refs/heads/"):
+        return False
+    branch = config.GITHUB_REF.split("/")[-1]
+    return repo.default_branch == branch
 
 
 def post_comment(body: str, gh: github.Github, config: Config) -> None:
