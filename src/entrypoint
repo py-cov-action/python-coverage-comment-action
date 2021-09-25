@@ -38,6 +38,7 @@ def main():
         )
         post_comment(body=comment, gh=gh, config=config)
 
+    print(config.BADGE_ENABLED, is_main_branch(gh=gh, config=config))
     if config.BADGE_ENABLED and is_main_branch(gh=gh, config=config):
         print("Running on default branch, saving Badge into the repo wiki")
         badge = compute_badge(coverage_info=coverage_info, config=config)
@@ -193,6 +194,7 @@ def get_markdown_comment(
 
 def is_main_branch(gh: github.Github, config: Config) -> bool:
     repo = gh.get_repo(config.GITHUB_REPOSITORY)
+    print(repo, repo.default_branch, config.GITHUB_HEAD_REF)
     return repo.default_branch == config.GITHUB_HEAD_REF
 
 
