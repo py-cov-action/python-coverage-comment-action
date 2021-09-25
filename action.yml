@@ -1,13 +1,30 @@
 name: 'Coverage'
 description: 'Publish diff coverage report as PR comment'
 inputs:
-  GITHUB_TOKEN:  # id of input
-    description: 'GitHub token'
+  GITHUB_TOKEN:
+    description: A GitHub token to write comments and write the badge to the wiki.
     required: true
+  COVERAGE_FILE:
+    description: Path and filename of the coverage XML file to analyze.
+    default: "coverage.xml"
+    required: false
+  COMMENT_TEMPLATE:
+    description: >
+      Specify a different template for the comments that will be written on the PR.
+    required: false
+  DIFF_COVER_ARGS:
+    description: Additional args to pass to diff cover (one per line)
+    required: false
+  BADGE_ENABLED:
+    description: Whether or not a badge will be generated and stored.
+    default: "true"
+    required: false
 runs:
-  using: "composite"
-  steps:
-    - run: echo ${{ inputs.GITHUB_TOKEN }} | gh auth login --with-token
-      shell: bash
-    - run: echo "AAAA" && gh repo view && echo "BBBB"
-      shell: bash
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    COVERAGE_FILE: ${{ inputs.COVERAGE_FILE }}
+    COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
+    DIFF_COVER_ARGS: ${{ inputs.DIFF_COVER_ARGS }}
+    BADGE_ENABLED: ${{ inputs.BADGE_ENABLED }}

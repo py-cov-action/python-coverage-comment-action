@@ -1,2 +1,1 @@
-coverage.xml
-.coverage
+.mypy_cache
