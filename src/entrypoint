@@ -21,10 +21,10 @@ JSON_URL = "https://raw.githubusercontent.com/wiki/{repo_name}/{filename}"
 
 
 def main():
+    print("Starting action")
     config = Config.from_environ(os.environ)
     coverage_info = get_coverage_info(config=config)
     gh = get_api(config=config)
-
     if config.GITHUB_PR_NUMBER:
         print(f"Commenting on the coverage on PR {config.GITHUB_PR_NUMBER}")
         diff_coverage_info = get_diff_coverage_info(config=config)
@@ -45,6 +45,8 @@ def main():
         url = get_badge_json_url(config=config)
         print(f"Badge JSON stored at {url}")
         print(f"Badge URL: {SHIELD_URL.format(url=url)}")
+
+    print("Ending action")
 
 
 @dataclasses.dataclass
@@ -247,6 +249,7 @@ def get_previous_coverage_rate(config: Config) -> Optional[float]:
             requests.get(get_badge_json_url(config=config)).json()["value"][:-1]
         )
     except Exception:
+        print("Previous coverage results not found, cannot report on evolution.")
         return None
 
 
