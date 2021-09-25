@@ -1,17 +1,19 @@
 FROM python:3-slim
 
-WORKDIR /tool
-WORKDIR /workdir
+WORKDIR /src
 
-COPY tool/requirements.txt /tool/
 RUN set -eux; \
     apt-get update; \
     apt-get install -y git; \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install -r /tool/requirements.txt
-RUN ls /tool
-COPY tool /tool
-RUN ls /tool
+COPY src/requirements.txt ./
+RUN pip install -r requirements.txt
 
-CMD [ "/tool/entrypoint.py" ]
+COPY src/entrypoint /usr/local/bin/
+COPY src/add-to-wiki /usr/local/bin/
+COPY src/default.md.j2 /var/
+
+WORKDIR /workdir
+
+CMD [ "entrypoint" ]

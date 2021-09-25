@@ -1,4 +1,4 @@
 diff-cover
-ghapi
 jinja2
+PyGithub
 xmltodict
