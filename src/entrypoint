@@ -12,20 +12,19 @@ from typing import List, Optional
 
 import github
 import jinja2
+import requests
 import xmltodict
 
 MARKER = """<!-- This comment was produced by coverage-comment-action -->"""
-BADGE_FILENAME = "coverage-comment-badge.json"
-MINIMUM_GREEN = 100
-MINIMUM_ORANGE = 70
 SHIELD_URL = "https://img.shields.io/endpoint?url={url}"
+JSON_URL = "https://raw.githubusercontent.com/wiki/{repo_name}/{filename}"
 
 
 def main():
+    print("Starting action")
     config = Config.from_environ(os.environ)
     coverage_info = get_coverage_info(config=config)
     gh = get_api(config=config)
-
     if config.GITHUB_PR_NUMBER:
         print(f"Commenting on the coverage on PR {config.GITHUB_PR_NUMBER}")
         diff_coverage_info = get_diff_coverage_info(config=config)
@@ -41,10 +40,13 @@ def main():
 
     if config.BADGE_ENABLED and is_main_branch(gh=gh, config=config):
         print("Running on default branch, saving Badge into the repo wiki")
-        badge = compute_badge(coverage_info=coverage_info)
-        url = upload_badge(badge=badge, config=config)
+        badge = compute_badge(coverage_info=coverage_info, config=config)
+        upload_badge(badge=badge, config=config)
+        url = get_badge_json_url(config=config)
         print(f"Badge JSON stored at {url}")
         print(f"Badge URL: {SHIELD_URL.format(url=url)}")
+
+    print("Ending action")
 
 
 @dataclasses.dataclass
@@ -56,10 +58,13 @@ class Config:
     GITHUB_REPOSITORY: str
     GITHUB_HEAD_REF: str
     GITHUB_REF: str
+    BADGE_FILENAME: str = "coverage-comment-badge.json"
     COVERAGE_FILE: str = "coverage.xml"
     COMMENT_TEMPLATE: Optional[str] = None
     DIFF_COVER_ARGS: List[str] = dataclasses.field(default_factory=list)
     BADGE_ENABLED: bool = True
+    MINIMUM_GREEN: float = 100.0
+    MINIMUM_ORANGE: float = 70.0
 
     # Clean methods
     @classmethod
@@ -69,6 +74,14 @@ class Config:
     @classmethod
     def clean_badge_enabled(cls, value: str) -> bool:
         return value.lower() in ("1", "true", "yes")
+
+    @classmethod
+    def clean_minimum_green(cls, value: str) -> float:
+        return float(value)
+
+    @classmethod
+    def clean_minimum_orange(cls, value: str) -> float:
+        return float(value)
 
     @property
     def GITHUB_PR_NUMBER(self) -> Optional[int]:
@@ -204,12 +217,12 @@ def post_comment(body: str, gh: github.Github, config: Config) -> None:
         issue.create_comment(body=body)
 
 
-def compute_badge(coverage_info: dict) -> str:
+def compute_badge(coverage_info: dict, config: Config) -> str:
     rate = int(coverage_info["@line-rate"] * 100)
 
-    if rate >= MINIMUM_GREEN:
+    if rate >= config.MINIMUM_GREEN:
         color = "green"
-    elif rate >= MINIMUM_ORANGE:
+    elif rate >= config.MINIMUM_ORANGE:
         color = "orange"
     else:
         color = "red"
@@ -224,16 +237,28 @@ def compute_badge(coverage_info: dict) -> str:
     return json.dumps(badge)
 
 
+def get_badge_json_url(config: Config) -> str:
+    return JSON_URL.format(
+        repo_name=config.GITHUB_REPOSITORY, filename=config.BADGE_FILENAME
+    )
+
+
 def get_previous_coverage_rate(config: Config) -> Optional[float]:
-    return 0.42
-
-
-def upload_badge(badge: str, config: Config) -> str:
     try:
-        process = call(
+        return float(
+            requests.get(get_badge_json_url(config=config)).json()["value"][:-1]
+        )
+    except Exception:
+        print("Previous coverage results not found, cannot report on evolution.")
+        return None
+
+
+def upload_badge(badge: str, config: Config) -> None:
+    try:
+        call(
             "add-to-wiki",
             config.GITHUB_REPOSITORY,
-            BADGE_FILENAME,
+            config.BADGE_FILENAME,
             "Update badge",
             input=badge,
         )
@@ -244,7 +269,6 @@ def upload_badge(badge: str, config: Config) -> str:
                 "wiki. You may disable it afterwards."
             )
         raise
-    return process.stdout.strip()
 
 
 class Exit(Exception):

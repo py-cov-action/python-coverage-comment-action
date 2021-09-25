@@ -2,3 +2,4 @@ diff-cover
 jinja2
 PyGithub
 xmltodict
+requests
