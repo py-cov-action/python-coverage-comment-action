@@ -1,5 +1,7 @@
 name: 'Coverage'
-description: 'Publish diff coverage report as PR comment'
+description: >
+  Publish diff coverage report as PR comment, and create a coverage badge
+  to display on the readme.
 inputs:
   GITHUB_TOKEN:
     description: A GitHub token to write comments and write the badge to the wiki.
@@ -19,6 +21,18 @@ inputs:
     description: Whether or not a badge will be generated and stored.
     default: "true"
     required: false
+  BADGE_FILENAME:
+    description: Name of the json file containing badge informations stored in the repo wiki
+    default: coverage-comment-badge.json
+    required: false
+  MINIMUM_GREEN:
+    description:
+    default: 100
+    required: false
+  MINIMUM_ORANGE:
+    description:
+    default: 70
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -28,3 +42,6 @@ runs:
     COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
     DIFF_COVER_ARGS: ${{ inputs.DIFF_COVER_ARGS }}
     BADGE_ENABLED: ${{ inputs.BADGE_ENABLED }}
+    BADGE_FILENAME: ${{ inputs.BADGE_FILENAME }}
+    MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
+    MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}

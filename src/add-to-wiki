@@ -26,5 +26,3 @@ then
 
     git push -u origin
 fi
-
-echo "https://raw.githubusercontent.com/wiki/${repo_name}/${filename}"
