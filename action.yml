@@ -1,5 +1,5 @@
 name: 'Coverage'
-description: 'Publish diff coverage report as PR comment
+description: 'Publish diff coverage report as PR comment'
 inputs:
   GITHUB_TOKEN:  # id of input
     description: 'GitHub token'

@@ -1,14 +1,17 @@
 FROM python:3-slim
 
 WORKDIR /tool
+WORKDIR /workdir
 
+COPY tool/requirements.txt /tool/
 RUN set -eux; \
     apt-get update; \
     apt-get install -y git; \
-    rm -rf /var/lib/apt/lists/*; \
-    pip install ghapi diff-cover
+    rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.py /entrypoint.py
-COPY add-to-wiki.sh /add-to-wiki.sh
+RUN pip install -r /tool/requirements.txt
+RUN ls /tool
+COPY tool /tool
+RUN ls /tool
 
-CMD [ "/entrypoint.py" ]
+CMD [ "/tool/entrypoint.py" ]

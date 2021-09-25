@@ -1,0 +1,28 @@
+## Coverage report
+{% if previous_coverage -%}
+The coverage rate went from `{{ previous_coverage }}%` to `{{ coverage }}%`
+{{ ":arrow_up:" if previous_coverage < coverage else
+    ":arrow_down:" if previous_coverage > coverage else
+    ":arrow_right:"
+}}
+{%- else -%}
+The coverage rate is `{{ coverage }}%`
+{%- endif %}
+
+{% if branch_coverage -%}
+The branch rate is `{{ branch_coverage }}%`
+{%- endif %}
+
+`{{ diff_coverage }}%` of new lines are covered.
+
+<details>
+<summary>Diff Coverage details (click to unfold)</summary>
+
+{% for filename, stats in file_info.items() -%}}
+### {{ filename }}
+`{{ stats.diff_coverage }}` of new lines are covered
+
+{%- endfor %}}
+
+</details>
+{{ marker }}

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Usage $0 {repo/owner} {filename} {commit_message}
+# Usage $0 {owner/repo} {filename} {commit_message}
 # Stores the content of stdin in a file named {filename} in the wiki of
 # the provided repo
 # Reads envvar GITHUB_TOKEN
