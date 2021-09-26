@@ -3,6 +3,8 @@
 Publish diff coverage report as PR comment, and create a coverage badge to
 display on the readme.
 
+See example at: https://github.com/ewjoachim/coverage-comment-action-example
+
 ## What does it do?
 
 This action operates on an already generated `coverage.xml` (Cobertura) file as
