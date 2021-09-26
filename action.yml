@@ -50,7 +50,7 @@ inputs:
 runs:
   using: docker
   # image: Dockerfile
-  image: docker://ewjoachim/coverage-comment-action:v1.0.3
+  image: docker://ewjoachim/coverage-comment-action:latest
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     COVERAGE_FILE: ${{ inputs.COVERAGE_FILE }}

@@ -43,7 +43,7 @@ repository.
 ### Minimal usage
 ```yaml
 - name: Display coverage
-  uses: ewjoachim/coverage-comment-action@v1.0.3
+  uses: ewjoachim/coverage-comment-action@v1
   with:
     GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -51,7 +51,7 @@ repository.
 ### Maximal usage
 ```yaml
 - name: Display coverage
-  uses: ewjoachim/coverage-comment-action@v1.0.3
+  uses: ewjoachim/coverage-comment-action@v1
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
@@ -76,6 +76,12 @@ repository.
     # [Advanced] Additional args to pass to diff cover (one per line)
     DIFF_COVER_ARGS: ""
 ```
+
+### Pinning
+On the examples above, the version was set to `v1` (a branch). You can also pin
+a specific version such as `v1.0.3` (a tag). There are still things left to
+figure out in how to manage releases and version. If you're interested, there's
+a [corresponding issue](https://github.com/ewjoachim/coverage-comment-action/issues/8).
 
 ### Note on the state of this action
 
