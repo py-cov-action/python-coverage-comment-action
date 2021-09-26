@@ -254,9 +254,8 @@ def get_badge_json_url(config: Config) -> str:
 
 def get_previous_coverage_rate(config: Config) -> Optional[float]:
     try:
-        return float(
-            requests.get(get_badge_json_url(config=config)).json()["value"][:-1]
-        )
+        response = requests.get(get_badge_json_url(config=config))
+        return float(response.json()["message"][:-1]) / 100
     except Exception:
         print("Previous coverage results not found, cannot report on evolution.")
         return None
