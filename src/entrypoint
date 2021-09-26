@@ -25,6 +25,7 @@ def main():
     config = Config.from_environ(os.environ)
     coverage_info = get_coverage_info(config=config)
     gh = get_api(config=config)
+    print(f"Operating on {config.GITHUB_REF}")
     if config.GITHUB_PR_NUMBER:
         print(f"Commenting on the coverage on PR {config.GITHUB_PR_NUMBER}")
         diff_coverage_info = get_diff_coverage_info(config=config)
@@ -38,7 +39,6 @@ def main():
         )
         post_comment(body=comment, gh=gh, config=config)
 
-    print(config.BADGE_ENABLED, is_main_branch(gh=gh, config=config))
     if config.BADGE_ENABLED and is_main_branch(gh=gh, config=config):
         print("Running on default branch, saving Badge into the repo wiki")
         badge = compute_badge(coverage_info=coverage_info, config=config)
@@ -88,6 +88,13 @@ class Config:
         # "refs/pull/2/merge"
         if "pull" in self.GITHUB_REF:
             return int(self.GITHUB_REF.split("/")[2])
+        return None
+
+    @property
+    def GITHUB_BRANCH_NAME(self) -> Optional[str]:
+        # "refs/pull/2/merge"
+        if self.GITHUB_REF.startswith("refs/heads/"):
+            return self.GITHUB_REF.split("/")[-1]
         return None
 
     @classmethod
@@ -193,10 +200,8 @@ def get_markdown_comment(
 
 def is_main_branch(gh: github.Github, config: Config) -> bool:
     repo = gh.get_repo(config.GITHUB_REPOSITORY)
-    # refs/heads/<branch_name>
-    if not config.GITHUB_REF.startswith("refs/heads/"):
-        return False
-    branch = config.GITHUB_REF.split("/")[-1]
+
+    branch = config.GITHUB_BRANCH_NAME
     return repo.default_branch == branch
 
 

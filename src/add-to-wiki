@@ -16,13 +16,15 @@ cd $dir
 git clone "https://${GITHUB_TOKEN}@github.com/${repo_name}.wiki.git" .
 echo $stdin > "${filename}"
 
-if ! git diff --exit-code
-then
-    git add "${filename}"
+git add "${filename}"
 
+if ! git diff --staged --exit-code
+then
     git config --global user.email "coverage-comment-action"
     git config --global user.name "Coverage Comment Action"
     git commit -m "$commit_message"
 
     git push -u origin
+else
+    echo "No change detected, skipping."
 fi
