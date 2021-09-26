@@ -13,7 +13,7 @@ commit_message="${3}"
 dir="$(mktemp -d)"
 cd $dir
 
-git clone "https://${GITHUB_TOKEN}@github.com/${repo_name}.wiki.git" .
+git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${repo_name}.wiki.git" .
 echo $stdin > "${filename}"
 
 git add "${filename}"
