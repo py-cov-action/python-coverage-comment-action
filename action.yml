@@ -6,7 +6,7 @@ inputs:
   GITHUB_TOKEN:
     description: >
       A GitHub token to write comments and write the badge to the wiki
-      (``${{ github.token }}``)
+      (``github.token``)
     required: true
   COVERAGE_FILE:
     description: >
