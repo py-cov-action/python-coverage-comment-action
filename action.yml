@@ -1,4 +1,7 @@
 name: Coverage Comment
+branding:
+  icon: 'umbrella'
+  color: 'purple'
 description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
