@@ -21,7 +21,7 @@ file in a collapsed block.
 
 See: https://github.com/ewjoachim/coverage-comment-action-example/pull/3#issuecomment-927207016
 
-# Default branch mode
+### Default branch mode
 
 If acting on the repository's default branch, it will extract the coverage
 rate and create a small JSON file that will be stored on the repository's wiki.
