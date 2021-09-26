@@ -1,41 +1,52 @@
-name: 'Coverage'
+name: Coverage Comment
 description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
 inputs:
   GITHUB_TOKEN:
-    description: A GitHub token to write comments and write the badge to the wiki.
+    description: >
+      A GitHub token to write comments and write the badge to the wiki
+      (``${{ github.token }}``)
     required: true
   COVERAGE_FILE:
-    description: Path and filename of the coverage XML file to analyze.
+    description: >
+      Path and filename of the coverage XML file to analyze.
     default: "coverage.xml"
     required: false
   COMMENT_TEMPLATE:
     description: >
-      Specify a different template for the comments that will be written on the PR.
+      [Advanced] Specify a different template for the comments that will be written on the PR.
     required: false
   DIFF_COVER_ARGS:
-    description: Additional args to pass to diff cover (one per line)
+    description: >
+      [Advanced] Additional args to pass to diff cover (one per line)
     required: false
   BADGE_ENABLED:
-    description: Whether or not a badge will be generated and stored.
+    description: >
+      Whether or not a badge will be generated and stored.
     default: "true"
     required: false
   BADGE_FILENAME:
-    description: Name of the json file containing badge informations stored in the repo wiki
+    description: >
+      Name of the json file containing badge informations stored in the repo
+      wiki.
     default: coverage-comment-badge.json
     required: false
   MINIMUM_GREEN:
-    description:
+    description: >
+      If the coverage percentage is above or equal to this value, the badge
+      will be green.
     default: 100
     required: false
   MINIMUM_ORANGE:
-    description:
+    description: >
+      If the coverage percentage is not green and above or equal to this value,
+      the badge will be orange. Otherwise it will be red.
     default: 70
     required: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: docker
+  image: Dockerfile
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     COVERAGE_FILE: ${{ inputs.COVERAGE_FILE }}
