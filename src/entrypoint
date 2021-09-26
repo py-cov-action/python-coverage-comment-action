@@ -230,7 +230,7 @@ def compute_badge(coverage_info: dict, config: Config) -> str:
     rate = int(coverage_info["@line-rate"] * 100)
 
     if rate >= config.MINIMUM_GREEN:
-        color = "green"
+        color = "brightgreen"
     elif rate >= config.MINIMUM_ORANGE:
         color = "orange"
     else:
