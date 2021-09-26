@@ -43,7 +43,7 @@ repository.
 ### Minimal usage
 ```yaml
 - name: Display coverage
-  uses: ewjoachim/coverage-comment-action@v1.0.1
+  uses: ewjoachim/coverage-comment-action@v1.0.2
   with:
     GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -51,7 +51,7 @@ repository.
 ### Maximal usage
 ```yaml
 - name: Display coverage
-  uses: ewjoachim/coverage-comment-action@v1.0.1
+  uses: ewjoachim/coverage-comment-action@v1.0.2
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
