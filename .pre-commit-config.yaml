@@ -10,12 +10,12 @@ repos:
   - id: check-added-large-files
 
 - repo: https://github.com/psf/black
-  rev: "21.5b1"
+  rev: "21.9b0"
   hooks:
   - id: black
 
 - repo: https://github.com/PyCQA/isort
-  rev: "5.8.0"
+  rev: "5.9.3"
   hooks:
   - id: isort
 
@@ -25,11 +25,12 @@ repos:
   - id: flake8
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: "v0.812"
+  rev: "v0.910"
   hooks:
   - id: mypy
+    additional_dependencies: [types-requests]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: "v2.18.2"
+  rev: "v2.28.0"
   hooks:
   - id: pyupgrade
