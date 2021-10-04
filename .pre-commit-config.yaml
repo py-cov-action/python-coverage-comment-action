@@ -31,6 +31,6 @@ repos:
     additional_dependencies: [types-requests]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: "v2.28.0"
+  rev: "v2.29.0"
   hooks:
   - id: pyupgrade
