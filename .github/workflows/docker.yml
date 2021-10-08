@@ -7,7 +7,11 @@ name: Publish Docker image
 
 on:
   release:
-    types: [published]
+    types:
+      - published
+  push:
+    branches:
+      - v1
 
 jobs:
   push_to_registry:
