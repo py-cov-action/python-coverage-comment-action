@@ -4,7 +4,7 @@ WORKDIR /src
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y git; \
+    apt-get install -y git build-essential; \
     rm -rf /var/lib/apt/lists/*
 
 COPY src/requirements.txt ./
