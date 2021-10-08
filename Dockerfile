@@ -4,7 +4,7 @@ WORKDIR /src
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y git build-essential; \
+    apt-get install -y git build-essential libffi-dev; \
     rm -rf /var/lib/apt/lists/*
 
 COPY src/requirements.txt ./
