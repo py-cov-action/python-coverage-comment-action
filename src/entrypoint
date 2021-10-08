@@ -139,7 +139,6 @@ def get_coverage_info(config: Config) -> dict:
                         "@branches-valid": int,
                         "@branches-covered": int,
                         "@branch-rate": float,
-                        "@complexity": int,
                         "@hits": int,
                         "@branch": lambda x: x == "true",
                     }.get(key, lambda x: x)(value),
