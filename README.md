@@ -1,5 +1,16 @@
 # GitHub Action: Coverage Comment
 
+## Disclaimer
+
+I've discovered that this action actually fails for external pull requests.
+I'm in the process of reviewing how this action should work, but it takes
+some time. The problem is described [here](https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/)
+and [here](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/).
+
+If you want to help, please get in touch (open an issue or something).
+
+## Presentation
+
 Publish diff coverage report as PR comment, and create a coverage badge to
 display on the readme.
 
