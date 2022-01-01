@@ -32,8 +32,8 @@ class Git:
         except subprocess.SubProcessError as exc:
             raise GitError from exc
 
-    def __getattribute__(self, __name: str) -> Any:
-        return functools.partial(self._git, __name)
+    def __getattr__(self, name: str) -> Any:
+        return functools.partial(self._git, name)
 
 
 def upload_file(
@@ -45,7 +45,7 @@ def upload_file(
 ):
     with tempfile.TemporaryDirectory() as dir_path:
         dir = pathlib.Path(dir_path)
-        git = git or Git(cwd=dir)
+        git = Git(cwd=dir) if git is None else git
 
         git.clone(
             f"https://x-access-token:{github_token}@github.com/{repository}.wiki.git"
@@ -72,7 +72,8 @@ def upload_file(
                     "Wiki seems not to be activated for this project. Please activate the "
                     "wiki and create a single page. You may disable it afterwards."
                 )
-                log.debug("Push error", exc_info=True)
+
+            log.error("Push error")
             raise
 
 
@@ -81,7 +82,7 @@ def get_file_contents(repository: str, filename: str) -> str | None:
         response = httpx.get(
             get_wiki_file_url(repository=repository, filename=filename)
         )
-        return response.content
+        return response.text
     except Exception:
         log.warning("Previous coverage results not found, cannot report on evolution.")
         log.debug("Exception while getting previous coverage data", exc_info=True)

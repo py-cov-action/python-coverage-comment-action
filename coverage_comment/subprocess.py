@@ -15,4 +15,4 @@ def run(*args, **kwargs):
             **kwargs,
         )
     except subprocess.CalledProcessError as exc:
-        raise SubProcessError("/n".join([exc.stdout, exc.stderr]))
+        raise SubProcessError("/n".join([exc.stdout, exc.stderr])) from exc
