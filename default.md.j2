@@ -9,7 +9,7 @@ The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage
 The coverage rate is `{{ coverage.info.percent_covered | pct }}`
 {%- endif %}
 
-{% if coverage.info.num_branches -%}
+{% if coverage.meta.branch_coverage and coverage.info.num_branches -%}
 The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`
 {%- endif %}
 
