@@ -9,12 +9,12 @@ inputs:
   GITHUB_TOKEN:
     description: >
       A GitHub token to write comments and write the badge to the wiki.
-      Set to `${{ github.token }}`.
+      Set to `$ {{ github.token }}` (without the space between `$` and `{`).
     required: true
   GITHUB_PR_RUN_ID:
     description: >
       Only useful on the "workflow_run" part of the workflow.
-      Set to `${{ github.event.workflow_run.id }}`.
+      Set to `$ {{ github.event.workflow_run.id }}`  (without the space between `$` and `{`).
     required: false
   COMMENT_TEMPLATE:
     description: >
