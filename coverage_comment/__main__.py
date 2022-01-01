@@ -20,7 +20,7 @@ def main():
     log.debug(f"PR number: {config.GITHUB_PR_NUMBER}")
 
     event_name = config.GITHUB_EVENT_NAME
-    if event_name not in {"pull_request", "branch", "workflow_run"}:
+    if event_name not in {"pull_request", "push", "workflow_run"}:
         log.error(
             'This action has only been designed to work for "pull_request", "branch" '
             f'or "workflow_run" actions, not "{event_name}". Because there are security '
