@@ -5,7 +5,7 @@ class SubProcessError(Exception):
     pass
 
 
-def run(self, *args, **kwargs):
+def run(*args, **kwargs):
     try:
         return subprocess.run(
             *args,
