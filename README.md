@@ -72,9 +72,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
-          name: python-coverage-comment
+          name: python-coverage-comment-action
           # If you use a different name, update COMMENT_FILENAME accordingly
-          path: python-coverage-comment-badge.txt
+          path: python-coverage-comment-action.txt
 ```
 
 ```yaml
@@ -103,8 +103,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
           # Update those if you changed the default values:
-          # COMMENT_ARTIFACT_NAME: python-coverage-comment
-          # COMMENT_FILENAME: python-coverage-comment-badge.txt
+          # COMMENT_ARTIFACT_NAME: python-coverage-comment-action
+          # COMMENT_FILENAME: python-coverage-comment-action.txt
 ```
 
 ### Merging multiple coverage reports
@@ -181,8 +181,8 @@ jobs:
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
         with:
-          name: python-coverage-comment
-          path: python-coverage-comment-badge.txt
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
 
 ```
 
@@ -210,15 +210,15 @@ jobs:
 
     # Name of the json file containing badge informations stored in the repo wiki.
     # You typically don't have to change this unless you're already using this name for something else.
-    BADGE_FILENAME: coverage-comment-badge.json
+    BADGE_FILENAME: python-coverage-comment-action-badge.json
 
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
-    COMMENT_ARTIFACT_NAME: python-coverage-comment
+    COMMENT_ARTIFACT_NAME: python-coverage-comment-action
 
     # Name of the file in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
-    COMMENT_FILENAME: python-coverage-comment-badge.txt
+    COMMENT_FILENAME: python-coverage-comment-action.txt
 
 ```
 
@@ -226,8 +226,8 @@ jobs:
 ## Pinning
 On the examples above, the version was set to `v1` (a branch). You can also pin
 a specific version such as `v1.0.3` (a tag). There are still things left to
-figure out in how to manage releases and version. If you're interested, there's
-a [corresponding issue](https://github.com/ewjoachim/coverage-comment-action/issues/8).
+figure out in how to manage releases and version. If you're interested, please
+open an issue to discuss this.
 
 In terms of security/reproductibility, the best solution is probably to pin the
 version to an exact tag, and use dependabot to update it regularily.

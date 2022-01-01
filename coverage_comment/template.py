@@ -4,7 +4,7 @@ import jinja2
 
 from coverage_comment import coverage as coverage_module
 
-MARKER = """<!-- This comment was produced by coverage-comment-action -->"""
+MARKER = """<!-- This comment was produced by python-coverage-comment-action -->"""
 
 
 def get_markdown_comment(

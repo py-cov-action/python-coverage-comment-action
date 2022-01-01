@@ -19,9 +19,9 @@ class Config:
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_RUN_ID: int
-    BADGE_FILENAME: str = "python-coverage-comment-badge.json"
-    COMMENT_ARTIFACT_NAME: str = "python-coverage-comment"
-    COMMENT_FILENAME: str = "python-coverage-comment-badge.txt"
+    BADGE_FILENAME: str = "python-coverage-comment-action-badge.json"
+    COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
+    COMMENT_FILENAME: str = "python-coverage-comment-action.txt"
     MINIMUM_GREEN: float = 100.0
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False

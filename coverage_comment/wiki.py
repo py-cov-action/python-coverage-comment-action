@@ -9,8 +9,8 @@ import httpx
 from coverage_comment import log
 
 WIKI_FILE_URL = "https://raw.githubusercontent.com/wiki/{repository}/{filename}"
-GIT_CONFIG_EMAIL = "coverage-comment-action"
-GIT_CONFIG_NAME = "coverage-comment-action"
+GIT_CONFIG_EMAIL = "python-coverage-comment-action"
+GIT_CONFIG_NAME = "python-coverage-comment-action"
 GIT_COMMIT_MESSAGE = "Update badge"
 
 
@@ -84,7 +84,7 @@ def get_file_contents(repository: str, filename: str) -> str | None:
         response = httpx.get(
             get_wiki_file_url(repository=repository, filename=filename)
         )
-        return response.text
+        return response.content
     except Exception:
         log.warning("Previous coverage results not found, cannot report on evolution.")
         log.debug("Exception while getting previous coverage data", exc_info=True)

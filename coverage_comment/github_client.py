@@ -73,7 +73,7 @@ class GitHub:
     def __getattr__(self, attr):
         return _Callable(self, "/%s" % attr)
 
-    def _http(self, _method, _path, **kw) -> "JsonObject | bytes":
+    def _http(self, _method, _path, **kw):
         _method = _method.lower()
         requests_kwargs = {}
         if _method == "get" and kw:

@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 from coverage_comment import badge, comment_file
 from coverage_comment import coverage as coverage_module
@@ -18,29 +19,33 @@ def main():
     log.debug(f"Operating on {config.GITHUB_REF}")
     log.debug(f"PR number: {config.GITHUB_PR_NUMBER}")
 
-    if config.GITHUB_EVENT_NAME not in {"pull_request", "branch", "workflow_run"}:
+    event_name = config.GITHUB_EVENT_NAME
+    if event_name not in {"pull_request", "branch", "workflow_run"}:
         log.error(
             'This action has only been designed to work for "pull_request", "branch" '
             'or "workflow_run" actions. Because there are security implications. '
             "If you have a different usecase, please open an issue, we'll be glad to"
             "add compatibility."
         )
+        return 1
 
-    coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
-    if config.GITHUB_EVENT_NAME == "pull_request":
-        generate_comment(config=config, coverage=coverage)
+    if event_name in {"pull_request", "branch"}:
+        coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
+        if event_name == "pull_request":
+            return generate_comment(config=config, coverage=coverage)
+        elif event_name == "branch":
+            return save_badge(config=config, coverage=coverage)
 
-    if config.GITHUB_EVENT_NAME == "workflow_run":
-        post_comment(config=config)
-
-    if config.GITHUB_EVENT_NAME == "branch":
-        save_badge(config=config, coverage=coverage)
+    elif event_name == "workflow_run":
+        return post_comment(config=config)
 
     log.info("Ending action")
+    return 0
 
 
 def generate_comment(config: settings.Config, coverage=coverage_module.Coverage):
-    log.info(f"Generating comment for PR {config.GITHUB_PR_NUMBER}")
+    log.info("Generating comment for PR")
+
     diff_coverage = coverage_module.get_diff_coverage_info(
         base_ref=config.GITHUB_BASE_REF
     )
@@ -56,11 +61,14 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
         previous_coverage_rate=previous_coverage,
         template=config.COMMENT_TEMPLATE or template.get_default_template(),
     )
+    log.debug(f"Comment: \n{comment}")
 
     comment_file.store_file(filename=config.COMMENT_FILENAME, content=comment)
+    log.debug("Comment stored locally on disk")
 
 
 def post_comment(config: settings.Config):
+    log.info("Posting comment to PR")
 
     gh = github.get_api(token=config.GITHUB_TOKEN)
     me = github.get_my_login(github=gh)
@@ -69,6 +77,7 @@ def post_comment(config: settings.Config):
         run_id=config.GITHUB_RUN_ID,
         repository=config.GITHUB_REPOSITORY,
     )
+    log.info(f"PR number: {pr_number}")
     comment = github.download_artifact(
         github=gh,
         repository=config.GITHUB_REPOSITORY,
@@ -117,4 +126,4 @@ def save_badge(config: settings.Config, coverage=coverage_module.Coverage):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
