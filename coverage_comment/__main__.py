@@ -29,11 +29,11 @@ def main():
         )
         return 1
 
-    if event_name in {"pull_request", "branch"}:
+    if event_name in {"pull_request", "push"}:
         coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
         if event_name == "pull_request":
             return generate_comment(config=config, coverage=coverage)
-        elif event_name == "branch":
+        elif event_name == "push":
             return save_badge(config=config, coverage=coverage)
 
     elif event_name == "workflow_run":
