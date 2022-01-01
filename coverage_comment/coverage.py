@@ -85,7 +85,7 @@ def get_coverage_info(merge: bool) -> Coverage:
 
 
 def read_json(file: pathlib.Path):
-    json.loads(file.read_text())
+    return json.loads(file.read_text())
 
 
 def extract_info(data) -> Coverage:
