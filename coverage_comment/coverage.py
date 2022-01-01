@@ -62,10 +62,10 @@ class DiffCoverage:
 
 def get_coverage_info(merge: bool) -> Coverage:
     if merge:
-        subprocess.call("coverage", "combine")
+        subprocess.run("coverage", "combine")
 
-    subprocess.call("coverage", "json")
-    subprocess.call("coverage", "xml")
+    subprocess.run("coverage", "json")
+    subprocess.run("coverage", "xml")
 
     return extract_info(read_json(file=pathlib.Path("coverage.json")))
 
@@ -156,9 +156,9 @@ def extract_info(data) -> Coverage:
 
 
 def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
-    subprocess.call("git", "fetch", "--depth=1000")
+    subprocess.run("git", "fetch", "--depth=1000")
     with tempfile.NamedTemporaryFile("r") as f:
-        subprocess.call(
+        subprocess.run(
             "diff-cover",
             "coverage.xml",
             f"--compare-branch=origin/{base_ref}",
