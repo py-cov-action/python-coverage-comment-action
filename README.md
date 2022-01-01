@@ -45,6 +45,9 @@ Please ensure that the **repository wiki has been initialized** with at least a
 single page created. Once it's done, you can disable the wiki for the
 repository.
 
+Also, please ensure that your `.coverage` file(s) is created with the option
+[`relative_files = true`](https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files).
+
 ### Basic usage
 ```yaml
 # .github/workflows/ci.yml
@@ -256,3 +259,12 @@ a brand new action (this action) was created.
 
 You can find the (unmaintained) language-generic version
 [here](https://github.com/marketplace/actions/coverage-comment).
+
+
+## Why do we need `relative_files = true` ?
+
+Yes, I agree, this is annoying! The reason is that by default, coverage writes
+the full path to the file in the `.coverage` file, but the path is most likely
+different between the moment where your coverage is generated (in your workflow)
+and the moment where the report is computed (in the action, which runs inside a
+docker).

@@ -4,7 +4,7 @@ import json
 import pathlib
 import tempfile
 
-from coverage_comment import subprocess
+from coverage_comment import log, subprocess
 
 
 @dataclasses.dataclass
@@ -61,11 +61,25 @@ class DiffCoverage:
 
 
 def get_coverage_info(merge: bool) -> Coverage:
-    if merge:
-        subprocess.run("coverage", "combine")
+    try:
+        if merge:
+            subprocess.run("coverage", "combine")
 
-    subprocess.run("coverage", "json")
-    subprocess.run("coverage", "xml")
+        subprocess.run("coverage", "json")
+        subprocess.run("coverage", "xml")
+    except subprocess.SubProcessError as exc:
+        if "No source for code:" in str(exc):
+            log.error(
+                "Cannot read .coverage files because files are absolute. You need "
+                "to configure coverage to write relative paths by adding the following "
+                "option to your coverage configuration file:\n"
+                "[run]\n"
+                "relative_files = true\n\n"
+                "Note that the specific format can be slightly different if you use "
+                "setup.cfg or pyproject.toml. See details in: "
+                "https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files"
+            )
+        raise
 
     return extract_info(read_json(file=pathlib.Path("coverage.json")))
 

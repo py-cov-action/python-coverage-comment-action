@@ -6,13 +6,6 @@ class SubProcessError(Exception):
 
 
 def run(*args, **kwargs):
-    # Ugly temporary debug step
-    import pathlib
-
-    print(pathlib.Path("codebase/code.py").read_text())
-    import time
-
-    time.sleep(5)
     try:
         return subprocess.run(
             args,
