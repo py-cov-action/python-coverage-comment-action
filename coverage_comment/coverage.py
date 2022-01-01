@@ -2,18 +2,9 @@ import dataclasses
 import datetime
 import json
 import pathlib
-import subprocess
 import tempfile
 
-
-def call(*args, **kwargs):
-    return subprocess.run(
-        args,
-        text=True,
-        check=True,
-        capture_output=True,
-        **kwargs,
-    )
+from coverage_comment import subprocess
 
 
 @dataclasses.dataclass
@@ -71,10 +62,10 @@ class DiffCoverage:
 
 def get_coverage_info(merge: bool) -> Coverage:
     if merge:
-        call("coverage", "combine")
+        subprocess.call("coverage", "combine")
 
-    call("coverage", "json")
-    call("coverage", "xml")
+    subprocess.call("coverage", "json")
+    subprocess.call("coverage", "xml")
 
     return extract_info(read_json(file=pathlib.Path("coverage.json")))
 
@@ -165,9 +156,9 @@ def extract_info(data) -> Coverage:
 
 
 def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
-    call("git", "fetch", "--depth=1000")
+    subprocess.call("git", "fetch", "--depth=1000")
     with tempfile.NamedTemporaryFile("r") as f:
-        call(
+        subprocess.call(
             "diff-cover",
             "coverage.xml",
             f"--compare-branch=origin/{base_ref}",

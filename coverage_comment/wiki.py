@@ -1,12 +1,11 @@
 import functools
 import pathlib
-import subprocess
 import tempfile
 from typing import Any
 
 import httpx
 
-from coverage_comment import log
+from coverage_comment import log, subprocess
 
 WIKI_FILE_URL = "https://raw.githubusercontent.com/wiki/{repository}/{filename}"
 GIT_CONFIG_EMAIL = "python-coverage-comment-action"
@@ -25,15 +24,13 @@ class Git:
     def _git(self, *args, **kwargs):
         try:
             return subprocess.run(
-                ["git", *args],
-                text=True,
-                check=True,
-                capture_output=True,
+                "git",
+                *args,
                 cwd=self.cwd,
                 **kwargs,
             )
-        except subprocess.CalledProcessError as exc:
-            raise GitError("/n".join([exc.stdout, exc.stderr]))
+        except subprocess.SubProcessError as exc:
+            raise GitError from exc
 
     def __getattribute__(self, __name: str) -> Any:
         return functools.partial(self._git, __name)
