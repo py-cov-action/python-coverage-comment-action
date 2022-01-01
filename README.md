@@ -1,5 +1,8 @@
 # GitHub Action: Python Coverage Comment
 
+# WARNING
+project is not yet ready to use.
+
 ## Presentation
 
 Publish diff coverage report as PR comment, and create a coverage badge to

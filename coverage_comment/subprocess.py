@@ -7,10 +7,12 @@ class SubProcessError(Exception):
 
 def run(*args, **kwargs):
     # Ugly temporary debug step
-    print(subprocess.run(["pwd"], text=True, check=True, capture_output=True).stdout)
-    print(
-        subprocess.run(["ls", "-lR"], text=True, check=True, capture_output=True).stdout
-    )
+    import pathlib
+
+    print(pathlib.Path("codebase/code.py").read_text())
+    import time
+
+    time.sleep(5)
     try:
         return subprocess.run(
             args,
