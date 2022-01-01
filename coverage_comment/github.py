@@ -17,9 +17,8 @@ def get_api(token: str) -> github_client.GitHub:
 def is_default_branch(
     github: github_client.GitHub, repository: str, branch: str
 ) -> bool:
-    repo = github.repos(repository).get().default_branch
-
-    return repo.default_branch == branch
+    default_branch = github.repos(repository).get().default_branch
+    return default_branch == branch
 
 
 def download_artifact(

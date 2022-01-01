@@ -98,11 +98,11 @@ def save_badge(config: settings.Config, coverage=coverage_module.Coverage):
     is_default_branch = github.is_default_branch(
         github=github.get_api(token=config.GITHUB_TOKEN),
         repository=config.GITHUB_REPOSITORY,
-        branch=config.GITHUB_BASE_REF,
+        branch=config.GITHUB_REF,
     )
     log.debug(f"On default branch: {is_default_branch}")
     if not is_default_branch:
-        log.debug("Skipping badge save as we're not on the default branch")
+        log.info("Skipping badge save as we're not on the default branch")
         return
     log.info("Saving Badge into the repo wiki")
     badge_info = badge.compute_badge(

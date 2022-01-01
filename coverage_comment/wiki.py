@@ -48,7 +48,8 @@ def upload_file(
         git = Git(cwd=dir) if git is None else git
 
         git.clone(
-            f"https://x-access-token:{github_token}@github.com/{repository}.wiki.git"
+            f"https://x-access-token:{github_token}@github.com/{repository}.wiki.git",
+            ".",
         )
         (dir / filename).write_text(contents)
         git.add(filename)
@@ -56,6 +57,8 @@ def upload_file(
         try:
             git.diff("--staged", "--exit-code")
         except GitError:
+            pass  # All good, command returns 1 if there's diff, 0 otherwise
+        else:
             log.info("No change detected, skipping.")
             return
 
