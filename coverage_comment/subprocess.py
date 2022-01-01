@@ -12,7 +12,6 @@ def run(self, *args, **kwargs):
             text=True,
             check=True,
             capture_output=True,
-            cwd=self.cwd,
             **kwargs,
         )
     except subprocess.CalledProcessError as exc:
