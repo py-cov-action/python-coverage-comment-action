@@ -22,10 +22,10 @@ class CoverageInfo:
     percent_covered: float
     missing_lines: int
     excluded_lines: int
-    num_branches: int
-    num_partial_branches: int
-    covered_branches: int
-    missing_branches: int
+    num_branches: int | None
+    num_partial_branches: int | None
+    covered_branches: int | None
+    missing_branches: int | None
 
 
 @dataclasses.dataclass
@@ -132,7 +132,7 @@ def extract_info(data) -> Coverage:
         meta=CoverageMetadata(
             version=data["meta"]["version"],
             timestamp=datetime.datetime.fromisoformat(data["meta"]["timestamp"]),
-            branch_coverage=data["meta"]["branchcoverage"],
+            branch_coverage=data["meta"]["branch_coverage"],
             show_contexts=data["meta"]["show_contexts"],
         ),
         files={
@@ -147,10 +147,12 @@ def extract_info(data) -> Coverage:
                     percent_covered=file_data["summary"]["percent_covered"] / 100,
                     missing_lines=file_data["summary"]["missing_lines"],
                     excluded_lines=file_data["summary"]["excluded_lines"],
-                    num_branches=file_data["summary"]["num_branches"],
-                    num_partial_branches=file_data["summary"]["num_partial_branches"],
-                    covered_branches=file_data["summary"]["covered_branches"],
-                    missing_branches=file_data["summary"]["missing_branches"],
+                    num_branches=file_data["summary"].get("num_branches"),
+                    num_partial_branches=file_data["summary"].get(
+                        "num_partial_branches"
+                    ),
+                    covered_branches=file_data["summary"].get("covered_branches"),
+                    missing_branches=file_data["summary"].get("missing_branches"),
                 ),
             )
             for path, file_data in data["files"].items()
@@ -161,10 +163,10 @@ def extract_info(data) -> Coverage:
             percent_covered=data["totals"]["percent_covered"] / 100,
             missing_lines=data["totals"]["missing_lines"],
             excluded_lines=data["totals"]["excluded_lines"],
-            num_branches=data["totals"]["num_branches"],
-            num_partial_branches=data["totals"]["num_partial_branches"],
-            covered_branches=data["totals"]["covered_branches"],
-            missing_branches=data["totals"]["missing_branches"],
+            num_branches=data["totals"].get("num_branches"),
+            num_partial_branches=data["totals"].get("num_partial_branches"),
+            covered_branches=data["totals"].get("covered_branches"),
+            missing_branches=data["totals"].get("missing_branches"),
         ),
     )
 
