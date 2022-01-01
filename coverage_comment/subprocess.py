@@ -8,7 +8,7 @@ class SubProcessError(Exception):
 def run(*args, **kwargs):
     try:
         return subprocess.run(
-            *args,
+            args,
             text=True,
             check=True,
             capture_output=True,
