@@ -9,9 +9,8 @@ WORKDIR /workdir
 
 COPY pyproject.toml ./
 COPY poetry.lock ./
-RUN poetry install --no-dev
-
 COPY coverage_comment ./coverage_comment
-COPY default.md.j2 ./
+COPY default.md.j2 /var/default.md.j2
+RUN pip install .
 
-CMD [ "poetry", "run", "python", "-m", "coverage_comment" ]
+CMD [ "coverage_comment" ]

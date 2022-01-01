@@ -7,6 +7,12 @@ version = "2.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
 authors = ["to display on the readme, for Python projects."]
 license = "MIT License"
+packages = [
+    { include = "coverage_comment" },
+]
+
+[tool.poetry.scripts]
+coverage_comment = 'coverage_comment.__main__:main'
 
 [tool.poetry.dependencies]
 python = "^3.10"

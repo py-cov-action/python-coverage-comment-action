@@ -25,7 +25,7 @@ def get_markdown_comment(
 
 
 def get_default_template():
-    return pathlib.Path("default.md.j2").read_text()
+    return pathlib.Path("/var/default.md.j2").read_text()
 
 
 def pct(val):
