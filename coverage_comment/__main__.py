@@ -96,7 +96,7 @@ def post_comment(config: settings.Config):
 
 def save_badge(config: settings.Config, coverage=coverage_module.Coverage):
     is_default_branch = github.is_default_branch(
-        gh=github.get_api(),
+        gh=github.get_api(token=config.GITHUB_TOKEN),
         repository=config.GITHUB_REPOSITORY,
         branch=config.GITHUB_BASE_REF,
     )
