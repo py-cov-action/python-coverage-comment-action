@@ -8,32 +8,33 @@ description: >
 inputs:
   GITHUB_TOKEN:
     description: >
-      A GitHub token to write comments and write the badge to the wiki
-      (``github.token``)
+      A GitHub token to write comments and write the badge to the wiki.
+      Set to `${{ github.token }}`.
     required: true
-  COVERAGE_FILE:
+  GITHUB_PR_RUN_ID:
     description: >
-      Path and filename of the coverage XML file to analyze.
-    default: "coverage.xml"
+      Only useful on the "workflow_run" part of the workflow.
+      Set to `${{ github.event.workflow_run.id }}`.
     required: false
   COMMENT_TEMPLATE:
     description: >
       [Advanced] Specify a different template for the comments that will be written on the PR.
     required: false
-  DIFF_COVER_ARGS:
-    description: >
-      [Advanced] Additional args to pass to diff cover (one per line)
-    required: false
-  BADGE_ENABLED:
-    description: >
-      Whether or not a badge will be generated and stored.
-    default: "true"
-    required: false
   BADGE_FILENAME:
     description: >
       Name of the json file containing badge informations stored in the repo
       wiki.
-    default: coverage-comment-badge.json
+    default: python-coverage-comment-badge.json
+    required: false
+  COMMENT_ARTIFACT_NAME:
+    description: >
+      Name of the artifact in which the body of the comment to post on the PR is stored.
+    default: python-coverage-comment
+    required: false
+  COMMENT_FILENAME:
+    description: >
+      Name of the file in which the body of the comment to post on the PR is stored.
+    default: python-coverage-comment-badge.txt
     required: false
   MINIMUM_GREEN:
     description: >
@@ -47,16 +48,25 @@ inputs:
       the badge will be orange. Otherwise it will be red.
     default: 70
     required: false
+  MERGE_COVERAGE_FILES:
+    description: >
+      If true, will run `coverage combine` before reading the `.coverage` file.
+    default: false
+  VERBOSE:
+    description: >
+      If true, produces more output. Useful for debugging.
+    default: false
 runs:
   using: docker
   # image: Dockerfile
-  image: docker://ewjoachim/coverage-comment-action:latest
+  image: docker://ewjoachim/python-coverage-comment-action:latest
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-    COVERAGE_FILE: ${{ inputs.COVERAGE_FILE }}
-    COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
-    DIFF_COVER_ARGS: ${{ inputs.DIFF_COVER_ARGS }}
-    BADGE_ENABLED: ${{ inputs.BADGE_ENABLED }}
+    GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
     BADGE_FILENAME: ${{ inputs.BADGE_FILENAME }}
+    COMMENT_ARTIFACT_NAME: ${{ inputs.COMMENT_ARTIFACT_NAME }}
+    COMMENT_FILENAME: ${{ inputs.COMMENT_FILENAME }}
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
+    MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
+    VERBOSE: ${{ inputs.VERBOSE }}

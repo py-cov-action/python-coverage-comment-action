@@ -1,0 +1,25 @@
+[tool.black]
+target-version = ["py310"]
+
+[tool.poetry]
+name = "python-coverage-comment-action"
+version = "2.0.0"
+description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
+authors = ["to display on the readme, for Python projects."]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+diff-cover = "*"
+Jinja2 = "*"
+httpx = {version = "*", extras = ["http2"]}
+
+[tool.poetry.dev-dependencies]
+isort = "^5.10.1"
+black = "^21.12b0"
+mypy = "^0.930"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

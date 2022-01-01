@@ -11,7 +11,7 @@ on:
       - published
   push:
     branches:
-      - v1
+      - v2
 
 jobs:
   push_to_registry:
@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ewjoachim/coverage-comment-action
+          images: ewjoachim/python-coverage-comment-action
           flavor: |
             latest=true
 

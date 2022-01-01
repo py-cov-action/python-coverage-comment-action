@@ -1,19 +1,17 @@
 FROM python:3-slim
 
-WORKDIR /src
+ADD https://install.python-poetry.org /tmp/get-poetry.py
 
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y git build-essential libffi-dev; \
-    rm -rf /var/lib/apt/lists/*
-
-COPY src/requirements.txt ./
-RUN pip install -r requirements.txt
-
-COPY src/entrypoint /usr/local/bin/
-COPY src/add-to-wiki /usr/local/bin/
-COPY src/default.md.j2 /var/
+RUN python /tmp/get-poetry.py
+ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /workdir
 
-CMD [ "entrypoint" ]
+COPY pyproject.toml ./
+COPY poetry.lock ./
+RUN poetry install --no-dev
+
+COPY coverage_comment ./coverage_comment
+COPY default.md.j2 ./
+
+CMD [ "poetry", "run", "python", "-m", "coverage_comment" ]
