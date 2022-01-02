@@ -35,7 +35,7 @@ def download_artifact(
     )
     zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get())
     zipf = zipfile.ZipFile(zip_bytes)
-    return zipf.open(filename).read()
+    return zipf.open(filename, "r").read().decode("utf-8")
 
 
 def get_pr_number_from_workflow_run(
