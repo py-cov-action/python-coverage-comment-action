@@ -1,8 +1,5 @@
 # GitHub Action: Python Coverage Comment
 
-# WARNING
-project is not yet ready to use.
-
 ## Presentation
 
 Publish diff coverage report as PR comment, and create a coverage badge to
@@ -26,7 +23,7 @@ of coverage rate attributed to this PR, as well as the rate of coverage
 for lines that this PR introduces. There's also a small analysis for each
 file in a collapsed block.
 
-See: TODO
+See: https://github.com/ewjoachim/python-coverage-comment-action-example/pull/2#issuecomment-1003646299
 
 ### Default branch mode
 
