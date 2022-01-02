@@ -1,4 +1,5 @@
 import io
+import pathlib
 import zipfile
 
 from coverage_comment import github_client, log
@@ -26,7 +27,7 @@ def download_artifact(
     repository: str,
     artifact_name: str,
     run_id: int,
-    filename: str,
+    filename: pathlib.Path,
 ) -> str:
     repo_path = github.repos(repository)
     artifacts = repo_path.actions.runs(run_id).artifacts.get().artifacts
@@ -35,7 +36,7 @@ def download_artifact(
     )
     zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get())
     zipf = zipfile.ZipFile(zip_bytes)
-    return zipf.open(filename, "r").read().decode("utf-8")
+    return zipf.open(str(filename), "r").read().decode("utf-8")
 
 
 def get_pr_number_from_workflow_run(
