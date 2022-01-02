@@ -18,7 +18,7 @@ def is_default_branch(
     github: github_client.GitHub, repository: str, branch: str
 ) -> bool:
     default_branch = github.repos(repository).get().default_branch
-    return default_branch == branch
+    return f"refs/heads/{default_branch}" == branch
 
 
 def download_artifact(
