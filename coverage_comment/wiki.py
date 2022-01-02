@@ -62,8 +62,8 @@ def upload_file(
             log.info("No change detected, skipping.")
             return
 
-        git.config("--global", "user.email", GIT_CONFIG_EMAIL)
-        git.config("--global", "user.name", GIT_CONFIG_NAME)
+        git.config("user.email", GIT_CONFIG_EMAIL)
+        git.config("user.name", GIT_CONFIG_NAME)
 
         git.commit("-m", GIT_COMMIT_MESSAGE)
 
