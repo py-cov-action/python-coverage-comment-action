@@ -17,7 +17,6 @@ def main():
         logging.getLogger().setLevel("DEBUG")
 
     log.debug(f"Operating on {config.GITHUB_REF}")
-    log.debug(f"PR number: {config.GITHUB_PR_NUMBER}")
 
     event_name = config.GITHUB_EVENT_NAME
     if event_name not in {"pull_request", "push", "workflow_run"}:
@@ -59,7 +58,7 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
         coverage=coverage,
         diff_coverage=diff_coverage,
         previous_coverage_rate=previous_coverage,
-        template=config.COMMENT_TEMPLATE or template.get_default_template(),
+        template=template.get_default_template(),
     )
     log.debug(f"Comment: \n{comment}")
 

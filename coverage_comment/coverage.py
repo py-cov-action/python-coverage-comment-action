@@ -206,7 +206,7 @@ def extract_diff_info(data) -> DiffCoverage:
     return DiffCoverage(
         total_num_lines=data["total_num_lines"],
         total_num_violations=data["total_num_violations"],
-        total_percent_covered=data["total_percent_covered"],
+        total_percent_covered=data["total_percent_covered"] / 100,
         num_changed_lines=data["num_changed_lines"],
         files={
             path: FileDiffCoverage(

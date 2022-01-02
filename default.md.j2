@@ -1,19 +1,19 @@
 ## Coverage report
 {% if previous_coverage_rate -%}
 The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}` {{
-    ":arrow_up:" if previous_coverage_rate < coverage else
-    ":arrow_down:" if previous_coverage_rate > coverage else
+    ":arrow_up:" if previous_coverage_rate < coverage.info.percent_covered else
+    ":arrow_down:" if previous_coverage_rate > coverage.info.percent_covered else
     ":arrow_right:"
 }}
 {%- else -%}
 The coverage rate is `{{ coverage.info.percent_covered | pct }}`
 {%- endif %}
 
-{% if coverage.meta.branch_coverage and coverage.info.num_branches -%}
+{%- if coverage.meta.branch_coverage and coverage.info.num_branches -%}
 The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`
 {%- endif %}
 
-`{{ diff_coverage.total_percent_covered | pct }}%` of new lines are covered.
+`{{ diff_coverage.total_percent_covered | pct }}` of new lines are covered.
 
 {%if diff_coverage.files -%}
 <details>
@@ -23,8 +23,10 @@ The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branc
 ### {{ filename }}
 `{{ diff_file_coverage.percent_covered | pct }}` of new lines are covered (`{{ coverage.files[filename].info.percent_covered | pct }}` of the complete file)
 
+{%- if diff_file_coverage.violation_lines %}
 {% set separator = joiner(", ") %}
 Missing lines: {% for line in diff_file_coverage.violation_lines %}{{ separator() }}`{{ line }}`{% endfor %}
+{% endif %}
 
 {% endfor %}
 </details>

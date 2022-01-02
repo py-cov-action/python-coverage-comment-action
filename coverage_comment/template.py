@@ -14,18 +14,19 @@ def get_markdown_comment(
     template: str,
 ):
     env = jinja2.Environment()
-
+    env.filters["pct"] = pct
     return env.from_string(template).render(
         previous_coverage_rate=previous_coverage_rate,
         coverage=coverage,
         diff_coverage=diff_coverage,
         marker=MARKER,
-        pct=pct,
     )
 
 
 def get_default_template():
-    return pathlib.Path("/var/default.md.j2").read_text()
+    return pathlib.Path(
+        "/Users/joachim/code/python-coverage-comment-action/default.md.j2"
+    ).read_text()
 
 
 def pct(val):

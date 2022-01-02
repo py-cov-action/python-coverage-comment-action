@@ -29,7 +29,7 @@ def compute_badge(
 
 
 def parse_badge(contents):
-    float(json.loads(contents)["message"][:-1]) / 100
+    return float(json.loads(contents)["message"][:-1]) / 100
 
 
 def get_badge_shield_url(json_url) -> str:
