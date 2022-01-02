@@ -24,17 +24,17 @@ inputs:
     description: >
       Name of the json file containing badge informations stored in the repo
       wiki.
-    default: python-coverage-comment-badge.json
+    default: python-coverage-comment-action-badge.json
     required: false
   COMMENT_ARTIFACT_NAME:
     description: >
       Name of the artifact in which the body of the comment to post on the PR is stored.
-    default: python-coverage-comment
+    default: python-coverage-comment-action
     required: false
   COMMENT_FILENAME:
     description: >
       Name of the file in which the body of the comment to post on the PR is stored.
-    default: python-coverage-comment-badge.txt
+    default: python-coverage-comment-action.txt
     required: false
   MINIMUM_GREEN:
     description: >
