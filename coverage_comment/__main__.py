@@ -15,6 +15,7 @@ def main():
 
     if config.VERBOSE:
         logging.getLogger().setLevel("DEBUG")
+        log.debug(f"Settings: {config}")
 
     log.debug(f"Operating on {config.GITHUB_REF}")
 

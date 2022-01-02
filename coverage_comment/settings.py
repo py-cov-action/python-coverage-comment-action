@@ -3,8 +3,6 @@ import inspect
 import pathlib
 from typing import Any
 
-from coverage_comment import log
-
 
 class MissingEnvironmentVariable(Exception):
     pass
@@ -92,6 +90,4 @@ class Config:
             raise MissingEnvironmentVariable(
                 f" missing environment variable(s): {', '.join(missing)}"
             )
-
-        log.debug(f"Settings: {config!r}")
         return config
