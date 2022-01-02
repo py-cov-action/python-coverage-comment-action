@@ -73,7 +73,7 @@ def post_comment(config: settings.Config):
     me = github.get_my_login(github=gh)
     pr_number = github.get_pr_number_from_workflow_run(
         github=gh,
-        run_id=config.GITHUB_RUN_ID,
+        run_id=config.GITHUB_PR_RUN_ID,
         repository=config.GITHUB_REPOSITORY,
     )
     log.info(f"PR number: {pr_number}")
@@ -81,7 +81,7 @@ def post_comment(config: settings.Config):
         github=gh,
         repository=config.GITHUB_REPOSITORY,
         artifact_name=config.COMMENT_ARTIFACT_NAME,
-        run_id=config.GITHUB_RUN_ID,
+        run_id=config.GITHUB_PR_RUN_ID,
         filename=config.COMMENT_FILENAME,
     )
 
