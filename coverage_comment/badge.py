@@ -21,7 +21,6 @@ def compute_badge(
         "schemaVersion": 1,
         "label": "Coverage",
         "message": f"{rate}%",
-        "value": line_rate,
         "color": color,
     }
 
