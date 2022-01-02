@@ -18,7 +18,7 @@ class Config:
     GITHUB_REPOSITORY: str
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
-    GITHUB_PR_RUN_ID: int
+    GITHUB_PR_RUN_ID: int | None
     BADGE_FILENAME: str = "python-coverage-comment-action-badge.json"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: str = "python-coverage-comment-action.txt"
@@ -46,8 +46,8 @@ class Config:
         return float(value)
 
     @classmethod
-    def clean_github_pr_run_id(cls, value: str) -> int:
-        return int(value)
+    def clean_github_pr_run_id(cls, value: str) -> int | None:
+        return int(value) if value else None
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:

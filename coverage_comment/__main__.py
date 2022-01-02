@@ -69,6 +69,10 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
 def post_comment(config: settings.Config):
     log.info("Posting comment to PR")
 
+    if not config.GITHUB_PR_RUN_ID:
+        log.error("Missing input GITHUB_PR_RUN_ID. Please consult the documentation.")
+        return 1
+
     gh = github.get_api(token=config.GITHUB_TOKEN)
     me = github.get_my_login(github=gh)
     pr_number = github.get_pr_number_from_workflow_run(
