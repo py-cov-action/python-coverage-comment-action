@@ -100,7 +100,7 @@ def post_comment(
                 break
         else:
             log.info("Adding new comment")
-            comment_path.post(body=contents)
+            issue_comments_path.post(body=contents)
     except github_client.ApiError:
         log.info(
             "Cannot post comment. This is probably because this is an external PR, so "
