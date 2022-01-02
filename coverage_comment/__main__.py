@@ -58,7 +58,7 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
         coverage=coverage,
         diff_coverage=diff_coverage,
         previous_coverage_rate=previous_coverage,
-        template=template.read_template_file(path=config.TEMPLATE_PATH),
+        template=template.read_template_file(),
     )
     log.debug(f"Comment: \n{comment}")
 

@@ -39,7 +39,7 @@ class Git:
 def upload_file(
     github_token: str,
     repository: str,
-    filename: str,
+    filename: pathlib.Path,
     contents: str,
     git: Git | None = None,
 ):
@@ -52,7 +52,7 @@ def upload_file(
             ".",
         )
         (dir / filename).write_text(contents)
-        git.add(filename)
+        git.add(str(filename))
 
         try:
             git.diff("--staged", "--exit-code")
@@ -80,7 +80,7 @@ def upload_file(
             raise
 
 
-def get_file_contents(repository: str, filename: str) -> str | None:
+def get_file_contents(repository: str, filename: pathlib.Path) -> str | None:
     try:
         response = httpx.get(
             get_wiki_file_url(repository=repository, filename=filename)
@@ -92,5 +92,5 @@ def get_file_contents(repository: str, filename: str) -> str | None:
         return None
 
 
-def get_wiki_file_url(repository: str, filename: str) -> str:
+def get_wiki_file_url(repository: str, filename: pathlib.Path) -> str:
     return WIKI_FILE_URL.format(repository=repository, filename=filename)

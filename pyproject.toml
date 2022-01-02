@@ -5,11 +5,12 @@ target-version = ["py310"]
 name = "coverage-comment"
 version = "2.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
-authors = ["to display on the readme, for Python projects."]
+authors = ["Joachim Jablon <ewjoachim@gmail.com>"]
 license = "MIT License"
 packages = [
     { include = "coverage_comment" },
 ]
+include = ["coverage_comment/default.md.j2"]
 
 [tool.poetry.scripts]
 coverage_comment = 'coverage_comment.__main__:main'

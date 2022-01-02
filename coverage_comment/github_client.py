@@ -26,11 +26,6 @@ class _Executable:
     def __call__(self, **kw):
         return self._gh._http(self._method, self._path, **kw)
 
-    def __str__(self):
-        return f"_Executable ({self._method} {self._path})"
-
-    __repr__ = __str__
-
 
 class _Callable:
     def __init__(self, _gh, _name):
@@ -48,11 +43,6 @@ class _Callable:
             return _Executable(self._gh, attr, self._name)
         name = f"{self._name}/{attr}"
         return _Callable(self._gh, name)
-
-    def __str__(self):
-        return "_Callable (%s)" % self._name
-
-    __repr__ = __str__
 
 
 class GitHub:
@@ -91,7 +81,7 @@ class GitHub:
             )
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
-            is_json = self._process_resp(exc.response.headers)
+            is_json = self.is_json(exc.response.headers)
 
             cls: type[ApiError] = {
                 403: Forbidden,
@@ -100,25 +90,14 @@ class GitHub:
 
             raise cls(response=exc.response) from exc
 
-        is_json = self._process_resp(response.headers)
+        is_json = self.is_json(response.headers)
         if is_json:
             return response.json(object_hook=JsonObject)
         else:
             return response.content
 
-    def _process_resp(self, headers):
-        is_json = False
-        for header, value in headers.items():
-            match header.lower():
-                case "x-ratelimit-remaining":
-                    self.x_ratelimit_remaining = int(value)
-                case "x-ratelimit-limit":
-                    self.x_ratelimit_limit = int(value)
-                case "x-ratelimit-reset":
-                    self.x_ratelimit_reset = int(value)
-                case "content-type":
-                    is_json = value.startswith("application/json")
-        return is_json
+    def is_json(self, headers):
+        return headers.get("content-type", "").startswith("application/json")
 
 
 class JsonObject(dict):
@@ -131,9 +110,6 @@ class JsonObject(dict):
             return self[key]
         except KeyError:
             raise AttributeError(r"'Dict' object has no attribute '%s'" % key)
-
-    def __setattr__(self, attr, value):
-        self[attr] = value
 
 
 class ApiError(Exception):
@@ -148,9 +124,3 @@ class NotFound(ApiError):
 
 class Forbidden(ApiError):
     pass
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()

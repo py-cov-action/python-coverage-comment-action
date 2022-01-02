@@ -1,4 +1,4 @@
-import pathlib
+from importlib import resources
 
 import jinja2
 
@@ -15,6 +15,7 @@ def get_markdown_comment(
 ):
     env = jinja2.Environment()
     env.filters["pct"] = pct
+
     return env.from_string(template).render(
         previous_coverage_rate=previous_coverage_rate,
         coverage=coverage,
@@ -23,8 +24,8 @@ def get_markdown_comment(
     )
 
 
-def read_template_file(path: str):
-    return pathlib.Path(path).read_text()
+def read_template_file() -> str:
+    return resources.read_text("coverage_comment", "default.md.j2")
 
 
 def pct(val):

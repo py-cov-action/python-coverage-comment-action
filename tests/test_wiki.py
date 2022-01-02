@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 
 from coverage_comment import subprocess, wiki
@@ -24,7 +26,7 @@ def test_git(mocker):
     ]
 
 
-def test_git_error(mocker):
+def test_git__error(mocker):
     mocker.patch(
         "coverage_comment.subprocess.run", side_effect=subprocess.SubProcessError
     )
@@ -34,43 +36,43 @@ def test_git_error(mocker):
         git.add("some_file")
 
 
-def test_upload_file_ok(mocker):
-    git = mocker.MagicMock()
-
-    wiki.upload_file(
-        github_token="foo",
-        repository="bar",
-        filename="baz",
-        contents="qux",
-        git=git,
-    )
-
-    assert git.mock_calls == [
-        mocker.call.clone("https://x-access-token:foo@github.com/bar.wiki.git"),
-        mocker.call.add("baz"),
-        mocker.call.diff("--staged", "--exit-code"),
-        mocker.call.config("--global", "user.email", "python-coverage-comment-action"),
-        mocker.call.config("--global", "user.name", "python-coverage-comment-action"),
-        mocker.call.commit("-m", "Update badge"),
-        mocker.call.push("-u", "origin"),
-    ]
-
-
-def test_upload_file_no_change(mocker, caplog):
-    caplog.set_level("DEBUG")
+def test_upload_file__ok(mocker):
     git = mocker.MagicMock()
     git.diff.side_effect = wiki.GitError
 
     wiki.upload_file(
         github_token="foo",
         repository="bar",
-        filename="baz",
+        filename=pathlib.Path("baz"),
         contents="qux",
         git=git,
     )
 
     assert git.mock_calls == [
-        mocker.call.clone("https://x-access-token:foo@github.com/bar.wiki.git"),
+        mocker.call.clone("https://x-access-token:foo@github.com/bar.wiki.git", "."),
+        mocker.call.add("baz"),
+        mocker.call.diff("--staged", "--exit-code"),
+        mocker.call.config("user.email", "python-coverage-comment-action"),
+        mocker.call.config("user.name", "python-coverage-comment-action"),
+        mocker.call.commit("-m", "Update badge"),
+        mocker.call.push("-u", "origin"),
+    ]
+
+
+def test_upload_file__no_change(mocker, caplog):
+    caplog.set_level("DEBUG")
+    git = mocker.MagicMock()
+
+    wiki.upload_file(
+        github_token="foo",
+        repository="bar",
+        filename=pathlib.Path("baz"),
+        contents="qux",
+        git=git,
+    )
+
+    assert git.mock_calls == [
+        mocker.call.clone("https://x-access-token:foo@github.com/bar.wiki.git", "."),
         mocker.call.add("baz"),
         mocker.call.diff("--staged", "--exit-code"),
     ]
@@ -84,16 +86,17 @@ def test_upload_file_no_change(mocker, caplog):
         ("", False),
     ],
 )
-def test_upload_file_push_error(mocker, caplog, error_message, log_expected):
+def test_upload_file__push_error(mocker, caplog, error_message, log_expected):
     caplog.set_level("DEBUG")
     git = mocker.MagicMock()
+    git.diff.side_effect = wiki.GitError
     git.push.side_effect = wiki.GitError(error_message)
 
     with pytest.raises(wiki.GitError):
         wiki.upload_file(
             github_token="foo",
             repository="bar",
-            filename="baz",
+            filename=pathlib.Path("baz"),
             contents="qux",
             git=git,
         )
@@ -112,7 +115,7 @@ def test_get_file_contents(mocker):
     get.assert_called_with("https://raw.githubusercontent.com/wiki/foo/bar")
 
 
-def test_get_file_contents_not_found(mocker, caplog):
+def test_get_file_contents__not_found(mocker, caplog):
     caplog.set_level("WARNING")
     get = mocker.patch("httpx.get")
     get.side_effect = ValueError
