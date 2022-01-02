@@ -58,7 +58,7 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
         coverage=coverage,
         diff_coverage=diff_coverage,
         previous_coverage_rate=previous_coverage,
-        template=template.get_default_template(),
+        template=template.read_template_file(path=config.TEMPLATE_PATH),
     )
     log.debug(f"Comment: \n{comment}")
 
@@ -80,7 +80,9 @@ def post_comment(config: settings.Config):
     comment = github.download_artifact(
         github=gh,
         repository=config.GITHUB_REPOSITORY,
-        artifact_name=config.ARTIFACT_NAME,
+        artifact_name=config.COMMENT_ARTIFACT_NAME,
+        run_id=config.GITHUB_RUN_ID,
+        filename=config.COMMENT_FILENAME,
     )
 
     github.post_comment(

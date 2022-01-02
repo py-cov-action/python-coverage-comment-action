@@ -25,6 +25,7 @@ class Config:
     MINIMUM_GREEN: float = 100.0
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
+    TEMPLATE_PATH: str = "/var/default.md.j2"
     VERBOSE: bool = False
 
     # Clean methods

@@ -58,7 +58,7 @@ def get_pr_number_from_workflow_run(
     branch = run.head_branch
     login = run.head_repository.owner.login
     prs = [pr.number for pr in repo_path.pulls.get(head=f"{login}:{branch}")]
-    if len(prs) == 1:
+    if len(prs) != 1:
         # 0 would be a problem, but >1 would also.
         raise CannotDeterminePR(f"Found 0 or more than 1 PRs: {prs!r}")
     return prs[0]

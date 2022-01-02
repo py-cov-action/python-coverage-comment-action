@@ -23,10 +23,8 @@ def get_markdown_comment(
     )
 
 
-def get_default_template():
-    return pathlib.Path(
-        "/Users/joachim/code/python-coverage-comment-action/default.md.j2"
-    ).read_text()
+def get_default_template(path: str):
+    return pathlib.Path(path).read_text()
 
 
 def pct(val):
