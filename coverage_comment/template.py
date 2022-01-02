@@ -23,7 +23,7 @@ def get_markdown_comment(
     )
 
 
-def get_default_template(path: str):
+def read_template_file(path: str):
     return pathlib.Path(path).read_text()
 
 
