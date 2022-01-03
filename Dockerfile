@@ -5,11 +5,6 @@ RUN set -eux; \
     apt-get install -y git; \
     rm -rf /var/lib/apt/lists/*
 
-ADD https://install.python-poetry.org /tmp/get-poetry.py
-
-RUN python /tmp/get-poetry.py
-ENV PATH="/root/.local/bin:$PATH"
-
 WORKDIR /workdir
 
 COPY pyproject.toml ./
