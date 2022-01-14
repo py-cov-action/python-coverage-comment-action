@@ -180,6 +180,7 @@ jobs:
         uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
