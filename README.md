@@ -67,7 +67,7 @@ jobs:
         run: make test  # This is the part where you put your own test command
 
       - name: Display coverage
-        uses: ewjoachim/python-coverage-comment-action@v1
+        uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -101,7 +101,7 @@ jobs:
       # DO NOT run actions/checkout@v2 here, for securitity reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
-        uses: ewjoachim/python-coverage-comment-action@v1
+        uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -177,7 +177,7 @@ jobs:
           name: 'coverage'
 
       - name: Display coverage
-        uses: ewjoachim/python-coverage-comment-action@v1
+        uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -192,7 +192,7 @@ jobs:
 ### All options
 ```yaml
 - name: Display coverage
-  uses: ewjoachim/python-coverage-comment-action@v1
+  uses: ewjoachim/python-coverage-comment-action@v2
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
@@ -227,8 +227,8 @@ jobs:
 
 # Other topics
 ## Pinning
-On the examples above, the version was set to `v1` (a branch). You can also pin
-a specific version such as `v1.0.3` (a tag). There are still things left to
+On the examples above, the version was set to `v2` (a branch). You can also pin
+a specific version such as `v2.0.0` (a tag). There are still things left to
 figure out in how to manage releases and version. If you're interested, please
 open an issue to discuss this.
 
