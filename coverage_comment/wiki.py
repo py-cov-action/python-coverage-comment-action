@@ -85,6 +85,7 @@ def get_file_contents(repository: str, filename: pathlib.Path) -> str | None:
         response = httpx.get(
             get_wiki_file_url(repository=repository, filename=filename)
         )
+        response.raise_for_status()
         return response.text
     except Exception:
         log.warning("Previous coverage results not found, cannot report on evolution.")
