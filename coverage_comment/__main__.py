@@ -52,6 +52,7 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
     previous_coverage_data_file = wiki.get_file_contents(
         repository=config.GITHUB_REPOSITORY, filename=config.BADGE_FILENAME
     )
+    previous_coverage = None
     if previous_coverage_data_file:
         previous_coverage = badge.parse_badge(contents=previous_coverage_data_file)
 
