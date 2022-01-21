@@ -4,11 +4,11 @@ from coverage_comment import subprocess
 
 
 def test_run__ok():
-    subprocess.run("echo", "yay").stdout == "yay"
+    subprocess.run("echo", "yay") == "yay"
 
 
 def test_run__kwargs():
-    subprocess.run("pwd", cwd="/").stdout == "/"
+    subprocess.run("pwd", cwd="/") == "/"
 
 
 def test_run__error():

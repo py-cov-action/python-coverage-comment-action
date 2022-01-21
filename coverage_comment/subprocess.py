@@ -5,7 +5,7 @@ class SubProcessError(Exception):
     pass
 
 
-def run(*args, **kwargs):
+def run(*args, **kwargs) -> str:
     try:
         return subprocess.run(
             args,
@@ -13,6 +13,6 @@ def run(*args, **kwargs):
             check=True,
             capture_output=True,
             **kwargs,
-        )
+        ).stdout
     except subprocess.CalledProcessError as exc:
         raise SubProcessError("/n".join([exc.stdout, exc.stderr])) from exc

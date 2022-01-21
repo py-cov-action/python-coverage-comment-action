@@ -3,7 +3,6 @@ import io
 import json
 import pathlib
 import zipfile
-from typing import Any
 
 from coverage_comment import github_client, log
 
@@ -50,9 +49,14 @@ def download_artifact(
         raise NoArtifact(
             f"Not artifact found with name {artifact_name} in run {run_id}"
         )
-    zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get())
+
+    zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get(bytes=True))
     zipf = zipfile.ZipFile(zip_bytes)
-    return zipf.open(str(filename), "r").read().decode("utf-8")
+
+    try:
+        return zipf.open(str(filename), "r").read().decode("utf-8")
+    except KeyError:
+        raise NoArtifact(f"File named {filename} not found in artifact {artifact_name}")
 
 
 def get_pr_number_from_workflow_run(
@@ -99,13 +103,11 @@ def get_pr_number_from_workflow_run(
 def get_my_login(github: github_client.GitHub):
     try:
         response = github.user.get()
-    except github_client.ApiError as exc:
-        if exc.response.status_code == 403:
-            # The GitHub actions user cannot access its own details
-            # and I'm not sure there's a way to see that we're using
-            # the GitHub actions user except noting that it fails
-            return GITHUB_ACTIONS_LOGIN
-        raise
+    except github_client.Forbidden:
+        # The GitHub actions user cannot access its own details
+        # and I'm not sure there's a way to see that we're using
+        # the GitHub actions user except noting that it fails
+        return GITHUB_ACTIONS_LOGIN
 
     else:
         return response.login
@@ -136,6 +138,6 @@ def post_comment(
             raise CannotPostComment from exc
 
 
-def set_output(**kwargs: Any) -> None:
+def set_output(**kwargs: bool) -> None:
     for key, value in kwargs.items():
         print(f"::set-output name={key}::{json.dumps(value)}")

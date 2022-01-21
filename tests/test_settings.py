@@ -55,6 +55,41 @@ def test_config__from_environ__ok():
     )
 
 
+@pytest.fixture
+def config():
+    defaults = {
+        "GITHUB_BASE_REF": "master",
+        "GITHUB_TOKEN": "foo",
+        "GITHUB_REPOSITORY": "owner/repo",
+        "GITHUB_REF": "master",
+        "GITHUB_EVENT_NAME": "pull",
+        "GITHUB_PR_RUN_ID": 123,
+        "BADGE_FILENAME": pathlib.Path("bar"),
+        "COMMENT_ARTIFACT_NAME": "baz",
+        "COMMENT_FILENAME": pathlib.Path("qux"),
+        "MINIMUM_GREEN": 90.0,
+        "MINIMUM_ORANGE": 50.8,
+        "MERGE_COVERAGE_FILES": True,
+        "VERBOSE": False,
+    }
+
+    def _(**kwargs):
+        return settings.Config(**(defaults | kwargs))
+
+    return _
+
+
+@pytest.mark.parametrize(
+    "github_ref, github_pr_number",
+    [
+        ("foo", None),
+        ("refs/pull/2/merge", 2),
+    ],
+)
+def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
+    assert config(GITHUB_REF=github_ref).GITHUB_PR_NUMBER == github_pr_number
+
+
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})

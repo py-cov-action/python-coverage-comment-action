@@ -65,8 +65,7 @@ def get_coverage_info(merge: bool) -> Coverage:
         if merge:
             subprocess.run("coverage", "combine")
 
-        subprocess.run("coverage", "json")
-        subprocess.run("coverage", "xml")
+        json_coverage = subprocess.run("coverage", "json", "-o", "-")
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
             log.error(
@@ -75,17 +74,13 @@ def get_coverage_info(merge: bool) -> Coverage:
                 "option to your coverage configuration file:\n"
                 "[run]\n"
                 "relative_files = true\n\n"
-                "Note that the specific format can be slightly different if you use "
+                "Note that the specific format can be slightly different if you're using "
                 "setup.cfg or pyproject.toml. See details in: "
                 "https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files"
             )
         raise
 
-    return extract_info(read_json(file=pathlib.Path("coverage.json")))
-
-
-def read_json(file: pathlib.Path):
-    return json.loads(file.read_text())
+    return extract_info(json.loads(json_coverage))
 
 
 def extract_info(data) -> Coverage:
@@ -173,6 +168,7 @@ def extract_info(data) -> Coverage:
 
 def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
     subprocess.run("git", "fetch", "--depth=1000")
+    subprocess.run("coverage", "xml")
     with tempfile.NamedTemporaryFile("r") as f:
         subprocess.run(
             "diff-cover",
@@ -182,7 +178,9 @@ def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
             "--diff-range-notation=..",
             "--quiet",
         )
-        return extract_diff_info(read_json(file=pathlib.Path(f.name)))
+        diff_json = json.loads(pathlib.Path(f.name).read_text())
+
+    return extract_diff_info(diff_json)
 
 
 def extract_diff_info(data) -> DiffCoverage:

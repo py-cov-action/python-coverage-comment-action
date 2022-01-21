@@ -51,11 +51,12 @@ class GitHub:
     GitHub client.
     """
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, session: httpx.Client | None = None):
         self.x_ratelimit_remaining = -1
         self.x_ratelimit_limit = -1
         self.x_ratelimit_reset = -1
-        self._session = httpx.Client(
+        self._session = session or httpx.Client(
+            base_url="https://api.github.com",
             follow_redirects=True,
             headers={"Authorization": f"token {access_token}"},
         )
@@ -63,8 +64,8 @@ class GitHub:
     def __getattr__(self, attr):
         return _Callable(self, "/%s" % attr)
 
-    def _http(self, _method, _path, **kw):
-        _method = _method.lower()
+    def _http(self, method, path, *, bytes=False, **kw):
+        _method = method.lower()
         requests_kwargs = {}
         if _method == "get" and kw:
             requests_kwargs = {"params": kw}
@@ -72,32 +73,37 @@ class GitHub:
         elif _method in ["post", "patch", "put"]:
             requests_kwargs = {"json": kw}
 
+        response = self._session.request(
+            _method.upper(),
+            path,
+            timeout=TIMEOUT,
+            **requests_kwargs,
+        )
+        if bytes:
+            contents = response.content
+        else:
+            contents = response_contents(response)
+
         try:
-            response = self._session.request(
-                _method.upper(),
-                f"{_URL}{_path}",
-                timeout=TIMEOUT,
-                **requests_kwargs,
-            )
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
-            is_json = self.is_json(exc.response.headers)
-
             cls: type[ApiError] = {
                 403: Forbidden,
                 404: NotFound,
             }.get(exc.response.status_code, ApiError)
 
-            raise cls(response=exc.response) from exc
+            raise cls(str(contents)) from exc
 
-        is_json = self.is_json(response.headers)
-        if is_json:
-            return response.json(object_hook=JsonObject)
-        else:
-            return response.content
+        return contents
 
-    def is_json(self, headers):
-        return headers.get("content-type", "").startswith("application/json")
+
+def response_contents(
+    response: httpx.Response,
+) -> "JsonObject | bytes":
+
+    if response.headers.get("content-type", "").startswith("application/json"):
+        return response.json(object_hook=JsonObject)
+    return response.text
 
 
 class JsonObject(dict):
@@ -113,9 +119,7 @@ class JsonObject(dict):
 
 
 class ApiError(Exception):
-    def __init__(self, *args, response, **kwargs):
-        super().__init__(args, kwargs)
-        self.response = response
+    pass
 
 
 class NotFound(ApiError):
