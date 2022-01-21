@@ -66,6 +66,13 @@ class Config:
     def clean_comment_filename(cls, value: str) -> pathlib.Path:
         return path_below(value)
 
+    @property
+    def GITHUB_PR_NUMBER(self) -> int | None:
+        # "refs/pull/2/merge"
+        if "pull" in self.GITHUB_REF:
+            return int(self.GITHUB_REF.split("/")[2])
+        return None
+
     @classmethod
     def from_environ(cls, environ: dict[str, str]) -> "Config":
         possible_variables = [e for e in inspect.signature(cls).parameters]

@@ -64,8 +64,29 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
     )
     log.debug(f"Comment: \n{comment}")
 
-    comment_file.store_file(filename=config.COMMENT_FILENAME, content=comment)
-    log.debug("Comment stored locally on disk")
+    try:
+        gh = github.get_api(token=config.GITHUB_TOKEN)
+        github.post_comment(
+            github=gh,
+            me=github.get_my_login(github=gh),
+            repository=config.GITHUB_REPOSITORY,
+            pr_number=config.GITHUB_PR_NUMBER,
+            contents=comment,
+            marker=template.MARKER,
+        )
+    except github.CannotPostComment:
+        log.debug("Exception when posting comment", exc_info=True)
+        log.info(
+            "Cannot post comment. This is probably because this is an external PR, so "
+            "it's expected. Ensure you have an additional `workflow_run` step "
+            "configured as explained in the documentation (or alternatively, give up "
+            "on PR comments for external PRs)."
+        )
+        comment_file.store_file(
+            filename=config.COMMENT_FILENAME,
+            content=comment,
+        )
+        log.debug("Comment stored locally on disk")
 
 
 def post_comment(config: settings.Config):

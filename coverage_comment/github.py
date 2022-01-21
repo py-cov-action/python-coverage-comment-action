@@ -11,6 +11,10 @@ class CannotDeterminePR(Exception):
     pass
 
 
+class CannotPostComment(Exception):
+    pass
+
+
 def get_api(token: str) -> github_client.GitHub:
     return github_client.GitHub(access_token=token)
 
@@ -92,22 +96,14 @@ def post_comment(
     issue_comments_path = github.repos(repository).issues(pr_number).comments
     comments_path = github.repos(repository).issues.comments
 
-    try:
-        for comment in issue_comments_path.get():
-            comment_path = comments_path.comment(comment.id)
-            if comment.user.login == me and marker in comment.body:
-                log.info("Update previous comment")
-                comment_path.patch(body=contents)
-                break
-        else:
-            log.info("Adding new comment")
+    for comment in issue_comments_path.get():
+        if comment.user.login == me and marker in comment.body:
+            log.info("Update previous comment")
+            comments_path(comment.id).patch(body=contents)
+            break
+    else:
+        log.info("Adding new comment")
+        try:
             issue_comments_path.post(body=contents)
-    except github_client.ApiError:
-        log.info(
-            "Cannot post comment. This is probably because this is an external PR, so "
-            "it's expected. Ensure you have an additional `workflow_run` step "
-            "configured as explained in the documentation (or alternatively, give up "
-            "on PR comments for external PRs)."
-        )
-        log.debug("Exception when posting comment", exc_info=True)
-        # Voluntarily silence exception
+        except github_client.Forbidden as exc:
+            raise CannotPostComment from exc
