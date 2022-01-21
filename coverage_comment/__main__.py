@@ -62,7 +62,6 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
         previous_coverage_rate=previous_coverage,
         template=template.read_template_file(),
     )
-    log.debug(f"Comment: \n{comment}")
 
     try:
         gh = github.get_api(token=config.GITHUB_TOKEN)
@@ -86,7 +85,11 @@ def generate_comment(config: settings.Config, coverage=coverage_module.Coverage)
             filename=config.COMMENT_FILENAME,
             content=comment,
         )
+        github.set_output(COMMENT_FILE_WRITTEN=True)
         log.debug("Comment stored locally on disk")
+    else:
+        github.set_output(COMMENT_FILE_WRITTEN=False)
+        log.debug("Comment not generated")
 
 
 def post_comment(config: settings.Config):

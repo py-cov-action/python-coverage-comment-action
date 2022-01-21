@@ -56,6 +56,11 @@ inputs:
     description: >
       If true, produces more output. Useful for debugging.
     default: false
+outputs:
+  COMMENT_FILE_WRITTEN:
+    description: >
+      If "true", a comment file was written to COMMENT_FILENAME. If "false",
+      no comment file was written (because the comment was already posted).
 runs:
   using: docker
   # image: Dockerfile

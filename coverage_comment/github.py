@@ -1,6 +1,8 @@
 import io
+import json
 import pathlib
 import zipfile
+from typing import Any
 
 from coverage_comment import github_client, log
 
@@ -116,3 +118,8 @@ def post_comment(
             issue_comments_path.post(body=contents)
         except github_client.Forbidden as exc:
             raise CannotPostComment from exc
+
+
+def set_output(**kwargs: Any) -> None:
+    for key, value in kwargs.items():
+        print(f"::set-output name={key}::{json.dumps(value)}")

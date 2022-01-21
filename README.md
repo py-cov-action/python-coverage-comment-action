@@ -66,13 +66,15 @@ jobs:
       - name: Install everything, run the tests, produce the .coverage file
         run: make test  # This is the part where you put your own test command
 
-      - name: Display coverage
+      - name: Coverage comment
+        id: coverage_comment
         uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
           name: python-coverage-comment-action
@@ -160,6 +162,7 @@ jobs:
 
       - name: Store coverage file
         uses: actions/upload-artifact@v2
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
         with:
           name: coverage
           path: .coverage.${{ matrix.python_version }}
@@ -176,7 +179,8 @@ jobs:
         with:
           name: 'coverage'
 
-      - name: Display coverage
+      - name: Coverage comment
+        id: coverage_comment
         uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -184,6 +188,7 @@ jobs:
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
         with:
           name: python-coverage-comment-action
           path: python-coverage-comment-action.txt
@@ -193,6 +198,7 @@ jobs:
 ### All options
 ```yaml
 - name: Display coverage
+  id: coverage_comment
   uses: ewjoachim/python-coverage-comment-action@v2
   with:
     GITHUB_TOKEN: ${{ github.token }}
