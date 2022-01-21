@@ -15,6 +15,10 @@ class CannotPostComment(Exception):
     pass
 
 
+class NoArtifact(Exception):
+    pass
+
+
 def get_api(token: str) -> github_client.GitHub:
     return github_client.GitHub(access_token=token)
 
@@ -35,9 +39,14 @@ def download_artifact(
 ) -> str:
     repo_path = github.repos(repository)
     artifacts = repo_path.actions.runs(run_id).artifacts.get().artifacts
-    artifact = next(
-        iter(artifact for artifact in artifacts if artifact.name == artifact_name)
-    )
+    try:
+        artifact = next(
+            iter(artifact for artifact in artifacts if artifact.name == artifact_name),
+        )
+    except StopIteration:
+        raise NoArtifact(
+            f"Not artifact found with name {artifact_name} in run {run_id}"
+        )
     zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get())
     zipf = zipfile.ZipFile(zip_bytes)
     return zipf.open(str(filename), "r").read().decode("utf-8")

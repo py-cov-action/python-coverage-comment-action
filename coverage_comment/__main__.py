@@ -98,20 +98,30 @@ def post_comment(config: settings.Config):
 
     gh = github.get_api(token=config.GITHUB_TOKEN)
     me = github.get_my_login(github=gh)
+    log.info(f"Search for PR associated with run id {config.GITHUB_PR_RUN_ID}")
     pr_number = github.get_pr_number_from_workflow_run(
         github=gh,
         run_id=config.GITHUB_PR_RUN_ID,
         repository=config.GITHUB_REPOSITORY,
     )
     log.info(f"PR number: {pr_number}")
-    comment = github.download_artifact(
-        github=gh,
-        repository=config.GITHUB_REPOSITORY,
-        artifact_name=config.COMMENT_ARTIFACT_NAME,
-        run_id=config.GITHUB_PR_RUN_ID,
-        filename=config.COMMENT_FILENAME,
-    )
-
+    log.info("Download associated artifacts")
+    try:
+        comment = github.download_artifact(
+            github=gh,
+            repository=config.GITHUB_REPOSITORY,
+            artifact_name=config.COMMENT_ARTIFACT_NAME,
+            run_id=config.GITHUB_PR_RUN_ID,
+            filename=config.COMMENT_FILENAME,
+        )
+    except github.NoArtifact:
+        log.info(
+            "Artifact was not found, which is probably because it was probably "
+            "already posted by a previous step."
+        )
+        log.error(exc_info=True)
+        return
+    log.info("Comment file found in artifact, posting to PR")
     github.post_comment(
         github=gh,
         me=me,
@@ -120,6 +130,7 @@ def post_comment(config: settings.Config):
         contents=comment,
         marker=template.MARKER,
     )
+    log.info("Comment posted in PR")
 
 
 def save_badge(config: settings.Config, coverage=coverage_module.Coverage):
