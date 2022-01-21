@@ -102,11 +102,19 @@ def post_comment(config: settings.Config):
     gh = github.get_api(token=config.GITHUB_TOKEN)
     me = github.get_my_login(github=gh)
     log.info(f"Search for PR associated with run id {config.GITHUB_PR_RUN_ID}")
-    pr_number = github.get_pr_number_from_workflow_run(
-        github=gh,
-        run_id=config.GITHUB_PR_RUN_ID,
-        repository=config.GITHUB_REPOSITORY,
-    )
+    try:
+        pr_number = github.get_pr_number_from_workflow_run(
+            github=gh,
+            run_id=config.GITHUB_PR_RUN_ID,
+            repository=config.GITHUB_REPOSITORY,
+        )
+    except github.CannotDeterminePR:
+        log.info(
+            "The PR cannot be found. That's strange. Please open an "
+            "issue at https://github.com/ewjoachim/python-coverage-comment-action"
+        )
+        raise
+
     log.info(f"PR number: {pr_number}")
     log.info("Download associated artifacts")
     try:

@@ -1,3 +1,4 @@
+import functools
 import io
 import json
 import pathlib
@@ -64,20 +65,35 @@ def get_pr_number_from_workflow_run(
     # run.
     #
     # 1. We need the user to give us access to the "pull_request" workflow run
-    #    id. That why we request then to use
+    #    id. That's why we request to be sent the following as input:
     #    GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
     # 2. From that run, we get the corresponding branch, and the owner of the branch
-    # 3. We list PRs that have that branch as head branch. There should be only one.
+    # 3. We list open PRs that have that branch as head branch. There should be only
+    #    one.
+    # 4. If there's no open PRs, we look at all PRs. We take the most recently
+    #    updated one
 
     repo_path = github.repos(repository)
     run = repo_path.actions.runs(run_id).get()
     branch = run.head_branch
     login = run.head_repository.owner.login
-    prs = [pr.number for pr in repo_path.pulls.get(head=f"{login}:{branch}")]
-    if len(prs) != 1:
-        # 0 would be a problem, but >1 would also.
-        raise CannotDeterminePR(f"Found 0 or more than 1 PRs: {prs!r}")
-    return prs[0]
+    full_branch = f"{login}:{branch}"
+    get_prs = functools.partial(
+        repo_path.pulls.get,
+        head=full_branch,
+        sort="updated",
+        direction="desc",
+    )
+    try:
+        return next(iter(pr.number for pr in get_prs(state="open")))
+    except StopIteration:
+        pass
+    log.info(f"No open PR found for branch {full_branch}, defaulting to all PRs")
+
+    try:
+        return next(iter(pr.number for pr in get_prs(state="all")))
+    except StopIteration:
+        raise CannotDeterminePR(f"No open PR found for branch {full_branch}")
 
 
 def get_my_login(github: github_client.GitHub):
