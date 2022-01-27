@@ -13,7 +13,7 @@ packages = [
 include = ["coverage_comment/default.md.j2"]
 
 [tool.poetry.scripts]
-coverage_comment = 'coverage_comment.__main__:main'
+coverage_comment = 'coverage_comment.main:main'
 
 [tool.poetry.dependencies]
 python = "^3.10"
