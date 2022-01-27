@@ -5,8 +5,8 @@ SHIELD_URL = "https://img.shields.io/endpoint?url={url}"
 
 def compute_badge(
     line_rate: float,
-    minimum_green: int,
-    minimum_orange: int,
+    minimum_green: int,  # percentage
+    minimum_orange: int,  # percentage
 ) -> str:
     rate = int(line_rate * 100)
 
