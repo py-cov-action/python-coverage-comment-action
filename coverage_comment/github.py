@@ -21,10 +21,6 @@ class NoArtifact(Exception):
     pass
 
 
-def get_api(token: str) -> github_client.GitHub:
-    return github_client.GitHub(access_token=token)
-
-
 def is_default_branch(
     github: github_client.GitHub, repository: str, branch: str
 ) -> bool:

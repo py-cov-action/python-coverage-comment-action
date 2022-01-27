@@ -1,6 +1,9 @@
-import sys
-
 from coverage_comment import main
 
-if __name__ == "__main__":
-    sys.exit(main.main())
+
+def main_call(name):
+    if name == "__main__":
+        main.main()
+
+
+main_call(name=__name__)

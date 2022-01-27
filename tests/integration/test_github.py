@@ -1,63 +1,6 @@
-import io
-import zipfile
-
-import httpx
 import pytest
 
-from coverage_comment import github, github_client
-
-
-def test_get_api():
-    assert isinstance(github.get_api(token="foo"), github_client.GitHub)
-
-
-@pytest.fixture
-def session():
-    """
-    You get a session object. Register responses on it:
-    session.register(method="GET", path="/a/b")(status_code=200)
-
-    if session.request(method="GET", path="/a/b") is called, it will return a response
-    with status_code 200. Also if not called by the end of the test, it will raise.
-    """
-
-    class Session:
-        responses = []  # List[Tuples[request kwargs, response kwargs]]
-
-        def request(self, method, path, **kwargs):
-            kwargs = {"method": method, "path": path} | kwargs
-
-            for i, (request_kwargs, response_kwargs) in enumerate(self.responses):
-                if all(
-                    kwargs.get(key, object()) == value
-                    for key, value in request_kwargs.items()
-                ):
-                    self.responses.pop(i)
-                    return httpx.Response(
-                        **response_kwargs,
-                        request=httpx.Request(method=method, url=path),
-                    )
-            assert (
-                False
-            ), f"No response found for kwargs {kwargs}\nExpected answers are {self.responses}"
-
-        def register(self, method, path, **request_kwargs):
-            request_kwargs = {"method": method, "path": path} | request_kwargs
-
-            def _(**response_kwargs):
-                response_kwargs.setdefault("status_code", 200)
-                self.responses.append((request_kwargs, response_kwargs))
-
-            return _
-
-    session = Session()
-    yield session
-    assert not session.responses
-
-
-@pytest.fixture
-def gh(session):
-    return github_client.GitHub(access_token="foo", session=session)
+from coverage_comment import github
 
 
 @pytest.mark.parametrize(
@@ -75,17 +18,6 @@ def test_is_default_branch(gh, session, branch, expected):
     assert result is expected
 
 
-@pytest.fixture
-def zip_bytes():
-    file = io.BytesIO()
-    with zipfile.ZipFile(file, mode="w") as zipf:
-        with zipf.open("foo.txt", "w") as subfile:
-            subfile.write(b"bar")
-    zip_bytes = file.getvalue()
-    assert zip_bytes.startswith(b"PK")
-    return zip_bytes
-
-
 def test_download_artifact(gh, session, zip_bytes):
 
     artifacts = [
@@ -97,7 +29,7 @@ def test_download_artifact(gh, session, zip_bytes):
     )
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
-        content=zip_bytes
+        content=zip_bytes(filename="foo.txt", content="bar")
     )
 
     result = github.download_artifact(
@@ -140,7 +72,7 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
     )
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
-        content=zip_bytes
+        content=zip_bytes(filename="foo.txt", content="bar")
     )
     with pytest.raises(github.NoArtifact):
         github.download_artifact(
@@ -241,8 +173,7 @@ def test_get_my_login__github_bot(gh, session):
         [{"user": {"login": "bar"}, "body": "Hey marker!", "id": 456}],
     ],
 )
-def test_post_comment__create(gh, session, caplog, existing_comments):
-    caplog.set_level("INFO")
+def test_post_comment__create(gh, session, get_logs, existing_comments):
     session.register("GET", "/repos/foo/bar/issues/123/comments")(
         json=existing_comments
     )
@@ -259,11 +190,10 @@ def test_post_comment__create(gh, session, caplog, existing_comments):
         marker="marker",
     )
 
-    assert "Adding new comment" in caplog.messages
+    assert get_logs("INFO", "Adding new comment")
 
 
-def test_post_comment__create_error(gh, session, caplog):
-    caplog.set_level("INFO")
+def test_post_comment__create_error(gh, session):
     session.register("GET", "/repos/foo/bar/issues/123/comments")(json=[])
     session.register(
         "POST", "/repos/foo/bar/issues/123/comments", json={"body": "hi!"}
@@ -280,8 +210,7 @@ def test_post_comment__create_error(gh, session, caplog):
         )
 
 
-def test_post_comment__update(gh, session, caplog):
-    caplog.set_level("INFO")
+def test_post_comment__update(gh, session, get_logs):
     comment = {
         "user": {"login": "foo"},
         "body": "Hey! Hi! How are you? marker",
@@ -301,7 +230,7 @@ def test_post_comment__update(gh, session, caplog):
         marker="marker",
     )
 
-    assert "Update previous comment" in caplog.messages
+    assert get_logs("INFO", "Update previous comment")
 
 
 def test_set_output(capsys):

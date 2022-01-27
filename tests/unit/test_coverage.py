@@ -1,17 +1,8 @@
 import json
-import os
 
 import pytest
 
 from coverage_comment import coverage, subprocess
-
-
-@pytest.fixture
-def in_tmp_path(tmp_path):
-    curdir = os.getcwd()
-    os.chdir(tmp_path)
-    yield tmp_path
-    os.chdir(curdir)
 
 
 def test_get_coverage_info(mocker, coverage_json, coverage_obj):
@@ -39,8 +30,7 @@ def test_get_coverage_info__no_merge(mocker, coverage_json):
     assert mocker.call("coverage", "combine") not in run.call_args_list
 
 
-def test_get_coverage_info__error_base(mocker, caplog):
-    caplog.set_level("ERROR")
+def test_get_coverage_info__error_base(mocker, get_logs):
     mocker.patch(
         "coverage_comment.subprocess.run", side_effect=subprocess.SubProcessError
     )
@@ -48,11 +38,10 @@ def test_get_coverage_info__error_base(mocker, caplog):
     with pytest.raises(subprocess.SubProcessError):
         coverage.get_coverage_info(merge=False)
 
-    assert caplog.messages == []
+    assert not get_logs("ERROR")
 
 
-def test_get_coverage_info__error_no_source(mocker, caplog):
-    caplog.set_level("ERROR")
+def test_get_coverage_info__error_no_source(mocker, get_logs):
     mocker.patch(
         "coverage_comment.subprocess.run",
         side_effect=subprocess.SubProcessError("No source for code: bla"),
@@ -61,4 +50,4 @@ def test_get_coverage_info__error_no_source(mocker, caplog):
     with pytest.raises(subprocess.SubProcessError):
         coverage.get_coverage_info(merge=False)
 
-    assert caplog.messages[0].startswith("Cannot read")
+    assert get_logs("ERROR", "Cannot read")

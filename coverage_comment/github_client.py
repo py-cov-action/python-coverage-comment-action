@@ -51,15 +51,11 @@ class GitHub:
     GitHub client.
     """
 
-    def __init__(self, access_token, session: httpx.Client | None = None):
+    def __init__(self, session: httpx.Client):
         self.x_ratelimit_remaining = -1
         self.x_ratelimit_limit = -1
         self.x_ratelimit_reset = -1
-        self._session = session or httpx.Client(
-            base_url="https://api.github.com",
-            follow_redirects=True,
-            headers={"Authorization": f"token {access_token}"},
-        )
+        self.session = session
 
     def __getattr__(self, attr):
         return _Callable(self, "/%s" % attr)
@@ -73,7 +69,7 @@ class GitHub:
         elif _method in ["post", "patch", "put"]:
             requests_kwargs = {"json": kw}
 
-        response = self._session.request(
+        response = self.session.request(
             _method.upper(),
             path,
             timeout=TIMEOUT,
