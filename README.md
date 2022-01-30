@@ -1,5 +1,7 @@
 # GitHub Action: Python Coverage Comment
 
+![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-badge.json)
+
 ## Presentation
 
 Publish diff coverage report as PR comment, and create a coverage badge to
