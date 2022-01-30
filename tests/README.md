@@ -1,3 +1,5 @@
+# Test suite
+
 ## Unit tests
 
 Here, unit tests means quick tests scoped on a module that doesn't rely on other modules too much, in which we usually won't have to mock too much because there's not a lot to mock.
