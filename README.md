@@ -74,7 +74,7 @@ jobs:
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
           name: python-coverage-comment-action
@@ -160,7 +160,6 @@ jobs:
 
       - name: Store coverage file
         uses: actions/upload-artifact@v2
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
         with:
           name: coverage
           path: .coverage.${{ matrix.python_version }}
@@ -186,7 +185,7 @@ jobs:
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == "true"
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
           path: python-coverage-comment-action.txt
