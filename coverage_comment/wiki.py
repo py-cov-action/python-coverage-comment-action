@@ -1,3 +1,4 @@
+import contextlib
 import pathlib
 import tempfile
 
@@ -11,6 +12,28 @@ GIT_CONFIG_NAME = "python-coverage-comment-action"
 GIT_COMMIT_MESSAGE = "Update badge"
 
 
+@contextlib.contextmanager
+def cloned_wiki(
+    repository: str,
+    git: subprocess.Git,
+    github_token: str,
+):
+    try:
+        with tempfile.TemporaryDirectory() as dir_path:
+            dir = pathlib.Path(dir_path)
+            git.cwd = dir
+
+            git.clone(
+                f"https://x-access-token:{github_token}@github.com/{repository}.wiki.git",
+                ".",
+            )
+
+            yield dir
+    except Exception as exc:
+        log.debug("Unhandled error occurred when cloning wiki.", exc_info=True)
+        raise exc
+
+
 def upload_file(
     github_token: str,
     repository: str,
@@ -18,15 +41,8 @@ def upload_file(
     contents: str,
     git: subprocess.Git,
 ):
-    with tempfile.TemporaryDirectory() as dir_path:
-        dir = pathlib.Path(dir_path)
-        git.cwd = dir
-
-        git.clone(
-            f"https://x-access-token:{github_token}@github.com/{repository}.wiki.git",
-            ".",
-        )
-        (dir / filename).write_text(contents)
+    with cloned_wiki(repository, git, github_token) as wiki_dir:
+        (wiki_dir / filename).write_text(contents)
         git.add(str(filename))
 
         try:
@@ -59,6 +75,8 @@ def get_file_contents(
     session: httpx.Client,
     repository: str,
     filename: pathlib.Path,
+    git: subprocess.Git | None = None,
+    github_token: str | None = None,
 ) -> str | None:
     try:
         response = session.get(
@@ -67,6 +85,19 @@ def get_file_contents(
         response.raise_for_status()
         return response.text
     except httpx.HTTPError:
+        # One possible reason is that the repository (and hence wiki) is private,
+        # requiring us to clone the repo and get file contents that way
+        if git and github_token:
+            log.debug(
+                "Exception while getting previous coverage data, attempting to download "
+                "the file directly from the git repository (assuming the wiki is private)."
+            )
+            with cloned_wiki(repository, git, github_token) as wiki_dir:
+                try:
+                    return (wiki_dir / filename).read_text()
+                except FileNotFoundError:
+                    log.warning("File not found in the wiki's git repository.")
+
         log.warning("Previous coverage results not found, cannot report on evolution.")
         log.debug("Exception while getting previous coverage data", exc_info=True)
         return None

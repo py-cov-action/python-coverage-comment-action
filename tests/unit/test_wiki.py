@@ -1,8 +1,17 @@
 import pathlib
+from unittest.mock import patch
 
 import pytest
 
 from coverage_comment import subprocess, wiki
+
+
+class MockGit(subprocess.Git):
+    def clone(self, *args, **kwargs):
+        filename = "bar"
+        content = "baz"
+        with open((self.cwd / filename), "wt") as f:
+            f.write(content)
 
 
 def test_upload_file__ok(mocker):
@@ -89,3 +98,37 @@ def test_get_file_contents__not_found(session, get_logs):
     assert result is None
 
     assert get_logs("WARNING", "Previous coverage results not found")
+
+
+def test_get_file_contents_private_wiki(session):
+    session.register("GET", "https://raw.githubusercontent.com/wiki/foo/bar")(
+        status_code=404
+    )
+
+    with patch.object(subprocess, "Git", MockGit) as mock_git:
+        result = wiki.get_file_contents(
+            session=session,
+            repository="foo",
+            filename="bar",
+            git=mock_git(),
+            github_token="x",
+        )
+
+        assert result == "baz"
+
+
+def test_get_file_contents_private_wiki__not_found(session):
+    session.register("GET", "https://raw.githubusercontent.com/wiki/foo/rab")(
+        status_code=404
+    )
+
+    with patch.object(subprocess, "Git", MockGit) as mock_git:
+        result = wiki.get_file_contents(
+            session=session,
+            repository="foo",
+            filename="rab",
+            git=mock_git(),
+            github_token="x",
+        )
+
+        assert result is None
