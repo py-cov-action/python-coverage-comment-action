@@ -71,6 +71,7 @@ def action(
                 coverage=coverage,
                 github_session=github_session,
                 http_session=http_session,
+                git=git,
             )
         else:
             # event_name == "push"
@@ -94,6 +95,7 @@ def generate_comment(
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
     http_session: httpx.Client,
+    git: subprocess.Git,
 ):
     log.info("Generating comment for PR")
 
@@ -104,6 +106,8 @@ def generate_comment(
         session=http_session,
         repository=config.GITHUB_REPOSITORY,
         filename=config.BADGE_FILENAME,
+        git=git,
+        github_token=config.GITHUB_TOKEN,
     )
     previous_coverage = None
     if previous_coverage_data_file:

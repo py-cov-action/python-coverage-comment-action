@@ -113,7 +113,6 @@ def coverage_json():
 
 @pytest.fixture
 def diff_coverage_json():
-
     return {
         "report_name": "XML",
         "diff_name": "master...HEAD, staged and unstaged changes",
