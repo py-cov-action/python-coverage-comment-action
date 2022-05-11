@@ -17,7 +17,7 @@ coverage_comment = 'coverage_comment.main:main'
 
 [tool.poetry.dependencies]
 python = "^3.10"
-coverage = "*"
+coverage[toml] = "*"
 diff-cover = "*"
 httpx = {version = "*", extras = ["http2"]}
 Jinja2 = "*"
