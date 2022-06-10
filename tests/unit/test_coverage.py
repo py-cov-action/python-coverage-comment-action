@@ -20,6 +20,21 @@ def test_get_coverage_info(mocker, coverage_json, coverage_obj):
     assert result == coverage_obj
 
 
+def test_get_coverage_info__include_raw(mocker, coverage_json, coverage_obj):
+    run = mocker.patch(
+        "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
+    )
+
+    result = coverage.get_coverage_info(merge=True, include_raw_output=True)
+
+    assert run.call_args_list == [
+        mocker.call("coverage", "combine"),
+        mocker.call("coverage", "json", "-o", "-"),
+        mocker.call("coverage", "report"),
+    ]
+    # TODO: test correctness too
+
+
 def test_get_coverage_info__no_merge(mocker, coverage_json):
     run = mocker.patch(
         "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)

@@ -42,6 +42,7 @@ class Coverage:
     meta: CoverageMetadata
     info: CoverageInfo
     files: dict[str, FileCoverage]
+    extra_data: str | None = None
 
 
 @dataclasses.dataclass
@@ -60,12 +61,17 @@ class DiffCoverage:
     files: dict[pathlib.Path, FileDiffCoverage]
 
 
-def get_coverage_info(merge: bool) -> Coverage:
+def get_coverage_info(merge: bool, include_raw_output: bool = False) -> Coverage:
     try:
         if merge:
             subprocess.run("coverage", "combine")
 
         json_coverage = subprocess.run("coverage", "json", "-o", "-")
+
+        if include_raw_output:
+            str_coverage = subprocess.run("coverage", "report")
+        else:
+            str_coverage = None
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
             log.error(
@@ -80,7 +86,10 @@ def get_coverage_info(merge: bool) -> Coverage:
             )
         raise
 
-    return extract_info(json.loads(json_coverage))
+    coverage_info = extract_info(json.loads(json_coverage))
+    if str_coverage:
+        coverage_info.extra_data = str_coverage
+    return coverage_info
 
 
 def extract_info(data) -> Coverage:
@@ -163,6 +172,7 @@ def extract_info(data) -> Coverage:
             covered_branches=data["totals"].get("covered_branches"),
             missing_branches=data["totals"].get("missing_branches"),
         ),
+        extra_data=None
     )
 
 

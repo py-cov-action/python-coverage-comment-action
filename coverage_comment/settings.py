@@ -36,6 +36,7 @@ class Config:
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
     VERBOSE: bool = False
+    INCLUDE_RAW_OUTPUT: bool = False
 
     # Clean methods
     @classmethod
@@ -52,6 +53,10 @@ class Config:
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
+        return value.lower() in ("1", "true", "yes")
+
+    @classmethod
+    def clean_include_raw_output(cls, value: str) -> bool:
         return value.lower() in ("1", "true", "yes")
 
     @classmethod

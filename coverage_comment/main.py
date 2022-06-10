@@ -64,7 +64,7 @@ def action(
         return 1
 
     if event_name in {"pull_request", "push"}:
-        coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
+        coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES, include_raw_output=config.INCLUDE_RAW_OUTPUT)
         if event_name == "pull_request":
             return generate_comment(
                 config=config,
