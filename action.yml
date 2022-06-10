@@ -56,6 +56,10 @@ inputs:
     description: >
       If true, produces more output. Useful for debugging.
     default: false
+  INCLUDE_RAW_OUTPUT:
+    description: >
+      If true, includes the raw report output in the comment.
+    default: false
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
@@ -63,8 +67,7 @@ outputs:
       no comment file was written (because the comment was already posted).
 runs:
   using: docker
-  # image: Dockerfile
-  image: docker://ewjoachim/python-coverage-comment-action:latest
+  image: Dockerfile
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
@@ -75,3 +78,4 @@ runs:
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
     VERBOSE: ${{ inputs.VERBOSE }}
+    INCLUDE_RAW_OUTPUT: ${{ inputs.INCLUDE_RAW_OUTPUT }}
