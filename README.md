@@ -31,8 +31,8 @@ See: https://github.com/ewjoachim/python-coverage-comment-action-example/pull/2#
 
 On repository's default branch, it will extract the coverage
 rate and create a small JSON file that will be stored on the repository's wiki.
-This file will then have a stable URL, which means you can create a
-[shields.io](https://shields.io/endpoint) badge from it.
+This file will then have a stable URL, which means that if your repository is public,
+you can create a [shields.io](https://shields.io/endpoint) badge from it.
 
 See: https://github.com/ewjoachim/python-coverage-comment-action-example
 
@@ -253,7 +253,7 @@ want, contributions.
 ## Generic coverage
 
 Initially, the first iteration of this action was using the more generic
-`coverage.xml` (Cobertura) in order to be language independant. It was later
+`coverage.xml` (Cobertura) in order to be language independent. It was later
 discovered that this format is very badly specified, as are mostly all coverage
 formats. For this reason, we switched to the much more specialized `.coverage`
 file that is only produced for Python projects (also, the action was rewritten
