@@ -38,6 +38,11 @@ class Config:
     VERBOSE: bool = False
     INCLUDE_RAW_OUTPUT: bool = False
 
+    SAVE_SVG_BADGE: bool = False
+    SVG_BADGE_FILENAME: pathlib.Path = pathlib.Path(
+        "python-coverage-comment-action-badge.svg"
+    )
+
     # Clean methods
     @classmethod
     def clean_minimum_green(cls, value: str) -> float:
@@ -66,6 +71,14 @@ class Config:
     @classmethod
     def clean_badge_filename(cls, value: str) -> pathlib.Path:
         return path_below(value)
+
+    @classmethod
+    def clean_svg_badge_filename(cls, value: str) -> pathlib.Path:
+        return path_below(value)
+
+    @classmethod
+    def clean_save_svg_badge(cls, value: str) -> bool:
+        return value.lower() in ("1", "true", "yes")
 
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:

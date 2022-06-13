@@ -75,12 +75,20 @@ def action(
             )
         else:
             # event_name == "push"
-            return save_badge(
-                config=config,
-                coverage=coverage,
-                github_session=github_session,
-                git=git,
-            )
+            if config.SAVE_SVG_BADGE:
+                return save_badge_svg(
+                    config=config,
+                    coverage=coverage,
+                    github_session=github_session,
+                    git=git
+                )
+            else:
+                return save_badge(
+                    config=config,
+                    coverage=coverage,
+                    github_session=github_session,
+                    git=git,
+                )
 
     else:
         # event_name == "workflow_run"
@@ -224,7 +232,7 @@ def save_badge(
         log.info("Skipping badge save as we're not on the default branch")
         return 0
     log.info("Saving Badge into the repo wiki")
-    badge_info = badge.compute_badge(
+    badge_info = badge.compute_badge_json(
         line_rate=coverage.info.percent_covered,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
@@ -243,5 +251,42 @@ def save_badge(
     badge_url = badge.get_badge_shield_url(json_url=url)
     log.info(f"Badge JSON stored at {url}")
     log.info(f"Badge URL: {badge_url}")
+
+    return 0
+
+def save_badge_svg(
+    config: settings.Config,
+    coverage: coverage_module.Coverage,
+    github_session: httpx.Client,
+    git: subprocess.Git,
+):
+    gh = github_client.GitHub(session=github_session)
+    is_default_branch = github.is_default_branch(
+        github=gh,
+        repository=config.GITHUB_REPOSITORY,
+        branch=config.GITHUB_REF,
+    )
+    log.debug(f"On default branch: {is_default_branch}")
+    if not is_default_branch:
+        log.info("Skipping badge save as we're not on the default branch")
+        return 0
+    log.info("Saving badge svg into the repo wiki")
+    badge_svg = badge.compute_badge_svg(
+        line_rate=coverage.info.percent_covered,
+        minimum_green=config.MINIMUM_GREEN,
+        minimum_orange=config.MINIMUM_ORANGE,
+    )
+    wiki.upload_file(
+        github_token=config.GITHUB_TOKEN,
+        repository=config.GITHUB_REPOSITORY,
+        filename=config.SVG_BADGE_FILENAME,
+        contents=badge_svg,
+        git=git,
+    )
+    url = wiki.get_wiki_file_url(
+        repository=config.GITHUB_REPOSITORY, filename=config.BADGE_FILENAME
+    )
+
+    log.info(f"Badge SVG stored at {url}")
 
     return 0

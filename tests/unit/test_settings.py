@@ -38,6 +38,8 @@ def test_config__from_environ__ok():
             "MERGE_COVERAGE_FILES": "true",
             "VERBOSE": "false",
             "INCLUDE_RAW_OUTPUT": "true",
+            "SAVE_SVG_BADGE": "true",
+            "SVG_BADGE_FILENAME": "foo",
         }
     ) == settings.Config(
         GITHUB_BASE_REF="master",
@@ -54,6 +56,8 @@ def test_config__from_environ__ok():
         MERGE_COVERAGE_FILES=True,
         VERBOSE=False,
         INCLUDE_RAW_OUTPUT=True,
+        SAVE_SVG_BADGE=True,
+        SVG_BADGE_FILENAME=pathlib.Path("foo"),
     )
 
 
@@ -73,6 +77,9 @@ def config():
         "MINIMUM_ORANGE": 50.8,
         "MERGE_COVERAGE_FILES": True,
         "VERBOSE": False,
+        "INCLUDE_RAW_OUTPUT": False,
+        "SAVE_SVG_BADGE": False,
+        "SVG_BADGE_FILENAME":  pathlib.Path("foo"),
     }
 
     def _(**kwargs):

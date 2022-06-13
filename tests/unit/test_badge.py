@@ -20,9 +20,10 @@ from coverage_comment import badge
         ),
     ],
 )
-def test_compute_badge(line_rate, badge_json):
 
-    result = badge.compute_badge(
+def test_compute_badge_json(line_rate, badge_json):
+
+    result = badge.compute_badge_json(
         line_rate=line_rate, minimum_green=90, minimum_orange=50
     )
 

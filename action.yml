@@ -60,6 +60,16 @@ inputs:
     description: >
       If true, includes the raw report output in the comment.
     default: false
+  SAVE_SVG_BADGE:
+    description: >
+      If true, saves a SVG version of the badge instead of the JSON version.
+    default: false
+  SVG_BADGE_FILENAME:
+    description: >
+      Name of the SVG file containing badge stored in the repo
+      wiki. Only used if SAVE_SVG_BADGE is true.
+    default: python-coverage-comment-action-badge.svg
+    required: false
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
@@ -79,3 +89,5 @@ runs:
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
     VERBOSE: ${{ inputs.VERBOSE }}
     INCLUDE_RAW_OUTPUT: ${{ inputs.INCLUDE_RAW_OUTPUT }}
+    SAVE_SVG_BADGE: ${{ inputs.SAVE_SVG_BADGE }}
+    SVG_BADGE_FILENAME: ${{ inputs.SVG_BADGE_FILENAME }}

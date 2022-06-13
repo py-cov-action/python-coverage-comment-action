@@ -86,30 +86,3 @@ def test_main__verbose(mocker, get_logs, caplog):
 
     assert get_logs("DEBUG", "Settings: Config(")
     assert logging.getLevelName(logging.getLogger().level) == "DEBUG"
-
-
-def test_main__include_raw_output(mocker, get_logs, caplog):
-    # This test is a mock frienzy. The idea is that all the things that are hard
-    # to simulate without mocks have been pushed up the stack up to this function
-    # so this is THE place where we have no choice but to mock.
-    # We could also accept not to test this function but if we've come this
-    # far and have 98% coverage, we can as well have 100%.
-
-    mocker.patch("sys.exit")
-    mocker.patch("coverage_comment.main.action")
-
-    os.environ.update(
-        {
-            "GITHUB_REPOSITORY": "foo/bar",
-            "GITHUB_PR_RUN_ID": "",
-            "GITHUB_REF": "ref",
-            "GITHUB_TOKEN": "token",
-            "GITHUB_BASE_REF": "",
-            "GITHUB_EVENT_NAME": "push",
-            "INCLUDE_RAW_OUTPUT": "true",
-        }
-    )
-    main.main()
-
-    assert get_logs("DEBUG", "Settings: Config(")
-    assert logging.getLevelName(logging.getLogger().level) == "DEBUG"

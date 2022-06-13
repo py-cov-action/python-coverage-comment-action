@@ -21,6 +21,7 @@ coverage = {version = "*", extras = ["toml"]}
 diff-cover = "*"
 httpx = {version = "*", extras = ["http2"]}
 Jinja2 = "*"
+pybadges = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 isort = "*"
