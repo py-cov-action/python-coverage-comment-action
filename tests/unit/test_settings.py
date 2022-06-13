@@ -79,7 +79,7 @@ def config():
         "VERBOSE": False,
         "INCLUDE_RAW_OUTPUT": False,
         "SAVE_SVG_BADGE": False,
-        "SVG_BADGE_FILENAME":  pathlib.Path("foo"),
+        "SVG_BADGE_FILENAME": pathlib.Path("foo"),
     }
 
     def _(**kwargs):

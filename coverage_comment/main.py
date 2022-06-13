@@ -64,7 +64,10 @@ def action(
         return 1
 
     if event_name in {"pull_request", "push"}:
-        coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES, include_raw_output=config.INCLUDE_RAW_OUTPUT)
+        coverage = coverage_module.get_coverage_info(
+            merge=config.MERGE_COVERAGE_FILES,
+            include_raw_output=config.INCLUDE_RAW_OUTPUT,
+        )
         if event_name == "pull_request":
             return generate_comment(
                 config=config,
@@ -80,7 +83,7 @@ def action(
                     config=config,
                     coverage=coverage,
                     github_session=github_session,
-                    git=git
+                    git=git,
                 )
             else:
                 return save_badge(
@@ -253,6 +256,7 @@ def save_badge(
     log.info(f"Badge URL: {badge_url}")
 
     return 0
+
 
 def save_badge_svg(
     config: settings.Config,

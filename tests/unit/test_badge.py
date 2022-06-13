@@ -20,7 +20,6 @@ from coverage_comment import badge
         ),
     ],
 )
-
 def test_compute_badge_json(line_rate, badge_json):
 
     result = badge.compute_badge_json(

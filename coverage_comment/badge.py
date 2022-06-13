@@ -1,4 +1,5 @@
 import json
+
 from pybadges import badge as pybadge
 
 SHIELD_URL = "https://img.shields.io/endpoint?url={url}"
@@ -12,13 +13,18 @@ def compute_badge_json(
     badge_data = get_badge(line_rate, minimum_green, minimum_orange)
     return json.dumps(badge_data)
 
+
 def compute_badge_svg(
     line_rate: float,
     minimum_green: float,  # 0.0 < x < 100.0
     minimum_orange: float,  # 0.0 < x < 100.0
 ) -> str:
     badge_data = get_badge(line_rate, minimum_green, minimum_orange)
-    return pybadge(left_text=badge_data["label"], right_text=badge_data["message"], right_color=badge_data["color"])
+    return pybadge(
+        left_text=badge_data["label"],
+        right_text=badge_data["message"],
+        right_color=badge_data["color"],
+    )
 
 
 def get_badge(

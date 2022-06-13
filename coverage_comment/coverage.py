@@ -172,7 +172,7 @@ def extract_info(data) -> Coverage:
             covered_branches=data["totals"].get("covered_branches"),
             missing_branches=data["totals"].get("missing_branches"),
         ),
-        extra_data=None
+        extra_data=None,
     )
 
 
