@@ -284,7 +284,7 @@ def save_badge_svg(
         git=git,
     )
     url = wiki.get_wiki_file_url(
-        repository=config.GITHUB_REPOSITORY, filename=config.BADGE_FILENAME
+        repository=config.GITHUB_REPOSITORY, filename=config.SVG_BADGE_FILENAME
     )
 
     log.info(f"Badge SVG stored at {url}")
