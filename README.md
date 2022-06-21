@@ -271,3 +271,5 @@ the full path to the file in the `.coverage` file, but the path is most likely
 different between the moment where your coverage is generated (in your workflow)
 and the moment where the report is computed (in the action, which runs inside a
 docker).
+
+Test
