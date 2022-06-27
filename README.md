@@ -205,6 +205,10 @@ jobs:
     # Only necessary in the "workflow_run" workflow.
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
 
+    # An alternative template for the comment for pull requests. The template can be read from
+    # a file as in this example or specified directly as a string.
+    COMMENT_TEMPLATE: $(cat my_template.md.j2)
+
     # If the coverage percentage is above or equal to this value, the badge will be green.
     MINIMUM_GREEN: 100
 
