@@ -3,6 +3,8 @@ import inspect
 import pathlib
 from typing import Any
 
+from coverage_comment import template
+
 
 class MissingEnvironmentVariable(Exception):
     pass
@@ -27,6 +29,7 @@ class Config:
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
+    COMMENT_TEMPLATE: str = template.read_template_file()
     BADGE_FILENAME: pathlib.Path = pathlib.Path(
         "python-coverage-comment-action-badge.json"
     )
@@ -45,6 +48,10 @@ class Config:
     @classmethod
     def clean_minimum_orange(cls, value: str) -> float:
         return float(value)
+
+    @classmethod
+    def clean_comment_template(cls, value: str):
+        return value if value else template.read_template_file()
 
     @classmethod
     def clean_github_pr_run_id(cls, value: str) -> int | None:

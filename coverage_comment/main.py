@@ -117,7 +117,7 @@ def generate_comment(
         coverage=coverage,
         diff_coverage=diff_coverage,
         previous_coverage_rate=previous_coverage,
-        template=template.read_template_file(),
+        template=config.COMMENT_TEMPLATE,
     )
 
     gh = github_client.GitHub(session=github_session)
