@@ -370,3 +370,46 @@ def test_action__workflow_run__post_comment(
     assert result == 0
     assert get_logs("INFO", "Comment file found in artifact, posting to PR")
     assert get_logs("INFO", "Comment posted in PR")
+
+
+def test_action__pull_request__comment_template(
+    pull_request_config_comment_template, session, in_integration_env, capsys
+):
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+    )(json={"message": "30%"})
+
+    # Who am I
+    session.register("GET", "/user")(json={"login": "foo"})
+    # Are there already comments
+    session.register("GET", "/repos/ewjoachim/foobar/issues/2/comments")(json=[])
+
+    comment = None
+
+    def checker(payload):
+        body = payload["body"]
+        nonlocal comment
+        comment = body
+        return True
+
+    # Post a new comment
+    session.register(
+        "POST",
+        "/repos/ewjoachim/foobar/issues/2/comments",
+        json=checker,
+    )(
+        status_code=200,
+    )
+
+    result = main.action(
+        config=pull_request_config_comment_template(),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 0
+
+    assert not pathlib.Path("python-coverage-comment-action.txt").exists()
+    assert "86%; 30%" == comment

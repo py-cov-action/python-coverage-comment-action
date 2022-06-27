@@ -71,6 +71,17 @@ def workflow_run_config(base_config):
 
 
 @pytest.fixture
+def pull_request_config_comment_template(pull_request_config):
+    def _(**kwargs):
+        defaults = {
+            "COMMENT_TEMPLATE": "{{ coverage.info.percent_covered | pct }}; {{ previous_coverage_rate | pct }}",
+        }
+        return pull_request_config(**(defaults | kwargs))
+
+    return _
+
+
+@pytest.fixture
 def coverage_json():
     return {
         "meta": {
