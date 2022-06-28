@@ -373,7 +373,7 @@ def test_action__workflow_run__post_comment(
 
 
 def test_action__pull_request__comment_template(
-    pull_request_config_comment_template, session, in_integration_env, capsys
+    pull_request_config, session, in_integration_env, capsys
 ):
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
@@ -404,7 +404,9 @@ def test_action__pull_request__comment_template(
     )
 
     result = main.action(
-        config=pull_request_config_comment_template(),
+        config=pull_request_config(
+            COMMENT_TEMPLATE="{{ coverage.info.percent_covered | pct }}; {{ previous_coverage_rate | pct }}"
+        ),
         github_session=session,
         http_session=session,
         git=None,
