@@ -1,4 +1,5 @@
 import pathlib
+import pkgutil
 
 import pytest
 
@@ -93,3 +94,16 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})
+
+
+def test_config__COMMENT_TEMPLATE(config):
+    assert (
+        config(COMMENT_TEMPLATE="[template text]").COMMENT_TEMPLATE == "[template text]"
+    )
+    # Use of splitlines to deal with different escape characters
+    file_content = (
+        pkgutil.get_data("coverage_comment", "default.md.j2").decode().splitlines()
+    )
+    config_template = config().COMMENT_TEMPLATE.splitlines()
+
+    assert file_content == config_template
