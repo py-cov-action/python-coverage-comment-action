@@ -233,6 +233,28 @@ def test_post_comment__update(gh, session, get_logs):
     assert get_logs("INFO", "Update previous comment")
 
 
+def test_post_comment__update_error(gh, session):
+    comment = {
+        "user": {"login": "foo"},
+        "body": "Hey! Hi! How are you? marker",
+        "id": 456,
+    }
+    session.register("GET", "/repos/foo/bar/issues/123/comments")(json=[comment])
+    session.register(
+        "PATCH", "/repos/foo/bar/issues/comments/456", json={"body": "hi!"}
+    )(status_code=403)
+
+    with pytest.raises(github.CannotPostComment):
+        github.post_comment(
+            github=gh,
+            me="foo",
+            repository="foo/bar",
+            pr_number=123,
+            contents="hi!",
+            marker="marker",
+        )
+
+
 def test_set_output(capsys):
     github.set_output(foo=True)
     captured = capsys.readouterr()
