@@ -243,12 +243,12 @@ version to an exact tag, and use dependabot to update it regularily.
 
 ## Note on the state of this action
 
-There is no automated test and the dependencies are not frozen, so it's
-possible that it fails at some point if a dependency breaks compatibility.
-If this happens, we'll fix it and put better checks in place.
+This action is tested with 100% coverage. That said, coverage isn't all, and
+there may be a lot of remaining issues :)
 
-It's probably usable as-is, but you're welcome to offer feedback and, if you
-want, contributions.
+I'm not prioritizing maintenance on this action, but I'll do my best to assist
+questions and PRs. Feature requests are most likely not to be taken but if
+you're ready to do a PR, I'll gladly work with you.
 
 ## Generic coverage
 
