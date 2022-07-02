@@ -18,7 +18,8 @@ inputs:
     required: false
   COMMENT_TEMPLATE:
     description: >
-      [Advanced] Specify a different template for the comments that will be written on the PR.
+      [Advanced] Specify a different template for the comments that will be written on
+      the PR. See the Action README documentation for how to use this properly.
     required: false
   BADGE_FILENAME:
     description: >

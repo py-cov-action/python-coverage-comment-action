@@ -124,7 +124,10 @@ def post_comment(
     for comment in issue_comments_path.get():
         if comment.user.login == me and marker in comment.body:
             log.info("Update previous comment")
-            comments_path(comment.id).patch(body=contents)
+            try:
+                comments_path(comment.id).patch(body=contents)
+            except github_client.Forbidden as exc:
+                raise CannotPostComment from exc
             break
     else:
         log.info("Adding new comment")
