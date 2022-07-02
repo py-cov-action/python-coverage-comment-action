@@ -1,27 +1,63 @@
 from importlib import resources
 
 import jinja2
+from jinja2.sandbox import SandboxedEnvironment
 
 from coverage_comment import coverage as coverage_module
 
 MARKER = """<!-- This comment was produced by python-coverage-comment-action -->"""
 
 
+class CommentLoader(jinja2.BaseLoader):
+    def __init__(self, base_template: str, custom_template: str | None):
+        self.base_template = base_template
+        self.custom_template = custom_template
+
+    def get_source(
+        self, environment: jinja2.Environment, template: str
+    ) -> tuple[str, str | None, bool]:
+        if template == "base":
+            return self.base_template, None, True
+
+        if self.custom_template and template == "custom":
+            return self.custom_template, None, True
+
+        raise jinja2.TemplateNotFound(template)
+
+
+class MissingMarker(Exception):
+    pass
+
+
+class TemplateError(Exception):
+    pass
+
+
 def get_markdown_comment(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: float | None,
-    template: str,
+    base_template: str,
+    custom_template: str | None = None,
 ):
-    env = jinja2.Environment()
+    loader = CommentLoader(base_template=base_template, custom_template=custom_template)
+    env = SandboxedEnvironment(loader=loader)
     env.filters["pct"] = pct
 
-    return env.from_string(template).render(
-        previous_coverage_rate=previous_coverage_rate,
-        coverage=coverage,
-        diff_coverage=diff_coverage,
-        marker=MARKER,
-    )
+    try:
+        comment = env.get_template("custom" if custom_template else "base").render(
+            previous_coverage_rate=previous_coverage_rate,
+            coverage=coverage,
+            diff_coverage=diff_coverage,
+            marker=MARKER,
+        )
+    except jinja2.exceptions.TemplateError as exc:
+        raise TemplateError from exc
+
+    if MARKER not in comment:
+        raise MissingMarker()
+
+    return comment
 
 
 def read_template_file() -> str:

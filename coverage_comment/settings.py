@@ -27,6 +27,7 @@ class Config:
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
+    COMMENT_TEMPLATE: str | None = None
     BADGE_FILENAME: pathlib.Path = pathlib.Path(
         "python-coverage-comment-action-badge.json"
     )

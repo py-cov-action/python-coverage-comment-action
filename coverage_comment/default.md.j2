@@ -1,33 +1,56 @@
-## Coverage report
+{% block title %}## Coverage report{% endblock title %}
+{% block coverage_evolution -%}
 {% if previous_coverage_rate -%}
-The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}` {{
-    ":arrow_up:" if previous_coverage_rate < coverage.info.percent_covered else
-    ":arrow_down:" if previous_coverage_rate > coverage.info.percent_covered else
-    ":arrow_right:"
-}}
+{% block coverage_evolution_wording -%}
+The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}`{{" "}}
+{%- endblock coverage_evolution_wording %}
+{%- block emoji_coverage -%}
+{%- if previous_coverage_rate < coverage.info.percent_covered -%}
+{%- block emoji_coverage_up -%}:arrow_up:{%- endblock emoji_coverage_up -%}
+{%- elif previous_coverage_rate > coverage.info.percent_covered -%}
+{%- block emoji_coverage_down -%}:arrow_down:{%- endblock emoji_coverage_down -%}
 {%- else -%}
-The coverage rate is `{{ coverage.info.percent_covered | pct }}`
+{%- block emoji_coverage_constant -%}:arrow_right:{%- endblock emoji_coverage_constant -%}
 {%- endif %}
+{%- endblock emoji_coverage -%}
+{%- else -%}
+{% block coverage_value_wording -%}
+The coverage rate is `{{ coverage.info.percent_covered | pct }}`.
+{%- endblock coverage_value_wording %}
+{%- endif %}
+{%- endblock coverage_evolution %}
+{% block branch_coverage -%}
 {% if coverage.meta.branch_coverage and coverage.info.num_branches -%}
-The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`
+{% block branch_coverage_wording -%}
+The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`.
+{% endblock branch_coverage_wording -%}
 {%- endif %}
+{% endblock branch_coverage -%}
 
+{% block diff_coverage_wording -%}
 `{{ diff_coverage.total_percent_covered | pct }}` of new lines are covered.
+{%- endblock diff_coverage_wording %}
 
+{% block coverage_by_file -%}
 {%if diff_coverage.files -%}
 <details>
-<summary>Diff Coverage details (click to unfold)</summary>
+<summary>{% block coverage_by_file_summary_wording -%}Diff Coverage details (click to unfold){% endblock coverage_by_file_summary_wording -%}</summary>
 
 {% for filename, diff_file_coverage in diff_coverage.files.items() -%}
-### {{ filename }}
-`{{ diff_file_coverage.percent_covered | pct }}` of new lines are covered (`{{ coverage.files[filename].info.percent_covered | pct }}` of the complete file)
-
+{% block coverage_single_file scoped -%}
+{% block coverage_single_file_title scoped %}### {{ filename }}{% endblock coverage_single_file_title %}
+{% block diff_coverage_single_file_wording scoped -%}
+`{{ diff_file_coverage.percent_covered | pct }}` of new lines are covered (`{{ coverage.files[filename].info.percent_covered | pct }}` of the complete file).
+{%- endblock diff_coverage_single_file_wording %}
 {%- if diff_file_coverage.violation_lines %}
+{% block single_file_missing_lines_wording scoped -%}
 {% set separator = joiner(", ") %}
 Missing lines: {% for line in diff_file_coverage.violation_lines %}{{ separator() }}`{{ line }}`{% endfor %}
-{% endif %}
-
-{% endfor %}
+{%- endblock single_file_missing_lines_wording %}
+{% endif -%}
+{%- endblock coverage_single_file -%}
+{%- endfor %}
 </details>
-{%- endif -%}
+{%- endif %}
+{%- endblock coverage_by_file %}
 {{ marker }}

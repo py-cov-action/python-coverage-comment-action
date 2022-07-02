@@ -50,7 +50,7 @@ def action(
     github_session: httpx.Client,
     http_session: httpx.Client,
     git: subprocess.Git,
-):
+) -> int:
     log.debug(f"Operating on {config.GITHUB_REF}")
 
     event_name = config.GITHUB_EVENT_NAME
@@ -96,7 +96,7 @@ def generate_comment(
     github_session: httpx.Client,
     http_session: httpx.Client,
     git: subprocess.Git,
-):
+) -> int:
     log.info("Generating comment for PR")
 
     diff_coverage = coverage_module.get_diff_coverage_info(
@@ -113,12 +113,30 @@ def generate_comment(
     if previous_coverage_data_file:
         previous_coverage = badge.parse_badge(contents=previous_coverage_data_file)
 
-    comment = template.get_markdown_comment(
-        coverage=coverage,
-        diff_coverage=diff_coverage,
-        previous_coverage_rate=previous_coverage,
-        template=template.read_template_file(),
-    )
+    try:
+        comment = template.get_markdown_comment(
+            coverage=coverage,
+            diff_coverage=diff_coverage,
+            previous_coverage_rate=previous_coverage,
+            base_template=template.read_template_file(),
+            custom_template=config.COMMENT_TEMPLATE,
+        )
+    except template.MissingMarker:
+        log.error(
+            "Marker not found. This error can happen if you defined a custom comment "
+            "template that doesn't inherit the base template and you didn't include "
+            "``{{ marker }}``. The marker is necessary for this action to recognize "
+            "its own comment and avoid making new comments or overwriting someone else's "
+            "comment."
+        )
+        return 1
+    except template.TemplateError:
+        log.exception(
+            "There was a rendering error when computing the text of the comment to post "
+            "on the PR. Please see the traceback, in particular if you're using a custom "
+            "template."
+        )
+        return 1
 
     gh = github_client.GitHub(session=github_session)
 
@@ -152,7 +170,7 @@ def generate_comment(
     return 0
 
 
-def post_comment(config: settings.Config, github_session: httpx.Client):
+def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
     log.info("Posting comment to PR")
 
     if not config.GITHUB_PR_RUN_ID:
@@ -212,7 +230,7 @@ def save_badge(
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
     git: subprocess.Git,
-):
+) -> int:
     gh = github_client.GitHub(session=github_session)
     is_default_branch = github.is_default_branch(
         github=gh,

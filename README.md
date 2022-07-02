@@ -229,6 +229,49 @@ jobs:
     # You typically don't have to change this unless you're already using this name for something else.
     COMMENT_FILENAME: python-coverage-comment-action.txt
 
+    # An alternative template for the comment for pull requests. See details below.
+    COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}{{ marker }}`
+```
+
+## Overriding the template
+
+By default, comments are generated from a
+[Jinja](https://jinja.palletsprojects.com) template that you can read
+[here](https://github.com/ewjoachim/python-coverage-comment-action/blob/v2/coverage_comment/default.md.j2).
+
+If you want to change this template, you can set ``COMMENT_TEMPLATE``. This is
+an advanced usage, so you're likely to run into more road bumps.
+
+You will need to follow some rules for your template to be valid:
+
+- Your template needs to be syntactically correct with Jinja2 rules
+- You may define a new template from scratch, but in this case you are required
+  to include ``{{ marker }}``, which includes an HTML comment (invisible on
+  GitHub) that the action uses to identify its own comments.
+- If you'd rather want to change parts of the default template, you can do so
+  by starting your comment with ``{% extends "base" %}``, and then override the
+  blocks (``{% block foo %}``) that you wish to change. If you're unsure how it
+  works, see [the Jinja
+  documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance)
+- In either case, you will most likely want to get yourself familiar with the
+  available context variables, the best is to read the code from
+  [here](https://github.com/ewjoachim/python-coverage-comment-action/blob/v2/coverage_comment/template.py).
+  Should those variables change, we'll do our best to bump the action's major version.
+
+### Examples
+In the first example, we change the emoji that illustrates coverage going down from
+`:down_arrow:` to `:sob:`:
+
+```jinja2
+{% extends "base" %}
+{% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
+```
+
+In this second example, we replace the whole comment by something much shorter with the
+coverage (percentage) of the whole project from the PR build:
+
+```jinja2
+Coverage: {{ coverage.info.percent_covered | pct }}
 ```
 
 # Other topics

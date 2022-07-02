@@ -18,7 +18,8 @@ inputs:
     required: false
   COMMENT_TEMPLATE:
     description: >
-      [Advanced] Specify a different template for the comments that will be written on the PR.
+      [Advanced] Specify a different template for the comments that will be written on
+      the PR. See the Action README documentation for how to use this properly.
     required: false
   BADGE_FILENAME:
     description: >
@@ -68,6 +69,7 @@ runs:
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
+    COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
     BADGE_FILENAME: ${{ inputs.BADGE_FILENAME }}
     COMMENT_ARTIFACT_NAME: ${{ inputs.COMMENT_ARTIFACT_NAME }}
     COMMENT_FILENAME: ${{ inputs.COMMENT_FILENAME }}

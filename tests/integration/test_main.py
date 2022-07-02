@@ -181,6 +181,44 @@ def test_action__pull_request__post_comment(
     assert capsys.readouterr().out.strip() == expected_stdout
 
 
+def test_action__pull_request__post_comment__no_marker(
+    pull_request_config, session, in_integration_env, get_logs
+):
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+    )(status_code=404)
+
+    result = main.action(
+        config=pull_request_config(COMMENT_TEMPLATE="""foo"""),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 1
+    assert get_logs("ERROR", "Marker not found")
+
+
+def test_action__pull_request__post_comment__template_error(
+    pull_request_config, session, in_integration_env, get_logs
+):
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+    )(status_code=404)
+
+    result = main.action(
+        config=pull_request_config(COMMENT_TEMPLATE="""{%"""),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 1
+    assert get_logs("ERROR", "There was a rendering error")
+
+
 def test_action__push__non_default_branch(
     push_config, session, in_integration_env, get_logs
 ):
