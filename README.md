@@ -284,6 +284,15 @@ open an issue to discuss this.
 In terms of security/reproductibility, the best solution is probably to pin the
 version to an exact tag, and use dependabot to update it regularily.
 
+## Note on the state of this action
+
+This action is tested with 100% coverage. That said, coverage isn't all, and
+there may be a lot of remaining issues :)
+
+I'm not prioritizing maintenance on this action, but I'll do my best to assist
+questions and PRs. Feature requests are most likely not to be taken but if
+you're ready to do a PR, I'll gladly work with you.
+
 ## Generic coverage
 
 Initially, the first iteration of this action was using the more generic
