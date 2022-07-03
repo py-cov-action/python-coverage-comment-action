@@ -230,7 +230,7 @@ jobs:
     COMMENT_FILENAME: python-coverage-comment-action.txt
 
     # An alternative template for the comment for pull requests. See details below.
-    COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}{{ marker }}`
+    COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}`{{ marker }}
 ```
 
 ## Overriding the template
@@ -271,7 +271,7 @@ In this second example, we replace the whole comment by something much shorter w
 coverage (percentage) of the whole project from the PR build:
 
 ```jinja2
-Coverage: {{ coverage.info.percent_covered | pct }}
+"Coverage: {{ coverage.info.percent_covered | pct }}{{ marker }}"
 ```
 
 # Other topics
