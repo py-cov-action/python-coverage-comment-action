@@ -271,7 +271,7 @@ In this second example, we replace the whole comment by something much shorter w
 coverage (percentage) of the whole project from the PR build:
 
 ```jinja2
-Coverage: {{ coverage.info.percent_covered | pct }}
+Coverage: {{ coverage.info.percent_covered | pct }}{{ marker }}
 ```
 
 # Other topics
