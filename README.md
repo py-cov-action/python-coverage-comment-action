@@ -230,7 +230,7 @@ jobs:
     COMMENT_FILENAME: python-coverage-comment-action.txt
 
     # An alternative template for the comment for pull requests. See details below.
-    COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}{{ marker }}`
+    COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}`{{ marker }}
 ```
 
 ## Overriding the template
