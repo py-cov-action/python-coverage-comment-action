@@ -85,10 +85,10 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
 
 
 def test_get_pr_number_from_workflow_run(gh, session):
-    json = {"head_branch": "other", "head_repository": {"owner": {"login": "someone"}}}
+    json = {"head_branch": "other", "head_repository": {"name": "someone/repo-name"}}
     session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
     params = {
-        "head": "someone:other",
+        "head": "someone/repo-name:other",
         "sort": "updated",
         "direction": "desc",
         "state": "open",
@@ -105,10 +105,10 @@ def test_get_pr_number_from_workflow_run(gh, session):
 
 
 def test_get_pr_number_from_workflow_run__no_open_pr(gh, session):
-    json = {"head_branch": "other", "head_repository": {"owner": {"login": "someone"}}}
+    json = {"head_branch": "other", "head_repository": {"name": "someone/repo-name"}}
     session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
     params = {
-        "head": "someone:other",
+        "head": "someone/repo-name:other",
         "sort": "updated",
         "direction": "desc",
     }
@@ -127,10 +127,10 @@ def test_get_pr_number_from_workflow_run__no_open_pr(gh, session):
 
 
 def test_get_pr_number_from_workflow_run__no_pr(gh, session):
-    json = {"head_branch": "other", "head_repository": {"owner": {"login": "someone"}}}
+    json = {"head_branch": "other", "head_repository": {"name": "someone/repo-name"}}
     session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
     params = {
-        "head": "someone:other",
+        "head": "someone/repo-name:other",
         "sort": "updated",
         "direction": "desc",
     }
