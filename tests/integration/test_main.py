@@ -288,7 +288,10 @@ def test_action__workflow_run__no_pr(
 ):
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
-        json={"head_branch": "branch", "head_repository": {"name": "bar/repo-name"}}
+        json={
+            "head_branch": "branch",
+            "head_repository": {"full_name": "bar/repo-name"},
+        }
     )
 
     session.register(
@@ -328,7 +331,10 @@ def test_action__workflow_run__no_artifact(
 ):
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
-        json={"head_branch": "branch", "head_repository": {"name": "bar/repo-name"}}
+        json={
+            "head_branch": "branch",
+            "head_repository": {"full_name": "bar/repo-name"},
+        }
     )
 
     session.register(
@@ -363,7 +369,10 @@ def test_action__workflow_run__post_comment(
 ):
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
-        json={"head_branch": "branch", "head_repository": {"name": "bar/repo-name"}}
+        json={
+            "head_branch": "branch",
+            "head_repository": {"full_name": "bar/repo-name"},
+        }
     )
 
     session.register(

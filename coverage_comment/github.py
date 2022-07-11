@@ -76,7 +76,7 @@ def get_pr_number_from_workflow_run(
     repo_path = github.repos(repository)
     run = repo_path.actions.runs(run_id).get()
     branch = run.head_branch
-    repo_name = run.head_repository.name
+    repo_name = run.head_repository.full_name
     full_branch = f"{repo_name}:{branch}"
     get_prs = functools.partial(
         repo_path.pulls.get,
