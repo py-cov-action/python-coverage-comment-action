@@ -45,3 +45,24 @@ $ # Used everywhere. Generate at https://github.com/settings/tokens/new?scopes=r
 $  export GITHUB_TOKEN=
 ```
 Then either launch with `poetry run coverage_comment` or through docker.
+
+### End to end tests
+
+To run the end-to-end tests, you'll need:
+
+- `gh` [installed](https://cli.github.com/)
+- 2 envvars `COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1` and `COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2` containing
+  personnal access tokens for 2 distinct users. You may omit the 2nd user but
+  some tests won't run. Use [this
+  link](https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo&description=Python%20Coverage%20Comment%20Action%20CI%20-%20User%201)
+  to generate tokens with the proper configuration.
+  It's a good idea to **not** use your main GitHub user for this because the tests
+  do some destructive actions (like deleting repos).
+- Make sure you don't have a repository named "end_to_end_python_coverage_comment_action"
+  (that would be a leftover of a previous test). If you do, delete it with
+  `gh repo delete end_to_end_python_coverage_comment_action`.
+- Please be aware that the tests will launch `gh auth setup-git` which might be
+  surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
+  seems not to be enough to isolate tests.)
+- You can disable the deletion of repositories after the tests by setting the
+  environment variable `COVERAGE_COMMENT_E2E_CLEAN_GITHUB_AFTER_TESTS=false`
