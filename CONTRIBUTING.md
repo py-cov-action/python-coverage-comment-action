@@ -12,6 +12,24 @@ You're welcome to contribute, though I can't promise the experience will be as s
 
 ### Launching locally
 
+Use:
+
+```console
+$ source ./dev-env
+```
+This should take care of everything and will display instructions.
+Feel free to read the script yourself to see what it does.
+
+You'll need a GitHub token to test the action locally. You have 3 choices:
+- Before launching `dev-env`, copy `dev-env-vars.dist` to `dev-env-vars` and
+  set your token
+- After launching `dev-env`, run `token-from-gh` to reuse your `gh` token
+  for the action (you may need to define additional scopes with
+  `gh auth refresh --scope=...`)
+- After launching `dev-env`, run `create-token` to interactively create a
+  personnal access token (feel free to then save it to `dev-env-vars`)
+
+#### Manually
 ```console
 $ # Either push (compute & post badge), pull_request (compute comment) or workflow_run (post comment)
 $ export GITHUB_EVENT_NAME=workflow_run
