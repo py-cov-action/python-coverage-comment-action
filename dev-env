@@ -1,0 +1,185 @@
+# This file is meant to be sourced, not executed:
+#    source ./dev-env
+
+# We're doing our best to keep it compatible with bash and zsh.
+
+if ! which poetry; then
+    echo "This script needs poetry installed. Either follow the official method: https://python-poetry.org/docs/#installation or use pipx https://pypa.github.io/pipx/installation/" &>2
+    return
+fi
+
+if ! which gh; then
+    echo "This script needs gh installed. https://github.com/cli/cli#installation" &>2
+    return
+fi
+
+export GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-python-coverage-comment-action-devenv}
+export GITHUB_REPOSITORY_TEMPLATE=${GITHUB_REPOSITORY_TEMPLATE:-'ewjoachim/python-coverage-comment-action-example'}
+
+if [[ ! $GITHUB_REPOSITORY == */* ]]; then
+    export GITHUB_REPOSITORY=$(gh api /user --jq .login)"/${GITHUB_REPOSITORY}"
+fi
+
+if [ -f ./dev-env-vars ]; then
+    echo "Found file ./dev-env-vars, overriding variables from there" >&2
+    source ./dev-env-vars
+else
+    echo "Did not find optional file ./dev-env-vars, loading default variables." >&2
+    echo "You can create a file by copying './dev-env-vars.dist'." >&2
+fi
+
+echo "Installing virtualenv" >&2
+poetry install
+
+echo "Activating virtualenv" >&2
+source $(poetry env info -p)/bin/activate
+
+echo "Moving to a temporary folder" >&2
+pushd $(mktemp -d)
+
+function clone-repo(){
+    gh repo clone "${GITHUB_REPOSITORY}" .
+}
+
+function create-repo(){
+
+    gh repo create "${GITHUB_REPOSITORY}" --clone --public --description 'Personnal development environment for python-comment-coverage-action' --template "${GITHUB_REPOSITORY_TEMPLATE}"
+    mv "${GITHUB_REPOSITORY}/"{*,.*} .
+    rmdir ${GITHUB_REPOSITORY}
+    git pull
+}
+
+function delete-repo(){
+    gh repo delete "${GITHUB_REPOSITORY}" --confirm
+}
+
+
+if gh repo view ${GITHUB_REPOSITORY}; then
+    echo "Cloning existing repository ${GITHUB_REPOSITORY}" >&2
+    clone-repo
+else
+    echo "Creating repository ${GITHUB_REPOSITORY}" >&2
+    create-repo
+fi
+
+echo "Generating initial coverage data" >&2
+pytest
+
+export GITHUB_DEFAULT_BRANCH=$(gh repo  view --json defaultBranchRef --jq '.defaultBranchRef.name')
+
+export GITHUB_BASE_REF=$GITHUB_DEFAULT_BRANCH
+
+function event(){
+    case $1 in
+        push|pull_request|workflow_run)
+            export GITHUB_EVENT_NAME="$1"
+            ;;
+        *)
+            echo "Incorrect parameter $1 (expected push|pull_request|workflow_run)" >&2
+    esac
+}
+
+
+function ref(){
+    case "${1}" in
+        branch)
+            export GITHUB_REF="refs/heads/${2:-${GITHUB_DEFAULT_BRANCH}}"
+            ;;
+        pr)
+            export GITHUB_REF="refs/pull/${2}/merge"
+            ;;
+        *)
+            echo "Incorrect parameter $1 (expected 'branch [branch_name]' or 'pr {pr number}' )" >&2
+
+    esac
+}
+
+
+function ghenv(){
+    env | grep GITHUB | sort
+}
+
+function token-from-gh(){
+    # gh-cli token has repo scope by default, but if we needed different scopes, it would be:
+    # gh auth refresh --scopes=repo
+    export GITHUB_TOKEN=$(gh auth status --show-token 1>/dev/null 2>&1 |grep Token | cut -d ':' -f2 | xargs)
+}
+function create-token(){
+    scopes="repo,delete_repo,read:org"
+    url="https://github.com/settings/tokens/new?scopes=${scopes}&description=python-coverage-comment-action%20development%20environment"
+    echo "Please generate a token and come back (page will open in 3s)"
+    sleep 3
+    python -m webbrowser $url
+    echo -n "Enter your token: "
+    read GITHUB_TOKEN
+    export GITHUB_TOKEN
+}
+
+
+function runs(){
+    gh run list --json databaseId,name,createdAt,headBranch --template '{{tablerow "ID" "branch" "Name" "Created At" }}{{range . }}{{tablerow .databaseId .headBranch .name .createdAt}}{{end}}{{tablerender}}'
+}
+
+function run(){
+    export GITHUB_PR_RUN_ID="${1}"
+}
+
+event push
+ref branch
+run $(gh run list --limit 1 --json databaseId --jq='.[].databaseId')
+
+function help(){
+
+    echo "" >&2
+
+    echo "Welcome to the python-coverage-comment-action dev-env shell!" >&2
+    echo "We've gone ahead and defined some shell commands for you:" >&2
+    echo "Main:" >&2
+    echo "  coverage_comment" >&2
+    echo "      Launch the action locally (no argument)" >&2
+    echo "  pytest" >&2
+    echo "      Launch the the tests on the example repo (generates the coverage data that the action uses)" >&2
+    echo "" >&2
+
+    echo "Change configuration:" >&2
+    echo "  event {push|pull_request|workflow_run}" >&2
+    echo "      Controls what part of the action will run" >&2
+    echo "  ref {pr {number}|branch [branch_name]}" >&2
+    echo "      Controls the current reference (what git ref the action runs with)" >&2
+    echo "  run {run_id}" >&2
+    echo "      Controls the GitHub Actions run ID that will be checked for publishing a comment" >&2
+    echo "" >&2
+
+    echo "Token management:" >&2
+    echo "  token-from-gh" >&2
+    echo "      Re-use token from the gh cli to run the action" >&2
+    echo "  create-token" >&2
+    echo "      Interactively create a token" >&2
+    echo "" >&2
+
+    echo "Repository management:" >&2
+    echo "  clone-repo" >&2
+    echo "      Clones ${GITHUB_REPOSITORY} in the current directory" >&2
+    echo "  create-repo" >&2
+    echo "      Create ${GITHUB_REPOSITORY} from template ${GITHUB_REPOSITORY_TEMPLATE}" >&2
+    echo "  delete-repo" >&2
+    echo "      Deletes ${GITHUB_REPOSITORY}" >&2
+    echo "" >&2
+
+    echo "View:" >&2
+    echo "  ghenv" >&2
+    echo "      Display all GITHUB environment variables" >&2
+    echo "  runs" >&2
+    echo "      Display a table of all recent GitHub Actions runs" >&2
+    echo "" >&2
+
+    echo "Misc:" >&2
+    echo "  help" >&2
+    echo "      Display these instructions again" >&2
+    echo "  popd" >&2
+    echo "      go back to the repository folder" >&2
+    echo "" >&2
+    echo "Happy hacking!" >&2
+}
+
+help

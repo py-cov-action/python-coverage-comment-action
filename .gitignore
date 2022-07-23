@@ -1,3 +1,4 @@
 .mypy_cache
 .DS_Store
 .coverage
+dev-env-vars
