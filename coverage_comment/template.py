@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from importlib import resources
 
 import jinja2
@@ -8,6 +9,10 @@ from coverage_comment import coverage as coverage_module
 MARKER = """<!-- This comment was produced by python-coverage-comment-action -->"""
 
 
+def uptodate():
+    return True
+
+
 class CommentLoader(jinja2.BaseLoader):
     def __init__(self, base_template: str, custom_template: str | None):
         self.base_template = base_template
@@ -15,12 +20,12 @@ class CommentLoader(jinja2.BaseLoader):
 
     def get_source(
         self, environment: jinja2.Environment, template: str
-    ) -> tuple[str, str | None, bool]:
+    ) -> tuple[str, str | None, Callable[..., bool]]:
         if template == "base":
-            return self.base_template, None, True
+            return self.base_template, None, uptodate
 
         if self.custom_template and template == "custom":
-            return self.custom_template, None, True
+            return self.custom_template, None, uptodate
 
         raise jinja2.TemplateNotFound(template)
 

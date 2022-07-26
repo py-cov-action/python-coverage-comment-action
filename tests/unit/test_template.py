@@ -121,3 +121,7 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
 
 def test_pct():
     assert template.pct(0.83) == "83%"
+
+
+def test_uptodate():
+    assert template.uptodate() is True
