@@ -307,7 +307,7 @@ def gh(session):
 def get_logs(caplog):
     caplog.set_level("DEBUG")
 
-    def get_logs(level=None, match=None):
+    def _(level=None, match=None):
         return [
             log.message
             for log in caplog.records
@@ -315,7 +315,7 @@ def get_logs(caplog):
             and (match is None or match in log.message)
         ]
 
-    return get_logs
+    return _
 
 
 @pytest.fixture
