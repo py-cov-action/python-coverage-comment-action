@@ -25,7 +25,7 @@ def run(*args, **kwargs) -> str:
 
 
 class Git:
-    cwd = ""
+    cwd = "."
 
     def _git(self, *args, **kwargs):
         try:
