@@ -32,6 +32,7 @@ class Config:
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
     COMMENT_TEMPLATE: str | None = None
+    COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     MINIMUM_GREEN: float = 100.0
@@ -61,6 +62,10 @@ class Config:
         return str_to_bool(value)
 
     @classmethod
+    def clean_force_workflow_run(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:
         return path_below(value)
 
@@ -85,7 +90,7 @@ class Config:
                     raise ValueError(f"{key}: {str(exc)}") from exc
 
         try:
-            config = cls(**config)
+            config_obj = cls(**config)
         except TypeError:
             missing = {
                 name
@@ -95,4 +100,4 @@ class Config:
             raise MissingEnvironmentVariable(
                 f" missing environment variable(s): {', '.join(missing)}"
             )
-        return config
+        return config_obj
