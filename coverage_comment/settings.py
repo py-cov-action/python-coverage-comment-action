@@ -28,9 +28,6 @@ class Config:
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
     COMMENT_TEMPLATE: str | None = None
-    BADGE_FILENAME: pathlib.Path = pathlib.Path(
-        "python-coverage-comment-action-badge.json"
-    )
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     MINIMUM_GREEN: float = 100.0
@@ -58,10 +55,6 @@ class Config:
     @classmethod
     def clean_verbose(cls, value: str) -> bool:
         return value.lower() in ("1", "true", "yes")
-
-    @classmethod
-    def clean_badge_filename(cls, value: str) -> pathlib.Path:
-        return path_below(value)
 
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:

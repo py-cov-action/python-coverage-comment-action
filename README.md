@@ -227,10 +227,6 @@ jobs:
     # If true, produces more output. Useful for debugging.
     VERBOSE: false
 
-    # Name of the json file containing badge informations stored in the repo wiki.
-    # You typically don't have to change this unless you're already using this name for something else.
-    BADGE_FILENAME: python-coverage-comment-action-badge.json
-
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
     COMMENT_ARTIFACT_NAME: python-coverage-comment-action
