@@ -1,4 +1,5 @@
 import functools
+import os
 import subprocess
 from typing import Any
 
@@ -28,6 +29,8 @@ class Git:
     cwd = "."
 
     def _git(self, *args, **kwargs):
+        if env := kwargs.pop("env", None):
+            kwargs["env"] = os.environ | env
         try:
             return run(
                 "git",
@@ -39,4 +42,4 @@ class Git:
             raise GitError from exc
 
     def __getattr__(self, name: str) -> Any:
-        return functools.partial(self._git, name)
+        return functools.partial(self._git, name.replace("_", "-"))

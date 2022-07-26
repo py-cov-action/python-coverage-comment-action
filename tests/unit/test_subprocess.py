@@ -38,6 +38,18 @@ def test_git(mocker):
     ]
 
 
+def test_git_env(mocker):
+    run = mocker.patch("coverage_comment.subprocess.run")
+    git = subprocess.Git()
+
+    git.commit(env={"A": "B"})
+
+    _, kwargs = run.call_args_list[0]
+
+    assert kwargs["env"]["A"] == "B"
+    assert "PATH" in kwargs["env"]
+
+
 def test_git__error(mocker):
     mocker.patch(
         "coverage_comment.subprocess.run", side_effect=subprocess.SubProcessError
