@@ -39,6 +39,8 @@ class Config:
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
     VERBOSE: bool = False
+    # Only for debugging, not exposed in the action:
+    FORCE_WORKFLOW_RUN: bool = False
 
     # Clean methods
     @classmethod

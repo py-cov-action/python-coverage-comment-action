@@ -38,6 +38,7 @@ def test_config__from_environ__ok():
             "MINIMUM_ORANGE": "50.8",
             "MERGE_COVERAGE_FILES": "true",
             "VERBOSE": "false",
+            "FORCE_WORKFLOW_RUN": "false",
         }
     ) == settings.Config(
         GITHUB_BASE_REF="master",
@@ -54,6 +55,7 @@ def test_config__from_environ__ok():
         MINIMUM_ORANGE=50.8,
         MERGE_COVERAGE_FILES=True,
         VERBOSE=False,
+        FORCE_WORKFLOW_RUN=False,
     )
 
 
