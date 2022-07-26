@@ -8,7 +8,8 @@ description: >
 inputs:
   GITHUB_TOKEN:
     description: >
-      A GitHub token to write comments and write the badge to the wiki.
+      A GitHub token to write comments and write the badge & coverage data data
+      to the repository.
       Set to `$ {{ github.token }}` (without the space between `$` and `{`).
     required: true
   GITHUB_PR_RUN_ID:
@@ -26,6 +27,12 @@ inputs:
       Name of the json file containing badge informations stored in the repo
       wiki.
     default: python-coverage-comment-action-badge.json
+  COVERAGE_DATA_BRANCH:
+    description: >
+      Name of the branch in which coverage data will be stored on the repository.
+      Default is 'python-coverage-comment-action-data'. Please make sure that this
+      branch is not protected.
+    default: python-coverage-comment-action-data
     required: false
   COMMENT_ARTIFACT_NAME:
     description: >
@@ -71,6 +78,7 @@ runs:
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
     COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
     BADGE_FILENAME: ${{ inputs.BADGE_FILENAME }}
+    COVERAGE_DATA_BRANCH: ${{ inputs.COVERAGE_DATA_BRANCH }}
     COMMENT_ARTIFACT_NAME: ${{ inputs.COMMENT_ARTIFACT_NAME }}
     COMMENT_FILENAME: ${{ inputs.COMMENT_FILENAME }}
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
