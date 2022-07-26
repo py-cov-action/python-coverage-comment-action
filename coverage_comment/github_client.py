@@ -52,9 +52,6 @@ class GitHub:
     """
 
     def __init__(self, session: httpx.Client):
-        self.x_ratelimit_remaining = -1
-        self.x_ratelimit_limit = -1
-        self.x_ratelimit_reset = -1
         self.session = session
 
     def __getattr__(self, attr):
