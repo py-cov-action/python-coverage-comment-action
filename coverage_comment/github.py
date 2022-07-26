@@ -1,3 +1,4 @@
+import dataclasses
 import functools
 import io
 import json
@@ -21,11 +22,26 @@ class NoArtifact(Exception):
     pass
 
 
-def is_default_branch(
-    github: github_client.GitHub, repository: str, branch: str
-) -> bool:
-    default_branch = github.repos(repository).get().default_branch
-    return f"refs/heads/{default_branch}" == branch
+@dataclasses.dataclass
+class RepositoryInfo:
+    default_branch: str
+    visibility: str
+
+    def is_default_branch(self, ref: str) -> bool:
+        return f"refs/heads/{self.default_branch}" == ref
+
+    def is_public(self) -> bool:
+        return self.visibility == "public"
+
+
+def get_repository_info(
+    github: github_client.GitHub, repository: str
+) -> RepositoryInfo:
+    response = github.repos(repository).get()
+
+    return RepositoryInfo(
+        default_branch=response.default_branch, visibility=response.visibility
+    )
 
 
 def download_artifact(
