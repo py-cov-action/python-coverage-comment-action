@@ -96,7 +96,7 @@ def response_contents(
 
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
-    return response.text
+    return response.content
 
 
 class JsonObject(dict):
