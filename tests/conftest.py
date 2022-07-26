@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 from coverage_comment import coverage as coverage_module
-from coverage_comment import github_client, settings
+from coverage_comment import github_client, settings, subprocess
 
 
 @pytest.fixture
@@ -338,3 +338,50 @@ def zip_bytes():
         return zip_bytes
 
     return _
+
+
+@pytest.fixture
+def git():
+    """
+    You get a git object. Register calls on it:
+        git.register("git checkout master")(exit_code=1)
+    or
+        session.register("git commit", env={"A": "B"})(stdout="Changed branch")
+
+    If the command was not received by the end of the test, it will raise.
+    """
+
+    class Git:
+        expected_calls = []
+
+        def command(self, command, *args, env=None):
+            args = " ".join(("git", command, *args))
+            if not self.expected_calls:
+                assert (
+                    False
+                ), f"Received command `{args}` with env {env} while expecting nothing."
+
+            call = self.expected_calls[0]
+            exp_args, exp_env, exit_code, stdout = call
+            if not (args == exp_args and exp_env == env):
+                assert (
+                    False
+                ), f"Expected command is not `{args}` with env {env}\nExpected command is {self.expected_calls[0]}"
+
+            self.expected_calls.pop(0)
+            if exit_code == 0:
+                return stdout
+            raise subprocess.GitError
+
+        def __getattr__(self, value):
+            return functools.partial(self.command, value.replace("_", "-"))
+
+        def register(self, command, env=None):
+            def _(*, exit_code=0, stdout=""):
+                self.expected_calls.append((command, env, exit_code, stdout))
+
+            return _
+
+    git = Git()
+    yield git
+    assert not git.expected_calls
