@@ -17,6 +17,10 @@ def path_below(path_str: str) -> pathlib.Path:
         ) from exc
 
 
+def str_to_bool(value: str) -> bool:
+    return value.lower() in ("1", "true", "yes")
+
+
 @dataclasses.dataclass(kw_only=True)
 class Config:
     """This object defines the environment variables"""
@@ -50,11 +54,11 @@ class Config:
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
-        return value.lower() in ("1", "true", "yes")
+        return str_to_bool(value)
 
     @classmethod
     def clean_verbose(cls, value: str) -> bool:
-        return value.lower() in ("1", "true", "yes")
+        return str_to_bool(value)
 
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:

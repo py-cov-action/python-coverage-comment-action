@@ -92,3 +92,21 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})
+
+
+@pytest.mark.parametrize(
+    "input, output",
+    [
+        ("true", True),
+        ("True", True),
+        ("1", True),
+        ("yes", True),
+        ("false", False),
+        ("False", False),
+        ("0", False),
+        ("no", False),
+        ("foo", False),
+    ],
+)
+def test_str_to_bool(input, output):
+    assert settings.str_to_bool(input) is output
