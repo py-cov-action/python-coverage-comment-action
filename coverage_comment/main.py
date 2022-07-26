@@ -1,19 +1,21 @@
+import functools
 import logging
 import os
 import sys
 
 import httpx
 
-from coverage_comment import badge, comment_file
+from coverage_comment import comment_file, communication
 from coverage_comment import coverage as coverage_module
 from coverage_comment import (
+    files,
     github,
     github_client,
     log,
     settings,
+    storage,
     subprocess,
     template,
-    wiki,
 )
 
 
@@ -70,8 +72,6 @@ def action(
                 config=config,
                 coverage=coverage,
                 github_session=github_session,
-                http_session=http_session,
-                git=git,
             )
         else:
             # event_name == "push"
@@ -80,6 +80,7 @@ def action(
                 coverage=coverage,
                 github_session=github_session,
                 git=git,
+                http_session=http_session,
             )
 
     else:
@@ -94,24 +95,22 @@ def generate_comment(
     config: settings.Config,
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
-    http_session: httpx.Client,
-    git: subprocess.Git,
 ) -> int:
     log.info("Generating comment for PR")
+
+    gh = github_client.GitHub(session=github_session)
 
     diff_coverage = coverage_module.get_diff_coverage_info(
         base_ref=config.GITHUB_BASE_REF
     )
-    previous_coverage_data_file = wiki.get_file_contents(
-        session=http_session,
+    previous_coverage_data_file = storage.get_datafile_contents(
+        github=gh,
         repository=config.GITHUB_REPOSITORY,
-        filename=config.BADGE_FILENAME,
-        git=git,
-        github_token=config.GITHUB_TOKEN,
+        branch=config.COVERAGE_DATA_BRANCH,
     )
     previous_coverage = None
     if previous_coverage_data_file:
-        previous_coverage = badge.parse_badge(contents=previous_coverage_data_file)
+        previous_coverage = files.parse_datafile(contents=previous_coverage_data_file)
 
     try:
         comment = template.get_markdown_comment(
@@ -138,9 +137,11 @@ def generate_comment(
         )
         return 1
 
-    gh = github_client.GitHub(session=github_session)
-
+    assert config.GITHUB_PR_NUMBER
     try:
+        if config.FORCE_WORKFLOW_RUN:
+            raise github.CannotPostComment
+
         github.post_comment(
             github=gh,
             me=github.get_my_login(github=gh),
@@ -230,36 +231,49 @@ def save_badge(
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
     git: subprocess.Git,
+    http_session: httpx.Client,
 ) -> int:
     gh = github_client.GitHub(session=github_session)
-    is_default_branch = github.is_default_branch(
+    repo_info = github.get_repository_info(
         github=gh,
         repository=config.GITHUB_REPOSITORY,
-        branch=config.GITHUB_REF,
     )
+    is_default_branch = repo_info.is_default_branch(ref=config.GITHUB_REF)
     log.debug(f"On default branch: {is_default_branch}")
+
     if not is_default_branch:
         log.info("Skipping badge save as we're not on the default branch")
         return 0
-    log.info("Saving Badge into the repo wiki")
-    badge_info = badge.compute_badge(
+
+    log.info("Saving coverage files & badge into the repository")
+    files_to_save = files.compute_files(
         line_rate=coverage.info.percent_covered,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
+        http_session=http_session,
     )
-    wiki.upload_file(
-        github_token=config.GITHUB_TOKEN,
+    is_public = repo_info.is_public()
+    url_getter = functools.partial(
+        storage.get_file_url,
+        is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
-        filename=config.BADGE_FILENAME,
-        contents=badge_info,
-        git=git,
+        branch=config.COVERAGE_DATA_BRANCH,
     )
-    url = wiki.get_wiki_file_url(
-        repository=config.GITHUB_REPOSITORY, filename=config.BADGE_FILENAME
+    readme_file, log_message = communication.get_readme_and_log(
+        readme_url=storage.get_readme_url(
+            branch=config.COVERAGE_DATA_BRANCH,
+            repository=config.GITHUB_REPOSITORY,
+        ),
+        image_urls=files.get_urls(url_getter=url_getter),
+        is_public=is_public,
+    )
+    storage.upload_files(
+        files=files_to_save,
+        git=git,
+        branch=config.COVERAGE_DATA_BRANCH,
+        initial_file=readme_file,
     )
 
-    badge_url = badge.get_badge_shield_url(json_url=url)
-    log.info(f"Badge JSON stored at {url}")
-    log.info(f"Badge URL: {badge_url}")
+    log.info(log_message)
 
     return 0
