@@ -55,16 +55,16 @@ def on_coverage_branch(git: subprocess.Git, branch: str):
 
     git.fetch()
 
-    branch_existed = True
+    branch_exists = True
     try:
         git.checkout(branch)
         log.debug(f"Branch {branch} exist.")
     except subprocess.SubProcessError:
         log.debug(f"Branch {branch} doesn't exist.")
-        branch_existed = False
+        branch_exists = False
 
     try:
-        yield branch_existed
+        yield branch_exists
     finally:
         log.debug(f"Back to checkout of {current_checkout}")
         git.checkout(current_checkout)
@@ -90,8 +90,8 @@ def upload_files(
     initial_file : files.FileWithPath
         In case the branch didn't exist, initialize it with this initial file.
     """
-    with on_coverage_branch(git=git, branch=branch) as branch_existed:
-        if not branch_existed:
+    with on_coverage_branch(git=git, branch=branch) as branch_exists:
+        if not branch_exists:
             initialize_branch(
                 git=git,
                 branch=branch,
