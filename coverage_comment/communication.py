@@ -81,7 +81,6 @@ def get_readme_and_log(
 
     log_message_parts = [
         LOG_CONTENTS.format(direct_image_url=image_urls["direct"]),
-        LOG_CONCLUSION.format(readme_url=readme_url),
     ]
 
     if is_public:
@@ -89,7 +88,9 @@ def get_readme_and_log(
             endpoint_image_url=image_urls["endpoint"],
             dynamic_image_url=image_urls["dynamic"],
         )
-        log_message_parts.insert(1, public_part)
+        log_message_parts.append(public_part)
+
+    log_message_parts.append(LOG_CONCLUSION.format(readme_url=readme_url))
 
     log_message = "\n\n".join(log_message_parts)
 
