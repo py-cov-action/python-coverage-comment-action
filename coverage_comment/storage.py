@@ -4,10 +4,22 @@ import pathlib
 
 from coverage_comment import files, github_client, log, subprocess
 
+GITHUB_ACTIONS_BOT_NAME = "github-actions"
+# A discussion pointing at the email address of the github-actions bot user;
+# https://github.community/t/github-actions-bot-email-address/17204/5
+# To double-check, the bot's ID can be found at:
+# https://api.github.com/users/github-actions[bot]
+# The rule for creating the address can be found at:
+# https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address#about-commit-email-addresses
+GITHUB_ACTIONS_BOT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com"
+
+# Both Author and Committer identification are needed for git to let us commit
+# (usually, both are derived from `git config user.{name|email}`)
 COMMIT_ENVIRONMENT = {
-    "GIT_AUTHOR_NAME": "github-actions",
-    # https://github.community/t/github-actions-bot-email-address/17204/5
-    "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
+    "GIT_AUTHOR_NAME": GITHUB_ACTIONS_BOT_NAME,
+    "GIT_AUTHOR_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
+    "GIT_COMMITTER_NAME": GITHUB_ACTIONS_BOT_NAME,
+    "GIT_COMMITTER_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
 }
 INITIAL_GIT_COMMIT_MESSAGE = "Initialize python-coverage-comment-action special branch"
 GIT_COMMIT_MESSAGE = "Update badge"
@@ -100,8 +112,12 @@ def upload_files(
             return
 
         log.info("Saving coverage files")
-        git.commit("--message", GIT_COMMIT_MESSAGE)
-        git.push("--set-upstream", "origin")
+        git.commit(
+            "--message",
+            GIT_COMMIT_MESSAGE,
+            env=COMMIT_ENVIRONMENT,
+        )
+        git.push("origin", branch)
 
         log.info("Files saved")
 
