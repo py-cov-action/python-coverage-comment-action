@@ -49,6 +49,13 @@ See: https://github.com/ewjoachim/python-coverage-comment-action-example
 Please ensure that your `.coverage` file(s) is created with the option
 [`relative_files = true`](https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files).
 
+Please ensure that the branch `python-coverage-comment-action-data` is not
+protected (there's no reason that it would be the case, except if you have very
+sprecific wildcard rules). If it is, either adjust your rules, or set the
+`COVERAGE_DATA_BRANCH` parameter as described below. GitHub Actions will create
+this branch with initial data at the first run if it doesn't exist, and will
+independently commit to that branch after each commit to your default branch.
+
 ### Badge
 
 Once the action has run on your default branch, all the details for how to integrate the
