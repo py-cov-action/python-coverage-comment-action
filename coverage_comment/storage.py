@@ -42,7 +42,6 @@ def initialize_branch(
         INITIAL_GIT_COMMIT_MESSAGE,
         env=COMMIT_ENVIRONMENT,
     )
-    git.push("--set-upstream", "origin", branch)
 
 
 @contextlib.contextmanager

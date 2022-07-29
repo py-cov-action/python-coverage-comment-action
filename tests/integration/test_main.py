@@ -282,7 +282,7 @@ def test_action__push__default_branch(
     git.register("git add badge.svg")()
     git.register("git diff --staged --exit-code")(exit_code=1)
     git.register("git commit --message Update badge")()
-    git.register("git push --set-upstream origin")()
+    git.register("git push origin")()
     git.register("git checkout foo")()
 
     result = main.action(

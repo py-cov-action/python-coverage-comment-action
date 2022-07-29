@@ -19,7 +19,6 @@ def test_initialize_branch(git, tmp_path):
             "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
         },
     )()
-    git.register("git push --set-upstream origin foo")()
 
     storage.initialize_branch(
         git=git,
@@ -101,7 +100,6 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
                 "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
             },
         )()
-        git.register("git push --set-upstream origin foo")()
 
     # upload_files
     git.register(f"git add {files_to_save[0].path}")()
@@ -112,7 +110,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
         # (yes, it's missing the quotes, but this is just an artifact from our test
         # double)
         git.register("git commit --message Update badge")()
-        git.register("git push --set-upstream origin")()
+        git.register("git push origin")()
 
     # __exit__ of on_coverage_branch
     git.register("git checkout bar")()
