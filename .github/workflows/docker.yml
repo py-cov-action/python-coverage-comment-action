@@ -33,7 +33,7 @@ jobs:
         with:
           images: ewjoachim/python-coverage-comment-action
           flavor: |
-            latest=true
+            latest=false
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
