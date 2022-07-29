@@ -8,7 +8,7 @@ description: >
 inputs:
   GITHUB_TOKEN:
     description: >
-      A GitHub token to write comments and write the badge & coverage data data
+      A GitHub token to write comments and write the badge & coverage data
       to the repository.
       Set to `$ {{ github.token }}` (without the space between `$` and `{`).
     required: true
