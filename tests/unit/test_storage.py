@@ -17,6 +17,8 @@ def test_initialize_branch(git, tmp_path):
         env={
             "GIT_AUTHOR_NAME": "github-actions",
             "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
+            "GIT_COMMITTER_NAME": "github-actions",
+            "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
         },
     )()
 
@@ -98,6 +100,8 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
             env={
                 "GIT_AUTHOR_NAME": "github-actions",
                 "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
+                "GIT_COMMITTER_NAME": "github-actions",
+                "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
             },
         )()
 
@@ -109,8 +113,16 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     if has_diff:
         # (yes, it's missing the quotes, but this is just an artifact from our test
         # double)
-        git.register("git commit --message Update badge")()
-        git.register("git push origin")()
+        git.register(
+            "git commit --message Update badge",
+            env={
+                "GIT_AUTHOR_NAME": "github-actions",
+                "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
+                "GIT_COMMITTER_NAME": "github-actions",
+                "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
+            },
+        )()
+        git.register("git push origin foo")()
 
     # __exit__ of on_coverage_branch
     git.register("git checkout bar")()

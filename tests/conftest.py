@@ -363,7 +363,7 @@ def git():
 
             call = self.expected_calls[0]
             exp_args, exp_env, exit_code, stdout = call
-            if not (args == exp_args and exp_env == env):
+            if not (args == exp_args and (not exp_env or exp_env == env)):
                 assert (
                     False
                 ), f"Expected command is not `{args}` with env {env}\nExpected command is {self.expected_calls[0]}"
