@@ -1,4 +1,8 @@
-FROM python:3-slim
+# If you change anything here, bump the version in:
+# - Dockerfile.run
+# - .github/workflows/docker.yml
+
+FROM python:3.10-slim
 
 RUN set -eux; \
     apt-get update; \
