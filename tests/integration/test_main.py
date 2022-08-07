@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 import pathlib
 import subprocess
@@ -5,7 +7,6 @@ import subprocess
 import pytest
 
 from coverage_comment import main
-from coverage_comment import subprocess as coverage_subprocess
 
 
 @pytest.fixture
@@ -87,7 +88,7 @@ def test_action__pull_request__store_comment(
     # No existing badge in this test
     session.register(
         "GET",
-        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+        "/repos/ewjoachim/foobar/contents/data.json",
     )(status_code=404)
 
     # Who am I
@@ -137,11 +138,12 @@ def test_action__pull_request__store_comment(
 def test_action__pull_request__post_comment(
     pull_request_config, session, in_integration_env, capsys
 ):
+    payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
-    )(json={"message": "30%"})
+        "/repos/ewjoachim/foobar/contents/data.json",
+    )(json={"content": base64.b64encode(payload.encode()).decode()})
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
@@ -181,13 +183,37 @@ def test_action__pull_request__post_comment(
     assert capsys.readouterr().out.strip() == expected_stdout
 
 
+def test_action__pull_request__force_store_comment(
+    pull_request_config, session, in_integration_env, capsys
+):
+    payload = json.dumps({"coverage": 30.00})
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "/repos/ewjoachim/foobar/contents/data.json",
+    )(json={"content": base64.b64encode(payload.encode()).decode()})
+
+    result = main.action(
+        config=pull_request_config(FORCE_WORKFLOW_RUN=True),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 0
+
+    assert pathlib.Path("python-coverage-comment-action.txt").exists()
+
+    expected_stdout = "::set-output name=COMMENT_FILE_WRITTEN::true"
+    assert capsys.readouterr().out.strip() == expected_stdout
+
+
 def test_action__pull_request__post_comment__no_marker(
     pull_request_config, session, in_integration_env, get_logs
 ):
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+        "/repos/ewjoachim/foobar/contents/data.json",
     )(status_code=404)
 
     result = main.action(
@@ -206,7 +232,7 @@ def test_action__pull_request__post_comment__template_error(
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json",
+        "/repos/ewjoachim/foobar/contents/data.json",
     )(status_code=404)
 
     result = main.action(
@@ -222,7 +248,9 @@ def test_action__pull_request__post_comment__template_error(
 def test_action__push__non_default_branch(
     push_config, session, in_integration_env, get_logs
 ):
-    session.register("GET", "/repos/ewjoachim/foobar")(json={"default_branch": "main"})
+    session.register("GET", "/repos/ewjoachim/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
 
     result = main.action(
         config=push_config(GITHUB_REF="refs/heads/master"),
@@ -236,28 +264,26 @@ def test_action__push__non_default_branch(
 
 
 def test_action__push__default_branch(
-    push_config, session, in_integration_env, get_logs
+    push_config, session, in_integration_env, get_logs, git
 ):
-    session.register("GET", "/repos/ewjoachim/foobar")(json={"default_branch": "main"})
+    session.register("GET", "/repos/ewjoachim/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+    session.register(
+        "GET",
+        "https://img.shields.io/static/v1?label=Coverage&message=85%25&color=orange",
+    )(text="<this is a svg badge>")
 
-    class Git(coverage_subprocess.Git):
-        clone_args = None
-        push_args = None
-        pushed_file = None
-
-        def clone(self, *args):
-            self.clone_args = list(args)
-            subprocess.check_call(["git", "init"], cwd=self.cwd)
-
-        def push(self, *args):
-            self.push_args = list(args)
-            subprocess.check_call(["git", "diff", "--exit-code"], cwd=self.cwd)
-
-            self.pushed_file = pathlib.Path(
-                self.cwd, "python-coverage-comment-action-badge.json"
-            ).read_text()
-
-    git = Git()
+    git.register("git branch --show-current")(stdout="foo")
+    git.register("git fetch")()
+    git.register("git checkout python-coverage-comment-action-data")()
+    git.register("git add endpoint.json")()
+    git.register("git add data.json")()
+    git.register("git add badge.svg")()
+    git.register("git diff --staged --exit-code")(exit_code=1)
+    git.register("git commit --message Update badge")()
+    git.register("git push origin python-coverage-comment-action-data")()
+    git.register("git checkout foo")()
 
     result = main.action(
         config=push_config(),
@@ -268,19 +294,22 @@ def test_action__push__default_branch(
     assert result == 0
 
     assert not get_logs("INFO", "Skipping badge")
-    assert get_logs("INFO", "Saving Badge into the repo wiki")
-    url = "https://raw.githubusercontent.com/wiki/ewjoachim/foobar/python-coverage-comment-action-badge.json"
-    assert get_logs("INFO", f"Badge JSON stored at {url}")
-    assert get_logs("INFO", f"Badge URL: https://img.shields.io/endpoint?url={url}")
+    assert get_logs("INFO", "Saving coverage files & badge into the repository")
 
-    assert git.clone_args == [
-        "https://x-access-token:foo@github.com/ewjoachim/foobar.wiki.git",
-        ".",
-    ]
-    assert git.push_args == ["-u", "origin"]
+    log = get_logs("INFO", "Badge SVG available at")[0]
+    expected = """You can use the following URLs to display your badge:
 
-    badge = """{"schemaVersion": 1, "label": "Coverage", "message": "85%", "color": "orange"}"""
-    assert git.pushed_file == badge
+Badge SVG available at:
+    https://raw.githubusercontent.com/ewjoachim/foobar/python-coverage-comment-action-data/badge.svg
+
+Badge from shields endpoint is easier to customize but doesn't work with private repo:
+    https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ewjoachim/foobar/python-coverage-comment-action-data/endpoint.json
+
+Badge from shields dynamic url (less useful but you never know):
+    https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fewjoachim%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
+
+See more details and ready-to-copy-paste-markdown at https://github.com/ewjoachim/foobar/tree/python-coverage-comment-action-data"""
+    assert log == expected
 
 
 def test_action__workflow_run__no_pr(

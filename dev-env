@@ -35,22 +35,26 @@ echo "Activating virtualenv" >&2
 source $(poetry env info -p)/bin/activate
 
 echo "Moving to a temporary folder" >&2
-pushd $(mktemp -d)
+TMPDIR=$(mktemp -d)
+pushd ${TMPDIR}
 
 function clone-repo(){
     gh repo clone "${GITHUB_REPOSITORY}" .
 }
 
 function create-repo(){
-
     gh repo create "${GITHUB_REPOSITORY}" --clone --public --description 'Personnal development environment for python-comment-coverage-action' --template "${GITHUB_REPOSITORY_TEMPLATE}"
-    mv "${GITHUB_REPOSITORY}/"{*,.*} .
-    rmdir ${GITHUB_REPOSITORY}
-    git pull
+    repo_dirname=$(basename ${GITHUB_REPOSITORY})
+    mv "${repo_dirname}/"{*,.*} .
+    rmdir "${repo_dirname}"
+    git pull --ff-only origin master
 }
 
 function delete-repo(){
     gh repo delete "${GITHUB_REPOSITORY}" --confirm
+    if [ "${TMPDIR}" != "" ]; then
+        rm -rf ${TMPDIR}/* ${TMPDIR}/.*
+    fi
 }
 
 
@@ -127,6 +131,7 @@ function run(){
 event push
 ref branch
 run $(gh run list --limit 1 --json databaseId --jq='.[].databaseId')
+export VERBOSE=true
 
 function help(){
 

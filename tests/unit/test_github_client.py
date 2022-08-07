@@ -53,4 +53,4 @@ def test_github_client__get_error_non_json(session, gh):
     with pytest.raises(github_client.ApiError) as exc_info:
         gh.repos.get()
 
-    assert str(exc_info.value) == "{foobar"
+    assert str(exc_info.value) == "b'{foobar'"

@@ -17,6 +17,10 @@ def path_below(path_str: str) -> pathlib.Path:
         ) from exc
 
 
+def str_to_bool(value: str) -> bool:
+    return value.lower() in ("1", "true", "yes")
+
+
 @dataclasses.dataclass(kw_only=True)
 class Config:
     """This object defines the environment variables"""
@@ -28,15 +32,15 @@ class Config:
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
     COMMENT_TEMPLATE: str | None = None
-    BADGE_FILENAME: pathlib.Path = pathlib.Path(
-        "python-coverage-comment-action-badge.json"
-    )
+    COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     MINIMUM_GREEN: float = 100.0
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
     VERBOSE: bool = False
+    # Only for debugging, not exposed in the action:
+    FORCE_WORKFLOW_RUN: bool = False
 
     # Clean methods
     @classmethod
@@ -53,15 +57,15 @@ class Config:
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
-        return value.lower() in ("1", "true", "yes")
+        return str_to_bool(value)
 
     @classmethod
     def clean_verbose(cls, value: str) -> bool:
-        return value.lower() in ("1", "true", "yes")
+        return str_to_bool(value)
 
     @classmethod
-    def clean_badge_filename(cls, value: str) -> pathlib.Path:
-        return path_below(value)
+    def clean_force_workflow_run(cls, value: str) -> bool:
+        return str_to_bool(value)
 
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:
@@ -88,7 +92,7 @@ class Config:
                     raise ValueError(f"{key}: {str(exc)}") from exc
 
         try:
-            config = cls(**config)
+            config_obj = cls(**config)
         except TypeError:
             missing = {
                 name
@@ -98,4 +102,4 @@ class Config:
             raise MissingEnvironmentVariable(
                 f" missing environment variable(s): {', '.join(missing)}"
             )
-        return config
+        return config_obj

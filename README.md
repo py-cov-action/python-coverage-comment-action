@@ -1,6 +1,6 @@
 # GitHub Action: Python Coverage Comment
 
-![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-badge.json)
+[![Coverage badge](https://raw.githubusercontent.com/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-data/badge.svg)](https://github.com/ewjoachim/python-coverage-comment-action/tree/python-coverage-comment-action-data)
 
 ## Presentation
 
@@ -29,10 +29,16 @@ See: https://github.com/ewjoachim/python-coverage-comment-action-example/pull/2#
 
 ### Default branch mode
 
-On repository's default branch, it will extract the coverage
-rate and create a small JSON file that will be stored on the repository's wiki.
-This file will then have a stable URL, which means that if your repository is public,
-you can create a [shields.io](https://shields.io/endpoint) badge from it.
+On repository's default branch, it will extract the coverage rate and create
+files that will be stored on a dedicated orphan branch in the repository.
+
+These files include:
+
+- a `svg` badge to include in your README
+- a `json` file that can be used by [shields.io](https://shields.io) if your
+  repository is public to customize the look of your badge
+- Another `json` file used internally by the action to report on coverage
+  evolution (does a PR make the coverage go up or down?)
 
 See: https://github.com/ewjoachim/python-coverage-comment-action-example
 
@@ -40,12 +46,23 @@ See: https://github.com/ewjoachim/python-coverage-comment-action-example
 
 ### Setup
 
-Please ensure that the **repository wiki has been initialized** with at least a
-single page created. Once it's done, you can disable the wiki for the
-repository.
-
-Also, please ensure that your `.coverage` file(s) is created with the option
+Please ensure that your `.coverage` file(s) is created with the option
 [`relative_files = true`](https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files).
+
+Please ensure that the branch `python-coverage-comment-action-data` is not
+protected (there's no reason that it would be the case, except if you have very
+sprecific wildcard rules). If it is, either adjust your rules, or set the
+`COVERAGE_DATA_BRANCH` parameter as described below. GitHub Actions will create
+this branch with initial data at the first run if it doesn't exist, and will
+independently commit to that branch after each commit to your default branch.
+
+### Badge
+
+Once the action has run on your default branch, all the details for how to integrate the
+badge to your Readme will be displayed in:
+
+- The Readme of the `python-coverage-comment-action-data` branch
+- The text output of the workflow run
 
 ### Basic usage
 ```yaml
@@ -217,10 +234,6 @@ jobs:
     # If true, produces more output. Useful for debugging.
     VERBOSE: false
 
-    # Name of the json file containing badge informations stored in the repo wiki.
-    # You typically don't have to change this unless you're already using this name for something else.
-    BADGE_FILENAME: python-coverage-comment-action-badge.json
-
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
     COMMENT_ARTIFACT_NAME: python-coverage-comment-action
@@ -231,6 +244,10 @@ jobs:
 
     # An alternative template for the comment for pull requests. See details below.
     COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}`{{ marker }}
+
+    # Name of the branch in which coverage data will be stored on the repository.
+    # Please make sure that this branch is not protected.
+    COVERAGE_DATA_BRANCH: python-coverage-comment-action-data
 ```
 
 ## Overriding the template
@@ -314,3 +331,19 @@ the full path to the file in the `.coverage` file, but the path is most likely
 different between the moment where your coverage is generated (in your workflow)
 and the moment where the report is computed (in the action, which runs inside a
 docker).
+
+## I swear I saw something about a wiki somewhere?
+
+A previous version of this action did things with the wiki. This is not the case
+anymore.
+
+## Private repositories
+
+This action is supposedly compatible with private repository. Just make sure
+to use the svg badge directly, and not the `shields.io` URL.
+
+## Upgrading from v2 to v3
+
+- When upgrading, we change the location and format where the coverage
+  data is kept. Pull request that have not been rebased may be displaying
+  slightly wrong information.

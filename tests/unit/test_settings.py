@@ -30,14 +30,15 @@ def test_config__from_environ__ok():
             "GITHUB_REF": "master",
             "GITHUB_EVENT_NAME": "pull",
             "GITHUB_PR_RUN_ID": "123",
-            "BADGE_FILENAME": "bar",
             "COMMENT_ARTIFACT_NAME": "baz",
             "COMMENT_FILENAME": "qux",
             "COMMENT_TEMPLATE": "footemplate",
+            "COVERAGE_DATA_BRANCH": "branchname",
             "MINIMUM_GREEN": "90",
             "MINIMUM_ORANGE": "50.8",
             "MERGE_COVERAGE_FILES": "true",
             "VERBOSE": "false",
+            "FORCE_WORKFLOW_RUN": "false",
         }
     ) == settings.Config(
         GITHUB_BASE_REF="master",
@@ -46,14 +47,15 @@ def test_config__from_environ__ok():
         GITHUB_REF="master",
         GITHUB_EVENT_NAME="pull",
         GITHUB_PR_RUN_ID=123,
-        BADGE_FILENAME=pathlib.Path("bar"),
         COMMENT_ARTIFACT_NAME="baz",
         COMMENT_FILENAME=pathlib.Path("qux"),
         COMMENT_TEMPLATE="footemplate",
+        COVERAGE_DATA_BRANCH="branchname",
         MINIMUM_GREEN=90.0,
         MINIMUM_ORANGE=50.8,
         MERGE_COVERAGE_FILES=True,
         VERBOSE=False,
+        FORCE_WORKFLOW_RUN=False,
     )
 
 
@@ -66,9 +68,9 @@ def config():
         "GITHUB_REF": "master",
         "GITHUB_EVENT_NAME": "pull",
         "GITHUB_PR_RUN_ID": 123,
-        "BADGE_FILENAME": pathlib.Path("bar"),
         "COMMENT_ARTIFACT_NAME": "baz",
         "COMMENT_FILENAME": pathlib.Path("qux"),
+        "COVERAGE_DATA_BRANCH": "branchname",
         "MINIMUM_GREEN": 90.0,
         "MINIMUM_ORANGE": 50.8,
         "MERGE_COVERAGE_FILES": True,
@@ -95,3 +97,21 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})
+
+
+@pytest.mark.parametrize(
+    "input, output",
+    [
+        ("true", True),
+        ("True", True),
+        ("1", True),
+        ("yes", True),
+        ("false", False),
+        ("False", False),
+        ("0", False),
+        ("no", False),
+        ("foo", False),
+    ],
+)
+def test_str_to_bool(input, output):
+    assert settings.str_to_bool(input) is output

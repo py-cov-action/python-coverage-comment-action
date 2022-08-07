@@ -52,9 +52,6 @@ class GitHub:
     """
 
     def __init__(self, session: httpx.Client):
-        self.x_ratelimit_remaining = -1
-        self.x_ratelimit_limit = -1
-        self.x_ratelimit_reset = -1
         self.session = session
 
     def __getattr__(self, attr):
@@ -99,7 +96,7 @@ def response_contents(
 
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
-    return response.text
+    return response.content
 
 
 class JsonObject(dict):
