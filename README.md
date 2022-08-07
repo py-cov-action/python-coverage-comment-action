@@ -2,12 +2,20 @@
 
 ![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-badge.json)
 
+## Disclaimer
+
+You're looking at the v2 version of this GitHub Action. The
+[v3+](https://github.com/ewjoachim/python-coverage-comment-action) adds
+significant improvements, such as not needing the wiki anymore, and working on
+private repos. You're free to stay on v2, but we'll most likely not offer any
+kind of updates to it.
+
 ## Presentation
 
 Publish diff coverage report as PR comment, and create a coverage badge to
 display on the readme.
 
-See example at: https://github.com/ewjoachim/python-coverage-comment-action-example
+See example at: https://github.com/ewjoachim/python-coverage-comment-action-example/tree/v2
 
 ## What does it do?
 
@@ -34,7 +42,7 @@ rate and create a small JSON file that will be stored on the repository's wiki.
 This file will then have a stable URL, which means that if your repository is public,
 you can create a [shields.io](https://shields.io/endpoint) badge from it.
 
-See: https://github.com/ewjoachim/python-coverage-comment-action-example
+See: https://github.com/ewjoachim/python-coverage-comment-action-example/tree/v2
 
 ## Usage
 
