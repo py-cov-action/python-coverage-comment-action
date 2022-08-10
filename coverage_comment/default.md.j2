@@ -35,8 +35,7 @@ The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branc
 {%if diff_coverage.files -%}
 <details>
 <summary>{% block coverage_by_file_summary_wording -%}Diff Coverage details (click to unfold){% endblock coverage_by_file_summary_wording -%}</summary>
-
-{% for filename, diff_file_coverage in diff_coverage.files.items() -%}
+{% for filename, diff_file_coverage in diff_coverage.files.items() %}
 {% block coverage_single_file scoped -%}
 {% block coverage_single_file_title scoped %}### {{ filename }}{% endblock coverage_single_file_title %}
 {% block diff_coverage_single_file_wording scoped -%}
