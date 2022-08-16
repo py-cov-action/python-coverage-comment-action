@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     steps:
-      # DO NOT run actions/checkout@v2 here, for securitity reasons
+      # DO NOT run actions/checkout@v2 here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
         uses: ewjoachim/python-coverage-comment-action@v2
