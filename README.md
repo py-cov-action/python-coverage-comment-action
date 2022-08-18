@@ -87,12 +87,12 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: ewjoachim/python-coverage-comment-action@v2
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
@@ -120,7 +120,7 @@ jobs:
       # DO NOT run actions/checkout@v2 here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
-        uses: ewjoachim/python-coverage-comment-action@v2
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -197,7 +197,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: ewjoachim/python-coverage-comment-action@v2
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
@@ -215,7 +215,7 @@ jobs:
 ```yaml
 - name: Display coverage
   id: coverage_comment
-  uses: ewjoachim/python-coverage-comment-action@v2
+  uses: ewjoachim/python-coverage-comment-action@v3
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
