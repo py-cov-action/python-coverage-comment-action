@@ -27,6 +27,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          # Bump when changing anything used in Dockerfile
+          # See Dockerfile.build for instructions on bumping this.
           tags: v1
           push: true
+          file: Dockerfile.build
