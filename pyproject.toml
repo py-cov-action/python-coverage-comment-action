@@ -3,7 +3,7 @@ target-version = ["py310"]
 
 [tool.poetry]
 name = "coverage-comment"
-version = "2.0.0"
+version = "0.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
 authors = ["Joachim Jablon <ewjoachim@gmail.com>"]
 license = "MIT License"

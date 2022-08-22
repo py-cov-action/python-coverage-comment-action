@@ -1,15 +1,5 @@
-FROM python:3-slim
+# See Dockerfile.build for instructions on bumping this.
+FROM ewjoachim/python-coverage-comment-action-base:v1
 
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y git; \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /workdir
-
-COPY pyproject.toml ./
-COPY poetry.lock ./
 COPY coverage_comment ./coverage_comment
 RUN pip install .
-
-CMD [ "coverage_comment" ]
