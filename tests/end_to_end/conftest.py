@@ -159,7 +159,7 @@ def git_repo(cd, git):
 @pytest.fixture
 def repo_name():
     # TODO: should this depend on request.node.name ?
-    return "end_to_end_python_coverage_comment_action"
+    return "python-coverage-comment-action-end-to-end"
 
 
 @pytest.fixture

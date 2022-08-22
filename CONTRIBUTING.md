@@ -58,9 +58,9 @@ To run the end-to-end tests, you'll need:
   to generate tokens with the proper configuration.
   It's a good idea to **not** use your main GitHub user for this because the tests
   do some destructive actions (like deleting repos).
-- Make sure you don't have a repository named "end_to_end_python_coverage_comment_action"
+- Make sure you don't have a repository named "python-coverage-comment-action-end-to-end"
   (that would be a leftover of a previous test). If you do, delete it with
-  `gh repo delete end_to_end_python_coverage_comment_action`.
+  `gh repo delete python-coverage-comment-action-end-to-end`.
 - Please be aware that the tests will launch `gh auth setup-git` which might be
   surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
   seems not to be enough to isolate tests.)
