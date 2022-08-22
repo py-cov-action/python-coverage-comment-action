@@ -1,3 +1,5 @@
+import contextlib
+import functools
 import json as json_module
 import os
 import pathlib
@@ -9,12 +11,6 @@ import pytest
 
 # In this directory, `gh` is not the global `gh` fixture, but is instead
 # a fixture letting you use the `gh` CLI tool.
-
-
-@pytest.fixture
-def clean_gh_after_test():
-    envvar = os.environ.get("COVERAGE_COMMENT_E2E_CLEAN_GITHUB_AFTER_TESTS", "")
-    return envvar.lower() != "false"
 
 
 @pytest.fixture
@@ -37,18 +33,26 @@ def call():
     return _
 
 
+@contextlib.contextmanager
+def _cd(tmp_path: pathlib.Path, path: str):
+    full_path = tmp_path / path
+    full_path.mkdir(exist_ok=True)
+    old_path = pathlib.Path.cwd()
+    if old_path == full_path:
+        yield full_path
+        return
+    os.chdir(full_path)
+    try:
+        yield full_path
+    finally:
+        os.chdir(old_path)
+
+
 @pytest.fixture
 def cd(tmp_path: pathlib.Path):
-    curdir = os.getcwd()
-
-    def _(path: str):
-        full_path = tmp_path / path
-        full_path.mkdir()
-        os.chdir(full_path)
-        return full_path
-
-    yield _
-    os.chdir(curdir)
+    init_path = os.getcwd()
+    yield functools.partial(_cd, tmp_path)
+    os.chdir(init_path)
 
 
 @pytest.fixture
@@ -57,7 +61,7 @@ def gh_config_dir(tmp_path: pathlib.Path):
 
 
 @pytest.fixture
-def token_user_1():
+def token_me():
     if "COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1" not in os.environ:
         pytest.skip(
             "requires COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 in environment variables"
@@ -66,7 +70,7 @@ def token_user_1():
 
 
 @pytest.fixture
-def token_user_2():
+def token_other():
     if "COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2" not in os.environ:
         pytest.skip(
             "requires COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 in environment variables"
@@ -75,11 +79,11 @@ def token_user_2():
 
 
 @pytest.fixture
-def gh(call, gh_config_dir, token_user_1):
+def gh(call, gh_config_dir, token_me):
     def _gh(*args, token, json=False):
         stdout = call(
             "gh",
-            *args,
+            *(f"{e}" for e in args),
             env={
                 "GH_CONFIG_DIR": gh_config_dir,
                 "GH_TOKEN": token,
@@ -96,13 +100,24 @@ def gh(call, gh_config_dir, token_user_1):
     # The following line may have an impact on users global git config
     # if they run the tests locally but it's unlikely to be problematic
     # Also, it's sad that gh requires a token for setup-git but meh.
-    _gh("auth", "setup-git", token=token_user_1)
+    _gh("auth", "setup-git", token=token_me)
+
     return _gh
 
 
 @pytest.fixture
+def setup_git_me(setup_git, token_me):
+    return functools.partial(setup_git, token_me)
+
+
+@pytest.fixture
+def setup_git_other(setup_git, token_me):
+    return functools.partial(setup_git, token_me)
+
+
+@pytest.fixture
 def git(call, gh_config_dir):
-    def _(*args, env=None):
+    def f(*args, env=None):
         return call(
             "git",
             *args,
@@ -114,46 +129,49 @@ def git(call, gh_config_dir):
             | (env or {}),
         )
 
-    return _
+    return f
 
 
 @pytest.fixture
-def gh_me(gh, token_user_1):
-    def _(*args, **kwargs):
-        return gh(*args, token=token_user_1, **kwargs)
+def gh_me(gh, cd, token_me):
+    def f(*args, **kwargs):
+        with cd("repo"):
+            return gh(*args, token=token_me, **kwargs)
 
-    return _
+    return f
 
 
 @pytest.fixture
 def gh_me_username(gh_me):
-    return gh_me("api", "/user", "--jq", ".login")
+    return gh_me("api", "/user", "--jq", ".login").strip()
 
 
 @pytest.fixture
-def gh_other(gh, token_user_2):
-    def _(*args, **kwargs):
-        return gh(*args, token=token_user_2, **kwargs)
+def gh_other(gh, cd, token_other):
+    def f(*args, **kwargs):
+        with cd("fork"):
+            return gh(*args, token=token_other, **kwargs)
 
-    return _
+    return f
+
+
+@pytest.fixture
+def gh_other_username(gh_other):
+    return gh_other("api", "/user", "--jq", ".login").strip()
 
 
 @pytest.fixture
 def git_repo(cd, git):
-    repo = cd("repo")
-    git("init")
-    shutil.copytree(
-        pathlib.Path(__file__).parents[2] / "end_to_end_tests_repo",
-        repo,
-        dirs_exist_ok=True,
-    )
-    git("add", ".")
-    git(
-        "commit",
-        "-m",
-        "initial commit",
-    )
-    return repo
+    with cd("repo") as repo:
+        git("init")
+        shutil.copytree(
+            pathlib.Path(__file__).parents[2] / "end_to_end_tests_repo",
+            repo,
+            dirs_exist_ok=True,
+        )
+        git("add", ".")
+        git("commit", "-m", "initial commit")
+        yield repo
 
 
 @pytest.fixture
@@ -163,35 +181,46 @@ def repo_name():
 
 
 @pytest.fixture
-def gh_repo(gh_me, git_repo, clean_gh_after_test, repo_name):
+def repo_full_name(repo_name, gh_me_username):
+    return f"{gh_me_username}/{repo_name}"
+
+
+@pytest.fixture
+def gh_create_repo(gh_me, git_repo, repo_name):
     try:
         gh_me("repo", "delete", repo_name, "--confirm")
     except subprocess.CalledProcessError:
         pass
 
-    gh_me(
-        "repo",
-        "create",
-        repo_name,
-        "--push",
-        f"--source={git_repo}",
-        "--public",
-    )
+    def f(*args):
 
-    yield git_repo
-    if clean_gh_after_test:
-        gh_me("repo", "delete", repo_name, "--confirm")
+        gh_me(
+            "repo",
+            "create",
+            repo_name,
+            "--push",
+            f"--source={git_repo}",
+            *args,
+        )
+        return git_repo
+
+    return f
 
 
 @pytest.fixture
-def gh_fork(cd, gh_other, gh_me_username, git_repo, clean_gh_after_test, repo_name):
-    cd("fork")
-    gh_other("repo", "fork", f"{gh_me_username}/{repo_name}")
-
-    yield
-
-    if clean_gh_after_test:
+def gh_create_fork(gh_other, gh_me_username, repo_name):
+    # (can only be called after the main repo has been created)
+    try:
         gh_other("repo", "delete", repo_name, "--confirm")
+    except subprocess.CalledProcessError:
+        pass
+
+    def f():
+        # -- . at the end is because we want to clone in the current dir
+        # (args after -- are passed to git clone)
+        gh_other("repo", "fork", "--clone", f"{gh_me_username}/{repo_name}", "--", ".")
+
+    return f
 
 
 @pytest.fixture
@@ -204,7 +233,7 @@ def head_sha1(git):
 
 @pytest.fixture
 def wait_for_run_to_start():
-    def _(sha1, branch, gh):
+    def _(*, sha1, branch, gh):
         for _ in range(60):
             run = gh(
                 "run",
@@ -235,3 +264,44 @@ def wait_for_run_to_start():
         pytest.fail("Run didn't start within a minute. Stopping.")
 
     return _
+
+
+@pytest.fixture
+def wait_for_run_triggered_by_user_to_start():
+    def _(*, workflow_name, triggering_user, gh):
+        for _ in range(60):
+            payload = gh("api", "/repos/{owner}/{repo}/actions/runs", json=True)
+            runs = payload["workflow_runs"]
+            if not runs:
+                print("No GitHub Action run recorded. Waiting.")
+                time.sleep(1)
+                continue
+
+            run = runs[0]
+            run_name = run["name"]
+            run_triggering_actor = run["triggering_actor"]["login"]
+            if run_name != workflow_name or run_triggering_actor != triggering_user:
+                print(
+                    f'Latest run is on workflow "{run_name}", '
+                    f"triggered by {run_triggering_actor}. Waiting."
+                )
+                time.sleep(1)
+                continue
+
+            return run["id"]
+
+        pytest.fail("Run didn't start within a minute. Stopping.")
+
+    return _
+
+
+@pytest.fixture
+def add_coverage_line(git):
+    def f(line):
+        csv_file = pathlib.Path("tests/cases.csv")
+        csv_file.write_text(csv_file.read_text() + line)
+
+        git("add", str(csv_file))
+        git("commit", "-m", "improve coverage")
+
+    return f
