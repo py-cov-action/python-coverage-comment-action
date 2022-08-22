@@ -11,7 +11,7 @@ on:
       - published
   push:
     branches:
-      - v2
+      - v3
 
 jobs:
   push_to_registry:
