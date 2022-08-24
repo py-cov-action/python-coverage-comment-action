@@ -125,6 +125,8 @@ def git(call, gh_config_dir):
                 "GH_CONFIG_DIR": gh_config_dir,
                 "GIT_AUTHOR_NAME": "Foo",
                 "GIT_AUTHOR_EMAIL": "foo@example.com",
+                "GIT_AUTHOR_NAME": "Foo",
+                "GIT_AUTHOR_EMAIL": "foo@example.com",
             }
             | (env or {}),
         )
