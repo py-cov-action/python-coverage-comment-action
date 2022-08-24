@@ -62,7 +62,7 @@ def gh_config_dir(tmp_path: pathlib.Path):
 
 @pytest.fixture
 def token_me():
-    if "COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1" not in os.environ:
+    if not os.environ.get("COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1"):
         pytest.skip(
             "requires COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 in environment variables"
         )
@@ -71,7 +71,7 @@ def token_me():
 
 @pytest.fixture
 def token_other():
-    if "COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2" not in os.environ:
+    if not os.environ.get("COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2"):
         pytest.skip(
             "requires COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 in environment variables"
         )
