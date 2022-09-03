@@ -58,7 +58,6 @@ The branch rate is `50%`.
 
 ### codebase/code.py
 `80%` of new lines are covered (`75%` of the complete file).
-
 Missing lines: `7`, `9`
 
 </details>
@@ -187,7 +186,6 @@ The coverage rate is `75%`.
 
 ### codebase/code.py
 `80%` of new lines are covered (`75%` of the complete file).
-
 Missing lines: `7`, `9`
 
 </details>
