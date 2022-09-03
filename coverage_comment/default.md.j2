@@ -35,19 +35,19 @@ The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branc
 {%if diff_coverage.files -%}
 <details>
 <summary>{% block coverage_by_file_summary_wording -%}Diff Coverage details (click to unfold){% endblock coverage_by_file_summary_wording -%}</summary>
-{% for filename, diff_file_coverage in diff_coverage.files.items() %}
-{% block coverage_single_file scoped -%}
+{% for filename, diff_file_coverage in diff_coverage.files.items() -%}
+{% block coverage_single_file scoped %}
 {% block coverage_single_file_title scoped %}### {{ filename }}{% endblock coverage_single_file_title %}
 {% block diff_coverage_single_file_wording scoped -%}
 `{{ diff_file_coverage.percent_covered | pct }}` of new lines are covered (`{{ coverage.files[filename].info.percent_covered | pct }}` of the complete file).
 {%- endblock diff_coverage_single_file_wording %}
-{%- if diff_file_coverage.violation_lines %}
+{%- if diff_file_coverage.violation_lines -%}
 {% block single_file_missing_lines_wording scoped -%}
 {% set separator = joiner(", ") %}
 Missing lines: {% for line in diff_file_coverage.violation_lines %}{{ separator() }}`{{ line }}`{% endfor %}
 {%- endblock single_file_missing_lines_wording %}
-{% endif -%}
-{%- endblock coverage_single_file -%}
+{%- endif %}
+{% endblock coverage_single_file -%}
 {%- endfor %}
 </details>
 {%- endif %}
