@@ -79,8 +79,8 @@ def token_other():
 
 
 @pytest.fixture
-def gh(call, gh_config_dir, token_me):
-    def _gh(*args, token, json=False):
+def _gh(call, gh_config_dir, setup_git):
+    def gh(*args, token, json=False):
         stdout = call(
             "gh",
             *(f"{e}" for e in args),
@@ -95,6 +95,16 @@ def gh(call, gh_config_dir, token_me):
         else:
             return stdout
 
+    return gh
+
+
+@pytest.fixture
+def gh(setup_git, _gh):
+    return _gh
+
+
+@pytest.fixture
+def setup_git(git, _gh, token_me):
     # Default protocol is https so no need to change it but if we had to,
     # it would be here.
     # The following line may have an impact on users global git config
@@ -102,17 +112,6 @@ def gh(call, gh_config_dir, token_me):
     # Also, it's sad that gh requires a token for setup-git but meh.
     _gh("auth", "setup-git", token=token_me)
 
-    return _gh
-
-
-@pytest.fixture
-def setup_git_me(setup_git, token_me):
-    return functools.partial(setup_git, token_me)
-
-
-@pytest.fixture
-def setup_git_other(setup_git, token_me):
-    return functools.partial(setup_git, token_me)
 
 
 @pytest.fixture
