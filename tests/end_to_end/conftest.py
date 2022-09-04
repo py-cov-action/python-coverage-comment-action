@@ -242,9 +242,9 @@ def wait_for_run_to_start():
             run = gh(
                 "run",
                 "list",
-                "-b",
+                "--branch",
                 branch,
-                "-L",
+                "--limit",
                 "1",
                 "--json",
                 "databaseId,headSha",
