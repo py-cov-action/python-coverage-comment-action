@@ -3,6 +3,7 @@ import functools
 import json as json_module
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import time
@@ -189,6 +190,7 @@ def repo_name():
     # TODO: should this depend on request.node.name ?
     name = "python-coverage-comment-action-end-to-end"
     if suffix := os.getenv("COVERAGE_COMMENT_E2E_REPO_SUFFIX"):
+        suffix = re.sub(r"[^A-Za-z0-9_.-]", "-", suffix)
         name += f"-{suffix}"
     return name
 
