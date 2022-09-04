@@ -28,7 +28,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: ewjoachim/python-coverage-comment-action@v3
+        uses: ewjoachim/python-coverage-comment-action@__ACTION_REF__
         with:
           GITHUB_TOKEN: ${{ github.token }}
           VERBOSE: "true"

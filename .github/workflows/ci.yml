@@ -38,6 +38,7 @@ jobs:
         env:
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
+          COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.sha }}
 
       - name: Coverage comment
         id: coverage_comment
