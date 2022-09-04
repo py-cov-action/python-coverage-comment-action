@@ -12,7 +12,7 @@ jobs:
           pkg-manager: poetry
       - run:
           name: Run tests
-          command: poetry run pytest tests/end-to-end
+          command: poetry run pytest tests/end_to_end
 
 workflows:
   end-to-end-tests:
