@@ -3,6 +3,7 @@ import functools
 import json as json_module
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import time
@@ -187,7 +188,11 @@ def git_repo(cd, git, action_ref):
 @pytest.fixture
 def repo_name():
     # TODO: should this depend on request.node.name ?
-    return "python-coverage-comment-action-end-to-end"
+    name = "python-coverage-comment-action-end-to-end"
+    if suffix := os.getenv("COVERAGE_COMMENT_E2E_REPO_SUFFIX"):
+        suffix = re.sub(r"[^A-Za-z0-9_.-]", "-", suffix)
+        name += f"-{suffix}"
+    return name
 
 
 @pytest.fixture
@@ -196,11 +201,19 @@ def repo_full_name(repo_name, gh_me_username):
 
 
 @pytest.fixture
-def gh_create_repo(gh_me, git_repo, repo_name):
-    try:
-        gh_me("repo", "delete", repo_name, "--confirm")
-    except subprocess.CalledProcessError:
-        pass
+def gh_delete_repo(repo_name):
+    def f(gh):
+        try:
+            gh("repo", "delete", repo_name, "--confirm")
+        except subprocess.CalledProcessError:
+            pass
+
+    return f
+
+
+@pytest.fixture
+def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
+    gh_delete_repo(gh_me)
 
     def f(*args):
 
@@ -214,23 +227,25 @@ def gh_create_repo(gh_me, git_repo, repo_name):
         )
         return git_repo
 
-    return f
+    yield f
+
+    if not is_failed():
+        gh_delete_repo(gh_me)
 
 
 @pytest.fixture
-def gh_create_fork(gh_other, gh_me_username, repo_name):
+def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_name):
     # (can only be called after the main repo has been created)
-    try:
-        gh_other("repo", "delete", repo_name, "--confirm")
-    except subprocess.CalledProcessError:
-        pass
+    gh_delete_repo(gh_other)
 
     def f():
         # -- . at the end is because we want to clone in the current dir
         # (args after -- are passed to git clone)
         gh_other("repo", "fork", "--clone", f"{gh_me_username}/{repo_name}", "--", ".")
 
-    return f
+    yield f
+    if not is_failed():
+        gh_delete_repo(gh_other)
 
 
 @pytest.fixture
@@ -315,3 +330,22 @@ def add_coverage_line(git):
         git("commit", "-m", "improve coverage")
 
     return f
+
+
+_is_failed = []
+
+
+def pytest_runtest_logreport(report):
+    if report.outcome == "failed":
+        _is_failed.append(True)
+
+
+@pytest.fixture
+def is_failed():
+    _is_failed.clear()
+
+    def f():
+        return bool(_is_failed)
+
+    yield f
+    _is_failed.clear()
