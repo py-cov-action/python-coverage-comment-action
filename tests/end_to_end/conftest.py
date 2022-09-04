@@ -79,7 +79,7 @@ def token_other():
 
 
 @pytest.fixture
-def _gh(call, gh_config_dir, setup_git):
+def _gh(call, gh_config_dir):
     def gh(*args, token, json=False):
         stdout = call(
             "gh",
