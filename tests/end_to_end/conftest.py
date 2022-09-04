@@ -187,7 +187,10 @@ def git_repo(cd, git, action_ref):
 @pytest.fixture
 def repo_name():
     # TODO: should this depend on request.node.name ?
-    return "python-coverage-comment-action-end-to-end"
+    name = "python-coverage-comment-action-end-to-end"
+    if suffix := os.getenv("COVERAGE_COMMENT_E2E_REPO_SUFFIX"):
+        name += f"-{suffix}"
+    return name
 
 
 @pytest.fixture
