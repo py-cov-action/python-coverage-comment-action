@@ -79,6 +79,11 @@ def token_other():
 
 
 @pytest.fixture
+def action_ref():
+    return os.environ.get("COVERAGE_COMMENT_E2E_ACTION_REF", "v3")
+
+
+@pytest.fixture
 def _gh(call, gh_config_dir):
     def gh(*args, token, json=False):
         stdout = call(
@@ -161,7 +166,7 @@ def gh_other_username(gh_other):
 
 
 @pytest.fixture
-def git_repo(cd, git):
+def git_repo(cd, git, action_ref):
     with cd("repo") as repo:
         git("init", "-b", "main")
         shutil.copytree(
@@ -169,6 +174,11 @@ def git_repo(cd, git):
             repo,
             dirs_exist_ok=True,
         )
+        # Rewrite the specific version of the action we run in the workflow files.
+        for file in (repo / ".github/workflows").iterdir():
+            file: pathlib.Path
+            file.write_text(file.read_text().replace("__ACTION_REF__", action_ref))
+
         git("add", ".")
         git("commit", "-m", "initial commit")
         yield repo
