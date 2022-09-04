@@ -164,7 +164,7 @@ def gh_other_username(gh_other):
 @pytest.fixture
 def git_repo(cd, git):
     with cd("repo") as repo:
-        git("init")
+        git("init", "-b", "main")
         shutil.copytree(
             pathlib.Path(__file__).parents[2] / "end_to_end_tests_repo",
             repo,
