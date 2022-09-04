@@ -64,5 +64,3 @@ To run the end-to-end tests, you'll need:
 - Please be aware that the tests will launch `gh auth setup-git` which might be
   surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
   seems not to be enough to isolate tests.)
-- You can disable the deletion of repositories after the tests by setting the
-  environment variable `COVERAGE_COMMENT_E2E_CLEAN_GITHUB_AFTER_TESTS=false`
