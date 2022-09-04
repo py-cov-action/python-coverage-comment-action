@@ -1,13 +1,14 @@
 version: 2.1
 orbs:
   python: circleci/python@1.5.0
-
+  gh: circleci/github-cli@2.0
 jobs:
   end-to-end-tests:
     docker:
       - image: cimg/python:3.10.2
     steps:
       - checkout
+      - gh/install
       - python/install-packages:
           pkg-manager: poetry
       - run:
