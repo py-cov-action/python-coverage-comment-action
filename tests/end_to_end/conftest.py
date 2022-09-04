@@ -113,7 +113,6 @@ def setup_git(git, _gh, token_me):
     _gh("auth", "setup-git", token=token_me)
 
 
-
 @pytest.fixture
 def git(call, gh_config_dir):
     def f(*args, env=None):
