@@ -1,6 +1,6 @@
 # GitHub Action: Python Coverage Comment
 
-[![Coverage badge](https://raw.githubusercontent.com/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-data/badge.svg)](https://github.com/ewjoachim/python-coverage-comment-action/tree/python-coverage-comment-action-data)
+![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-badge.json)
 
 ## Presentation
 
