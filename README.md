@@ -1,5 +1,7 @@
 # GitHub Action: Python Coverage Comment
 
+Just some test
+
 [![Coverage badge](https://raw.githubusercontent.com/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-data/badge.svg)](https://github.com/ewjoachim/python-coverage-comment-action/tree/python-coverage-comment-action-data)
 
 ## Presentation
