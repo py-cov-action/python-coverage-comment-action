@@ -40,7 +40,7 @@ $ export GITHUB_PR_RUN_ID=xxx
 $ # Used only in pull_request to compute diff coverage
 $ export GITHUB_BASE_REF=master
 $ # Used everywhere
-$ export GITHUB_REPOSITORY=ewjoachim/python-coverage-comment-action-example
+$ export GITHUB_REPOSITORY=py-cov-action/python-coverage-comment-action-example
 $ # Used everywhere. Generate at https://github.com/settings/tokens/new?scopes=repo&description=test%20python-coverage-comment-action
 $  export GITHUB_TOKEN=
 ```
