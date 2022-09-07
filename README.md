@@ -1,13 +1,13 @@
 # GitHub Action: Python Coverage Comment
 
-[![Coverage badge](https://raw.githubusercontent.com/py-cov-action/python-coverage-comment-action/python-coverage-comment-action-data/badge.svg)](https://github.com/py-cov-action/python-coverage-comment-action/tree/python-coverage-comment-action-data)
+[![Coverage badge](https://raw.githubusercontent.com/ewjoachim/python-coverage-comment-action/python-coverage-comment-action-data/badge.svg)](https://github.com/ewjoachim/python-coverage-comment-action/tree/python-coverage-comment-action-data)
 
 ## Presentation
 
 Publish diff coverage report as PR comment, and create a coverage badge to
 display on the readme.
 
-See example at: https://github.com/py-cov-action/python-coverage-comment-action-example
+See example at: https://github.com/ewjoachim/python-coverage-comment-action-example
 
 ## What does it do?
 
@@ -25,7 +25,7 @@ of coverage rate attributed to this PR, as well as the rate of coverage
 for lines that this PR introduces. There's also a small analysis for each
 file in a collapsed block.
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-example/pull/2#issuecomment-1003646299
+See: https://github.com/ewjoachim/python-coverage-comment-action-example/pull/2#issuecomment-1003646299
 
 ### Default branch mode
 
@@ -40,7 +40,7 @@ These files include:
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-example
+See: https://github.com/ewjoachim/python-coverage-comment-action-example
 
 ## Usage
 
@@ -87,7 +87,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -120,7 +120,7 @@ jobs:
       # DO NOT run actions/checkout@v2 here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -197,7 +197,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: ewjoachim/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
@@ -215,7 +215,7 @@ jobs:
 ```yaml
 - name: Display coverage
   id: coverage_comment
-  uses: py-cov-action/python-coverage-comment-action@v3
+  uses: ewjoachim/python-coverage-comment-action@v3
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
@@ -254,7 +254,7 @@ jobs:
 
 By default, comments are generated from a
 [Jinja](https://jinja.palletsprojects.com) template that you can read
-[here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v2/coverage_comment/default.md.j2).
+[here](https://github.com/ewjoachim/python-coverage-comment-action/blob/v2/coverage_comment/default.md.j2).
 
 If you want to change this template, you can set ``COMMENT_TEMPLATE``. This is
 an advanced usage, so you're likely to run into more road bumps.
@@ -272,7 +272,7 @@ You will need to follow some rules for your template to be valid:
   documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance)
 - In either case, you will most likely want to get yourself familiar with the
   available context variables, the best is to read the code from
-  [here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v2/coverage_comment/template.py).
+  [here](https://github.com/ewjoachim/python-coverage-comment-action/blob/v2/coverage_comment/template.py).
   Should those variables change, we'll do our best to bump the action's major version.
 
 ### Examples

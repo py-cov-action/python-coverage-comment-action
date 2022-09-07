@@ -13,7 +13,7 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@__ACTION_REF__
+        uses: ewjoachim/python-coverage-comment-action@__ACTION_REF__
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
