@@ -6,6 +6,9 @@ on:
     branches:
       - 'v3'
 
+concurrency:
+  group: ${{ github.event_name }}-${{ github.ref }}
+
 jobs:
   test:
     name: Run tests & display coverage
