@@ -18,7 +18,7 @@ def base_config():
             # GitHub stuff
             "GITHUB_TOKEN": "foo",
             "GITHUB_PR_RUN_ID": 123,
-            "GITHUB_REPOSITORY": "ewjoachim/foobar",
+            "GITHUB_REPOSITORY": "py-cov-action/foobar",
             # Action settings
             "MERGE_COVERAGE_FILES": True,
             "VERBOSE": False,

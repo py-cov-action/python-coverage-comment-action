@@ -14,7 +14,7 @@ if ! which gh; then
 fi
 
 export GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-python-coverage-comment-action-devenv}
-export GITHUB_REPOSITORY_TEMPLATE=${GITHUB_REPOSITORY_TEMPLATE:-'ewjoachim/python-coverage-comment-action-example'}
+export GITHUB_REPOSITORY_TEMPLATE=${GITHUB_REPOSITORY_TEMPLATE:-'py-cov-action/python-coverage-comment-action-example'}
 
 if [[ ! $GITHUB_REPOSITORY == */* ]]; then
     export GITHUB_REPOSITORY=$(gh api /user --jq .login)"/${GITHUB_REPOSITORY}"
