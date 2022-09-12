@@ -88,13 +88,13 @@ def test_action__pull_request__store_comment(
     # No existing badge in this test
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/contents/data.json",
+        "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/ewjoachim/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
 
     comment = None
 
@@ -106,9 +106,9 @@ def test_action__pull_request__store_comment(
         return True
 
     # Post a new comment
-    session.register("POST", "/repos/ewjoachim/foobar/issues/2/comments", json=checker)(
-        status_code=403
-    )
+    session.register(
+        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
+    )(status_code=403)
 
     result = main.action(
         config=pull_request_config(),
@@ -142,13 +142,13 @@ def test_action__pull_request__post_comment(
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/contents/data.json",
+        "/repos/py-cov-action/foobar/contents/data.json",
     )(json={"content": base64.b64encode(payload.encode()).decode()})
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/ewjoachim/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
 
     comment = None
 
@@ -162,7 +162,7 @@ def test_action__pull_request__post_comment(
     # Post a new comment
     session.register(
         "POST",
-        "/repos/ewjoachim/foobar/issues/2/comments",
+        "/repos/py-cov-action/foobar/issues/2/comments",
         json=checker,
     )(
         status_code=200,
@@ -190,7 +190,7 @@ def test_action__pull_request__force_store_comment(
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/contents/data.json",
+        "/repos/py-cov-action/foobar/contents/data.json",
     )(json={"content": base64.b64encode(payload.encode()).decode()})
 
     result = main.action(
@@ -213,7 +213,7 @@ def test_action__pull_request__post_comment__no_marker(
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/contents/data.json",
+        "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
 
     result = main.action(
@@ -232,7 +232,7 @@ def test_action__pull_request__post_comment__template_error(
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/contents/data.json",
+        "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
 
     result = main.action(
@@ -248,7 +248,7 @@ def test_action__pull_request__post_comment__template_error(
 def test_action__push__non_default_branch(
     push_config, session, in_integration_env, get_logs
 ):
-    session.register("GET", "/repos/ewjoachim/foobar")(
+    session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
 
@@ -266,7 +266,7 @@ def test_action__push__non_default_branch(
 def test_action__push__default_branch(
     push_config, session, in_integration_env, get_logs, git
 ):
-    session.register("GET", "/repos/ewjoachim/foobar")(
+    session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
     session.register(
@@ -300,15 +300,15 @@ def test_action__push__default_branch(
     expected = """You can use the following URLs to display your badge:
 
 Badge SVG available at:
-    https://raw.githubusercontent.com/ewjoachim/foobar/python-coverage-comment-action-data/badge.svg
+    https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/badge.svg
 
 Badge from shields endpoint is easier to customize but doesn't work with private repo:
-    https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ewjoachim/foobar/python-coverage-comment-action-data/endpoint.json
+    https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/endpoint.json
 
 Badge from shields dynamic url (less useful but you never know):
-    https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fewjoachim%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
+    https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fpy-cov-action%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
 
-See more details and ready-to-copy-paste-markdown at https://github.com/ewjoachim/foobar/tree/python-coverage-comment-action-data"""
+See more details and ready-to-copy-paste-markdown at https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
 
 
@@ -316,7 +316,7 @@ def test_action__workflow_run__no_pr(
     workflow_run_config, session, in_integration_env, get_logs
 ):
     session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
+    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
             "head_repository": {"full_name": "bar/repo-name"},
@@ -325,7 +325,7 @@ def test_action__workflow_run__no_pr(
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/pulls",
+        "/repos/py-cov-action/foobar/pulls",
         params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
@@ -335,7 +335,7 @@ def test_action__workflow_run__no_pr(
     )(json=[])
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/pulls",
+        "/repos/py-cov-action/foobar/pulls",
         params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
@@ -359,7 +359,7 @@ def test_action__workflow_run__no_artifact(
     workflow_run_config, session, in_integration_env, get_logs
 ):
     session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
+    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
             "head_repository": {"full_name": "bar/repo-name"},
@@ -368,7 +368,7 @@ def test_action__workflow_run__no_artifact(
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/pulls",
+        "/repos/py-cov-action/foobar/pulls",
         params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
@@ -379,7 +379,7 @@ def test_action__workflow_run__no_artifact(
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/actions/runs/123/artifacts",
+        "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
     )(json={"artifacts": [{"name": "wrong_name"}]})
 
     result = main.action(
@@ -397,7 +397,7 @@ def test_action__workflow_run__post_comment(
     workflow_run_config, session, in_integration_env, get_logs, zip_bytes
 ):
     session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/ewjoachim/foobar/actions/runs/123")(
+    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
             "head_repository": {"full_name": "bar/repo-name"},
@@ -406,7 +406,7 @@ def test_action__workflow_run__post_comment(
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/pulls",
+        "/repos/py-cov-action/foobar/pulls",
         params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
@@ -417,22 +417,22 @@ def test_action__workflow_run__post_comment(
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/actions/runs/123/artifacts",
+        "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
     )(json={"artifacts": [{"name": "python-coverage-comment-action", "id": 789}]})
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/actions/artifacts/789/zip",
+        "/repos/py-cov-action/foobar/actions/artifacts/789/zip",
     )(content=zip_bytes(filename="python-coverage-comment-action.txt", content="Hey!"))
 
     session.register(
         "GET",
-        "/repos/ewjoachim/foobar/issues/456/comments",
+        "/repos/py-cov-action/foobar/issues/456/comments",
     )(json=[])
 
     session.register(
         "POST",
-        "/repos/ewjoachim/foobar/issues/456/comments",
+        "/repos/py-cov-action/foobar/issues/456/comments",
         json={"body": "Hey!"},
     )()
 

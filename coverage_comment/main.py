@@ -190,7 +190,7 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
     except github.CannotDeterminePR:
         log.error(
             "The PR cannot be found. That's strange. Please open an "
-            "issue at https://github.com/ewjoachim/python-coverage-comment-action",
+            "issue at https://github.com/py-cov-action/python-coverage-comment-action",
             exc_info=True,
         )
         return 1
