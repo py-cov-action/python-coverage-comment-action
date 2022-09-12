@@ -7,7 +7,7 @@
 Publish diff coverage report as PR comment, and create a coverage badge to
 display on the readme.
 
-See example at: https://github.com/py-cov-action/python-coverage-comment-action-example
+See example at: https://github.com/py-cov-action/python-coverage-comment-action-v3-example
 
 ## What does it do?
 
@@ -25,7 +25,7 @@ of coverage rate attributed to this PR, as well as the rate of coverage
 for lines that this PR introduces. There's also a small analysis for each
 file in a collapsed block.
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-example/pull/2#issuecomment-1003646299
+See: https://github.com/py-cov-action/python-coverage-comment-action-v3-example/pull/2#issuecomment-1244431724
 
 ### Default branch mode
 
@@ -40,7 +40,7 @@ These files include:
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-example
+See: https://github.com/py-cov-action/python-coverage-comment-action-v3-example
 
 ## Usage
 
