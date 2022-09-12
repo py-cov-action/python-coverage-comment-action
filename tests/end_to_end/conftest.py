@@ -99,7 +99,7 @@ def _gh(call, gh_config_dir):
         # Giving GitHub an opportunity to synchronize all their systems
         # (without that, we get random failures sometimes)
         time.sleep(0.5)
-        
+
         if stdout and json:
             return json_module.loads(stdout)
         else:
