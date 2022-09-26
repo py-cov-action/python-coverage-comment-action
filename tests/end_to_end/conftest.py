@@ -175,7 +175,7 @@ def git_repo(cd, git, action_ref):
     with cd("repo") as repo:
         git("init", "-b", "main")
         shutil.copytree(
-            pathlib.Path(__file__).parents[2] / "end_to_end_tests_repo",
+            pathlib.Path(__file__).parent / "repo",
             repo,
             dirs_exist_ok=True,
         )
