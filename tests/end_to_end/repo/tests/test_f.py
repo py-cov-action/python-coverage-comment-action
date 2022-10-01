@@ -1,9 +1,8 @@
 import csv
 import pathlib
 
-import pytest
-
 import end_to_end_tests_repo
+import pytest
 
 
 def load_csv():

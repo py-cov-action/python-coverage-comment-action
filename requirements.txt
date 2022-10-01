@@ -1,5 +1,0 @@
-diff_cover
-jinja2
-httpx[http2]
-requests
-githubpy
