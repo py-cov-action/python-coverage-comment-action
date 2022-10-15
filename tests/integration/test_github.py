@@ -288,7 +288,8 @@ def test_post_comment__update_error(gh, session):
         )
 
 
-def test_set_output(capsys):
-    github.set_output(foo=True)
-    captured = capsys.readouterr()
-    assert captured.out.strip() == "::set-output name=foo::true"
+def test_set_output(push_config, output_file):
+    github.set_output(config=push_config(GITHUB_OUTPUT=output_file), foo=True)
+
+    with open(output_file) as file:
+        assert file.read() == "foo=true\n"

@@ -83,7 +83,7 @@ def integration_env(integration_dir, write_file, run_coverage):
 
 
 def test_action__pull_request__store_comment(
-    pull_request_config, session, in_integration_env, capsys
+    pull_request_config, session, in_integration_env, output_file
 ):
     # No existing badge in this test
     session.register(
@@ -111,7 +111,7 @@ def test_action__pull_request__store_comment(
     )(status_code=403)
 
     result = main.action(
-        config=pull_request_config(),
+        config=pull_request_config(GITHUB_OUTPUT=output_file),
         github_session=session,
         http_session=session,
         git=None,
@@ -131,12 +131,14 @@ def test_action__pull_request__store_comment(
         in comment
     )
 
-    expected_stdout = "::set-output name=COMMENT_FILE_WRITTEN::true"
-    assert capsys.readouterr().out.strip() == expected_stdout
+    expected_environment = "COMMENT_FILE_WRITTEN=true\n"
+
+    with open(output_file) as file:
+        assert file.read() == expected_environment
 
 
 def test_action__pull_request__post_comment(
-    pull_request_config, session, in_integration_env, capsys
+    pull_request_config, session, in_integration_env, output_file
 ):
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -169,7 +171,7 @@ def test_action__pull_request__post_comment(
     )
 
     result = main.action(
-        config=pull_request_config(),
+        config=pull_request_config(GITHUB_OUTPUT=output_file),
         github_session=session,
         http_session=session,
         git=None,
@@ -179,12 +181,14 @@ def test_action__pull_request__post_comment(
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
     assert "The coverage rate went from `30%` to `86%` :arrow_up:" in comment
 
-    expected_stdout = "::set-output name=COMMENT_FILE_WRITTEN::false"
-    assert capsys.readouterr().out.strip() == expected_stdout
+    expected_environment = "COMMENT_FILE_WRITTEN=false\n"
+
+    with open(output_file) as file:
+        assert file.read() == expected_environment
 
 
 def test_action__pull_request__force_store_comment(
-    pull_request_config, session, in_integration_env, capsys
+    pull_request_config, session, in_integration_env, output_file
 ):
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -194,7 +198,7 @@ def test_action__pull_request__force_store_comment(
     )(json={"content": base64.b64encode(payload.encode()).decode()})
 
     result = main.action(
-        config=pull_request_config(FORCE_WORKFLOW_RUN=True),
+        config=pull_request_config(FORCE_WORKFLOW_RUN=True, GITHUB_OUTPUT=output_file),
         github_session=session,
         http_session=session,
         git=None,
@@ -203,8 +207,10 @@ def test_action__pull_request__force_store_comment(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_stdout = "::set-output name=COMMENT_FILE_WRITTEN::true"
-    assert capsys.readouterr().out.strip() == expected_stdout
+    expected_environment = "COMMENT_FILE_WRITTEN=true\n"
+
+    with open(output_file) as file:
+        assert file.read() == expected_environment
 
 
 def test_action__pull_request__post_comment__no_marker(
