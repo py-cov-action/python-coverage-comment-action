@@ -5,7 +5,7 @@ import json
 import pathlib
 import zipfile
 
-from coverage_comment import github_client, log
+from coverage_comment import github_client, log, settings
 
 GITHUB_ACTIONS_LOGIN = "github-actions[bot]"
 
@@ -153,6 +153,8 @@ def post_comment(
             raise CannotPostComment from exc
 
 
-def set_output(**kwargs: bool) -> None:
-    for key, value in kwargs.items():
-        print(f"::set-output name={key}::{json.dumps(value)}")
+def set_output(config: settings.Config, **kwargs: bool) -> None:
+    if config.GITHUB_OUTPUT:
+        with open(config.GITHUB_OUTPUT, "a") as f:
+            for key, value in kwargs.items():
+                f.write(f"{key}={json.dumps(value)}\n")

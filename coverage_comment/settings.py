@@ -29,6 +29,7 @@ class Config:
     GITHUB_TOKEN: str = dataclasses.field(repr=False)
     GITHUB_REPOSITORY: str
     GITHUB_REF: str
+    GITHUB_OUTPUT: str
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
     COMMENT_TEMPLATE: str | None = None
