@@ -131,10 +131,9 @@ def test_action__pull_request__store_comment(
         in comment
     )
 
-    expected_environment = "COMMENT_FILE_WRITTEN=true\n"
+    expected_output = "COMMENT_FILE_WRITTEN=true\n"
 
-    with open(output_file) as file:
-        assert file.read() == expected_environment
+    assert output_file.read_text() == expected_output
 
 
 def test_action__pull_request__post_comment(
@@ -181,10 +180,9 @@ def test_action__pull_request__post_comment(
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
     assert "The coverage rate went from `30%` to `86%` :arrow_up:" in comment
 
-    expected_environment = "COMMENT_FILE_WRITTEN=false\n"
+    expected_output = "COMMENT_FILE_WRITTEN=false\n"
 
-    with open(output_file) as file:
-        assert file.read() == expected_environment
+    assert output_file.read_text() == expected_output
 
 
 def test_action__pull_request__force_store_comment(
@@ -207,10 +205,9 @@ def test_action__pull_request__force_store_comment(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_environment = "COMMENT_FILE_WRITTEN=true\n"
+    expected_output = "COMMENT_FILE_WRITTEN=true\n"
 
-    with open(output_file) as file:
-        assert file.read() == expected_environment
+    assert output_file.read_text() == expected_output
 
 
 def test_action__pull_request__post_comment__no_marker(

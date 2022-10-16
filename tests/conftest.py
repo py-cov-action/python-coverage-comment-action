@@ -19,7 +19,6 @@ def base_config():
             "GITHUB_TOKEN": "foo",
             "GITHUB_PR_RUN_ID": 123,
             "GITHUB_REPOSITORY": "py-cov-action/foobar",
-            "GITHUB_OUTPUT": "",
             # Action settings
             "MERGE_COVERAGE_FILES": True,
             "VERBOSE": False,
@@ -389,12 +388,8 @@ def git():
 
 
 @pytest.fixture
-def output_file():
-    FILENAME = "temp_output.txt"
+def output_file(tmp_path):
+    file = tmp_path / "temp_output.txt"
+    file.touch()
 
-    with open(FILENAME, "w") as _:
-        pass
-
-    yield FILENAME
-
-    os.remove(FILENAME)
+    return file

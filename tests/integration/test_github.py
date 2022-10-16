@@ -288,8 +288,7 @@ def test_post_comment__update_error(gh, session):
         )
 
 
-def test_set_output(push_config, output_file):
-    github.set_output(config=push_config(GITHUB_OUTPUT=output_file), foo=True)
+def test_set_output(output_file):
+    github.set_output(github_output=output_file, foo=True)
 
-    with open(output_file) as file:
-        assert file.read() == "foo=true\n"
+    assert output_file.read_text() == "foo=true\n"
