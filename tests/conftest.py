@@ -338,3 +338,11 @@ def zip_bytes():
         return zip_bytes
 
     return _
+
+
+@pytest.fixture
+def output_file(tmp_path):
+    file = tmp_path / "temp_output.txt"
+    file.touch()
+
+    return file

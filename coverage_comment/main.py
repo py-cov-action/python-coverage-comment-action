@@ -161,10 +161,12 @@ def generate_comment(
             filename=config.COMMENT_FILENAME,
             content=comment,
         )
-        github.set_output(COMMENT_FILE_WRITTEN=True)
+        github.set_output(github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=True)
         log.debug("Comment stored locally on disk")
     else:
-        github.set_output(COMMENT_FILE_WRITTEN=False)
+        github.set_output(
+            github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=False
+        )
         log.debug("Comment not generated")
 
     return 0
