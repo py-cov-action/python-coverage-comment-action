@@ -21,8 +21,7 @@ jobs:
 
       - name: Install Poetry
         run: |
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+          pipx install poetry --python=python3.10
 
       - name: Poetry caches
         uses: actions/cache@v2
@@ -45,7 +44,7 @@ jobs:
           VERBOSE: "true"
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
