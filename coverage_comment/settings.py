@@ -35,6 +35,7 @@ class Config:
     COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
+    GITHUB_OUTPUT: pathlib.Path | None = None
     MINIMUM_GREEN: float = 100.0
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
@@ -70,6 +71,10 @@ class Config:
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:
         return path_below(value)
+
+    @classmethod
+    def clean_github_output(cls, value: str) -> pathlib.Path:
+        return pathlib.Path(value)
 
     @property
     def GITHUB_PR_NUMBER(self) -> int | None:

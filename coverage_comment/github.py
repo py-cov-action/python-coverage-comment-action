@@ -153,6 +153,8 @@ def post_comment(
             raise CannotPostComment from exc
 
 
-def set_output(**kwargs: bool) -> None:
-    for key, value in kwargs.items():
-        print(f"::set-output name={key}::{json.dumps(value)}")
+def set_output(github_output: pathlib.Path, **kwargs: bool) -> None:
+    if github_output:
+        with github_output.open("a") as f:
+            for key, value in kwargs.items():
+                f.write(f"{key}={json.dumps(value)}\n")
