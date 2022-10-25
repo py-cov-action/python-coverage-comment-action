@@ -2,7 +2,7 @@
 # - Dockerfile.run
 # - .github/workflows/docker.yml
 
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 RUN set -eux; \
     apt-get update; \

@@ -32,4 +32,7 @@
       "groupName": "Dev dependencies",
     },
   ],
+  "ignorePaths": [
+    "Dockerfile.build",
+  ],
 }
