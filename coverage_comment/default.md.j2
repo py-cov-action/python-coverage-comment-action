@@ -14,6 +14,11 @@ The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage
 {%- endif %}
 {%- endblock emoji_coverage -%}
 {%- else -%}
+{% block no_comparison_info -%}
+> **Note**
+> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
+{%- endblock no_comparison_info %}
+
 {% block coverage_value_wording -%}
 The coverage rate is `{{ coverage.info.percent_covered | pct }}`.
 {%- endblock coverage_value_wording %}
