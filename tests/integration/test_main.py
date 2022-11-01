@@ -120,6 +120,7 @@ def test_action__pull_request__store_comment(
 
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
+    assert "No coverage data of the default branch was found for comparison" in comment
     assert "The coverage rate is `86%`" in comment
     assert "`100%` of new lines are covered." in comment
     assert (

@@ -169,6 +169,32 @@ Missing lines: `5`
     assert result == expected
 
 
+def test_template__no_new_lines_with_coverage(coverage_obj):
+    diff_cov = coverage.DiffCoverage(
+        total_num_lines=0,
+        total_num_violations=0,
+        total_percent_covered=1.0,
+        num_changed_lines=39,
+        files={},
+    )
+
+    result = template.get_markdown_comment(
+        coverage=coverage_obj,
+        diff_coverage=diff_cov,
+        previous_coverage_rate=1.0,
+        base_template=template.read_template_file(),
+    )
+    expected = """## Coverage report
+The coverage rate went from `100%` to `75%` :arrow_down:
+The branch rate is `50%`.
+
+_None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
+
+
+<!-- This comment was produced by python-coverage-comment-action -->"""
+    assert result == expected
+
+
 def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_obj):
     result = template.get_markdown_comment(
         coverage=coverage_obj_no_branch,
@@ -177,6 +203,9 @@ def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_o
         base_template=template.read_template_file(),
     )
     expected = """## Coverage report
+> **Note**
+> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
+
 The coverage rate is `75%`.
 
 `80%` of new lines are covered.
