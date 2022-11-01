@@ -33,7 +33,11 @@ The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branc
 {% endblock branch_coverage -%}
 
 {% block diff_coverage_wording -%}
+{%- if diff_coverage.total_num_lines > 0 -%}
 `{{ diff_coverage.total_percent_covered | pct }}` of new lines are covered.
+{%- else -%}
+_None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
+{%- endif %}
 {%- endblock diff_coverage_wording %}
 
 {% block coverage_by_file -%}
