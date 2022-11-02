@@ -5,7 +5,7 @@ import sys
 
 import httpx
 
-from coverage_comment import comment_file, communication
+from coverage_comment import annotations, comment_file, communication
 from coverage_comment import coverage as coverage_module
 from coverage_comment import (
     files,
@@ -68,6 +68,11 @@ def action(
     if event_name in {"pull_request", "push"}:
         coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
         if event_name == "pull_request":
+            if config.ANNOTATE_MISSING_LINES:
+                annotations.create_pr_annotations(
+                    annotation_type=config.ANNOTATION_TYPE, coverage=coverage
+                )
+
             return generate_comment(
                 config=config,
                 coverage=coverage,
