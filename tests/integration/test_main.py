@@ -214,7 +214,7 @@ def test_action__pull_request__force_store_comment(
 def test_action__pull_request__post_comment__no_marker(
     pull_request_config, session, in_integration_env, get_logs
 ):
-    # There is an existing badge in this test, allowing to test the coverage evolution
+    # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
@@ -233,7 +233,7 @@ def test_action__pull_request__post_comment__no_marker(
 def test_action__pull_request__post_comment__template_error(
     pull_request_config, session, in_integration_env, get_logs
 ):
-    # There is an existing badge in this test, allowing to test the coverage evolution
+    # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
