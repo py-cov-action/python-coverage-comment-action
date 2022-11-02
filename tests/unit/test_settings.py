@@ -38,6 +38,7 @@ def test_config__from_environ__ok():
             "MINIMUM_GREEN": "90",
             "MINIMUM_ORANGE": "50.8",
             "MERGE_COVERAGE_FILES": "true",
+            "ANNOTATE_MISSING_LINES": "false",
             "VERBOSE": "false",
             "FORCE_WORKFLOW_RUN": "false",
         }
@@ -56,6 +57,7 @@ def test_config__from_environ__ok():
         MINIMUM_GREEN=90.0,
         MINIMUM_ORANGE=50.8,
         MERGE_COVERAGE_FILES=True,
+        ANNOTATE_MISSING_LINES=False,
         VERBOSE=False,
         FORCE_WORKFLOW_RUN=False,
     )

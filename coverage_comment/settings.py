@@ -39,6 +39,7 @@ class Config:
     MINIMUM_GREEN: float = 100.0
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
+    ANNOTATE_MISSING_LINES: bool = False
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
@@ -58,6 +59,10 @@ class Config:
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
+    def clean_annotate_missing_lines(cls, value: str) -> bool:
         return str_to_bool(value)
 
     @classmethod

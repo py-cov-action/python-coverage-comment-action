@@ -231,6 +231,9 @@ jobs:
     # If true, will run `coverage combine` before reading the `.coverage` file.
     MERGE_COVERAGE_FILES: false
 
+    # If true, will create an annotation on every line with missing coverage on a pull request.
+    ANNOTATE_MISSING_LINES: false
+
     # If true, produces more output. Useful for debugging.
     VERBOSE: false
 

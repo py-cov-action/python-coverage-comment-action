@@ -55,6 +55,10 @@ inputs:
     description: >
       If true, will run `coverage combine` before reading the `.coverage` file.
     default: false
+  ANNOTATE_MISSING_LINES:
+    description: >
+      If true, will create an annotation on every line with missing coverage on a pull request.
+    default: false
   VERBOSE:
     description: >
       If true, produces more output. Useful for debugging.
@@ -77,4 +81,5 @@ runs:
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
+    ANNOTATE_MISSING_LINES: ${{ inputs.ANNOTATE_MISSING_LINES }}
     VERBOSE: ${{ inputs.VERBOSE }}
