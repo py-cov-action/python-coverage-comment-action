@@ -83,7 +83,7 @@ def integration_env(integration_dir, write_file, run_coverage):
 
 
 def test_action__pull_request__store_comment(
-    pull_request_config, session, in_integration_env, output_file
+    pull_request_config, session, in_integration_env, output_file, capsys
 ):
     # No existing badge in this test
     session.register(
@@ -117,6 +117,10 @@ def test_action__pull_request__store_comment(
         git=None,
     )
     assert result == 0
+
+    # Check that no annotations were made
+    output = capsys.readouterr()
+    assert output.out.strip() == ""
 
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
@@ -228,6 +232,43 @@ def test_action__pull_request__post_comment__no_marker(
     )
     assert result == 1
     assert get_logs("ERROR", "Marker not found")
+
+
+def test_action__pull_request__annotations(
+    pull_request_config, session, in_integration_env, output_file, capsys
+):
+    # No existing badge in this test
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+    )(status_code=404)
+
+    # Who am I
+    session.register("GET", "/user")(json={"login": "foo"})
+    # Are there already comments
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+
+    # Post a new comment
+    session.register(
+        "POST",
+        "/repos/py-cov-action/foobar/issues/2/comments",
+    )(status_code=200)
+
+    result = main.action(
+        config=pull_request_config(
+            GITHUB_OUTPUT=output_file, ANNOTATE_MISSING_LINES=True
+        ),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    expected = """::group::Annotations of lines with missing coverage
+::warning file=foo.py,line=6::This line has no coverage
+::endgroup::"""
+    output = capsys.readouterr()
+
+    assert result == 0
+    assert output.out.strip() == expected
 
 
 def test_action__pull_request__post_comment__template_error(

@@ -8,6 +8,7 @@ import zipfile
 from coverage_comment import github_client, log
 
 GITHUB_ACTIONS_LOGIN = "github-actions[bot]"
+MISSING_COVERAGE_MESSAGE = "This line has no coverage"
 
 
 class CannotDeterminePR(Exception):
@@ -158,3 +159,33 @@ def set_output(github_output: pathlib.Path, **kwargs: bool) -> None:
         with github_output.open("a") as f:
             for key, value in kwargs.items():
                 f.write(f"{key}={json.dumps(value)}\n")
+
+
+def escape_property(s: str) -> str:
+    return (
+        s.replace("%", "%25")
+        .replace("\r", "%0D")
+        .replace("\n", "%0A")
+        .replace(":", "%3A")
+        .replace(",", "%2C")
+    )
+
+
+def escape_data(s: str) -> str:
+    return s.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
+def send_workflow_command(command: str, command_value: str, **kwargs: str) -> None:
+    values_listed = [f"{key}={escape_property(value)}" for key, value in kwargs.items()]
+
+    context = f" {','.join(values_listed)}" if values_listed else ""
+    print(f"::{command}{context}::{escape_data(command_value)}")
+
+
+def create_missing_coverage_annotation(annotation_type: str, file: str, line: int):
+    send_workflow_command(
+        command=annotation_type,
+        command_value=MISSING_COVERAGE_MESSAGE,
+        file=file,
+        line=str(line),
+    )

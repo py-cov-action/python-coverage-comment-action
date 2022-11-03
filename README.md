@@ -231,6 +231,14 @@ jobs:
     # If true, will run `coverage combine` before reading the `.coverage` file.
     MERGE_COVERAGE_FILES: false
 
+    # If true, will create an annotation on every line with missing coverage on a pull request.
+    ANNOTATE_MISSING_LINES: false
+
+    # Only needed if ANNOTATE_MISSING_LINES is set to true. This parameter allows you to choose between
+    # notice, warning and error as annotation type. For more information look here:
+    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
+    ANNOTATION_TYPE: warning
+
     # If true, produces more output. Useful for debugging.
     VERBOSE: false
 

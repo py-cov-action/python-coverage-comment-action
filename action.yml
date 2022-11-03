@@ -55,6 +55,16 @@ inputs:
     description: >
       If true, will run `coverage combine` before reading the `.coverage` file.
     default: false
+  ANNOTATE_MISSING_LINES:
+    description: >
+      If true, will create an annotation on every line with missing coverage on a pull request.
+    default: false
+  ANNOTATION_TYPE:
+    description: >
+      Only needed if ANNOTATE_MISSING_LINES is set to true. This parameter allows you to choose between
+      notice, warning and error as annotation type. For more information look here:
+      https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
+    default: warning
   VERBOSE:
     description: >
       If true, produces more output. Useful for debugging.
@@ -77,4 +87,6 @@ runs:
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
+    ANNOTATE_MISSING_LINES: ${{ inputs.ANNOTATE_MISSING_LINES }}
+    ANNOTATION_TYPE: ${{ inputs.ANNOTATION_TYPE }}
     VERBOSE: ${{ inputs.VERBOSE }}

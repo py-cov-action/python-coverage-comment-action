@@ -292,3 +292,38 @@ def test_set_output(output_file):
     github.set_output(github_output=output_file, foo=True)
 
     assert output_file.read_text() == "foo=true\n"
+
+
+def test_send_workflow_command(capsys):
+    github.send_workflow_command(
+        command="foo", command_value="bar", file="main.py", line="1", title="someTitle"
+    )
+    output = capsys.readouterr()
+    assert output.out.strip() == "::foo file=main.py,line=1,title=someTitle::bar"
+
+
+def test_send_workflow_command_no_kwargs(capsys):
+    github.send_workflow_command(command="group", command_value="title")
+    output = capsys.readouterr()
+    assert output.out.strip() == "::group::title"
+
+
+def test_create_missing_coverage_annotation(capsys):
+    github.create_missing_coverage_annotation(
+        annotation_type="warning", file="test.py", line=42
+    )
+    output = capsys.readouterr()
+    assert (
+        output.out.strip()
+        == "::warning file=test.py,line=42::This line has no coverage"
+    )
+
+
+def test_create_missing_coverage_annotation__annotation_type(capsys):
+    github.create_missing_coverage_annotation(
+        annotation_type="error", file="test.py", line=42
+    )
+    output = capsys.readouterr()
+    assert (
+        output.out.strip() == "::error file=test.py,line=42::This line has no coverage"
+    )
