@@ -8,6 +8,10 @@ class MissingEnvironmentVariable(Exception):
     pass
 
 
+class InvalidAnnotationType(Exception):
+    pass
+
+
 def path_below(path_str: str) -> pathlib.Path:
     try:
         return pathlib.Path(path_str).resolve().relative_to(pathlib.Path.cwd())
@@ -40,6 +44,7 @@ class Config:
     MINIMUM_ORANGE: float = 70.0
     MERGE_COVERAGE_FILES: bool = False
     ANNOTATE_MISSING_LINES: bool = False
+    ANNOTATION_TYPE: str = "warning"
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
@@ -64,6 +69,14 @@ class Config:
     @classmethod
     def clean_annotate_missing_lines(cls, value: str) -> bool:
         return str_to_bool(value)
+
+    @classmethod
+    def clean_annotation_type(cls, value: str) -> str:
+        if value not in {"notice", "warning", "error"}:
+            raise InvalidAnnotationType(
+                f"The annotation type {value} is not valid. Please choose from notice, warning or error"
+            )
+        return value
 
     @classmethod
     def clean_verbose(cls, value: str) -> bool:

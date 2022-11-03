@@ -39,6 +39,7 @@ def test_config__from_environ__ok():
             "MINIMUM_ORANGE": "50.8",
             "MERGE_COVERAGE_FILES": "true",
             "ANNOTATE_MISSING_LINES": "false",
+            "ANNOTATION_TYPE": "error",
             "VERBOSE": "false",
             "FORCE_WORKFLOW_RUN": "false",
         }
@@ -58,6 +59,7 @@ def test_config__from_environ__ok():
         MINIMUM_ORANGE=50.8,
         MERGE_COVERAGE_FILES=True,
         ANNOTATE_MISSING_LINES=False,
+        ANNOTATION_TYPE="error",
         VERBOSE=False,
         FORCE_WORKFLOW_RUN=False,
     )
@@ -102,6 +104,11 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})
+
+
+def test_config__invalid_annotation_type():
+    with pytest.raises(settings.InvalidAnnotationType):
+        settings.Config.from_environ({"ANNOTATION_TYPE": "foo"})
 
 
 @pytest.mark.parametrize(
