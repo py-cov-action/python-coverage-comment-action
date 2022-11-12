@@ -73,7 +73,6 @@ def config():
         "GITHUB_REPOSITORY": "owner/repo",
         "GITHUB_REF": "master",
         "GITHUB_EVENT_NAME": "pull",
-        "GITHUB_OUTPUT": "",
         "GITHUB_PR_RUN_ID": 123,
         "COMMENT_ARTIFACT_NAME": "baz",
         "COMMENT_FILENAME": pathlib.Path("qux"),
