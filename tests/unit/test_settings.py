@@ -66,7 +66,6 @@ def config():
         "GITHUB_TOKEN": "foo",
         "GITHUB_REPOSITORY": "owner/repo",
         "GITHUB_REF": "master",
-        "GITHUB_OUTPUT": "",
         "GITHUB_EVENT_NAME": "pull",
         "GITHUB_PR_RUN_ID": 123,
         "BADGE_FILENAME": pathlib.Path("bar"),

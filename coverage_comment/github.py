@@ -137,7 +137,7 @@ def post_comment(
             raise CannotPostComment from exc
 
 
-def set_output(github_output: pathlib.Path, **kwargs: bool) -> None:
+def set_output(github_output: pathlib.Path | None, **kwargs: bool) -> None:
     if github_output:
         with github_output.open("a") as f:
             for key, value in kwargs.items():
