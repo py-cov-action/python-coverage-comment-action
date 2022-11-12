@@ -235,7 +235,7 @@ def test_action__pull_request__post_comment__no_marker(
 
 
 def test_action__pull_request__annotations(
-    pull_request_config, session, in_integration_env, output_file, capsys
+    pull_request_config, session, in_integration_env, capsys
 ):
     # No existing badge in this test
     session.register(
@@ -255,9 +255,7 @@ def test_action__pull_request__annotations(
     )(status_code=200)
 
     result = main.action(
-        config=pull_request_config(
-            GITHUB_OUTPUT=output_file, ANNOTATE_MISSING_LINES=True
-        ),
+        config=pull_request_config(ANNOTATE_MISSING_LINES=True),
         github_session=session,
         http_session=session,
         git=None,
