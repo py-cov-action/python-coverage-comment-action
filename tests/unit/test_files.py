@@ -1,3 +1,4 @@
+import decimal
 import pathlib
 
 import pytest
@@ -33,8 +34,8 @@ def test_compute_files(session):
 
     result = files.compute_files(
         line_rate=0.1234,
-        minimum_green=25,
-        minimum_orange=70,
+        minimum_green=decimal.Decimal("25"),
+        minimum_orange=decimal.Decimal("70"),
         http_session=session,
     )
     expected = [

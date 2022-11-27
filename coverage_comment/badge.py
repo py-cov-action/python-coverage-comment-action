@@ -3,6 +3,7 @@ This module should contain only the things relevant to the badge being computed
 by shields.io
 """
 
+import decimal
 import json
 import urllib.parse
 
@@ -10,10 +11,9 @@ import httpx
 
 
 def get_badge_color(
-    # All float values are between 0 and 100 with 2 decimal places
     rate: float,
-    minimum_green: float,
-    minimum_orange: float,
+    minimum_green: decimal.Decimal,
+    minimum_orange: decimal.Decimal,
 ) -> str:
     if rate >= minimum_green:
         return "brightgreen"

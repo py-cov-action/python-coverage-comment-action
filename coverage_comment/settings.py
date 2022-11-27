@@ -1,4 +1,5 @@
 import dataclasses
+import decimal
 import inspect
 import pathlib
 from typing import Any
@@ -40,8 +41,8 @@ class Config:
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     GITHUB_OUTPUT: pathlib.Path | None = None
-    MINIMUM_GREEN: float = 100.0
-    MINIMUM_ORANGE: float = 70.0
+    MINIMUM_GREEN: decimal.Decimal = decimal.Decimal("100")
+    MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal("70")
     MERGE_COVERAGE_FILES: bool = False
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
@@ -51,12 +52,12 @@ class Config:
 
     # Clean methods
     @classmethod
-    def clean_minimum_green(cls, value: str) -> float:
-        return float(value)
+    def clean_minimum_green(cls, value: str) -> decimal.Decimal:
+        return decimal.Decimal(value)
 
     @classmethod
-    def clean_minimum_orange(cls, value: str) -> float:
-        return float(value)
+    def clean_minimum_orange(cls, value: str) -> decimal.Decimal:
+        return decimal.Decimal(value)
 
     @classmethod
     def clean_github_pr_run_id(cls, value: str) -> int | None:

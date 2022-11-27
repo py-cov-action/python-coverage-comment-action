@@ -1,3 +1,5 @@
+import decimal
+
 import pytest
 
 from coverage_comment import badge
@@ -12,7 +14,11 @@ from coverage_comment import badge
     ],
 )
 def test_get_badge_color(rate, expected):
-    color = badge.get_badge_color(rate=rate, minimum_green=90, minimum_orange=60)
+    color = badge.get_badge_color(
+        rate=rate,
+        minimum_green=decimal.Decimal("90"),
+        minimum_orange=decimal.Decimal("60"),
+    )
     assert color == expected
 
 

@@ -1,3 +1,4 @@
+import decimal
 import pathlib
 
 import pytest
@@ -55,8 +56,8 @@ def test_config__from_environ__ok():
         COMMENT_FILENAME=pathlib.Path("qux"),
         COMMENT_TEMPLATE="footemplate",
         COVERAGE_DATA_BRANCH="branchname",
-        MINIMUM_GREEN=90.0,
-        MINIMUM_ORANGE=50.8,
+        MINIMUM_GREEN=decimal.Decimal("90"),
+        MINIMUM_ORANGE=decimal.Decimal("50.8"),
         MERGE_COVERAGE_FILES=True,
         ANNOTATE_MISSING_LINES=False,
         ANNOTATION_TYPE="error",
@@ -77,8 +78,8 @@ def config():
         "COMMENT_ARTIFACT_NAME": "baz",
         "COMMENT_FILENAME": pathlib.Path("qux"),
         "COVERAGE_DATA_BRANCH": "branchname",
-        "MINIMUM_GREEN": 90.0,
-        "MINIMUM_ORANGE": 50.8,
+        "MINIMUM_GREEN": decimal.Decimal("90"),
+        "MINIMUM_ORANGE": decimal.Decimal("50.8"),
         "MERGE_COVERAGE_FILES": True,
         "VERBOSE": False,
     }

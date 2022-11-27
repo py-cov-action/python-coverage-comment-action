@@ -37,8 +37,8 @@ def get_percentage(line_rate: float) -> float:
 
 def compute_files(
     line_rate: float,
-    minimum_green: float,
-    minimum_orange: float,
+    minimum_green: decimal.Decimal,
+    minimum_orange: decimal.Decimal,
     http_session: httpx.Client,
 ) -> list[FileWithPath]:
     line_rate = get_percentage(line_rate)
