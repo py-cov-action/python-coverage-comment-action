@@ -24,24 +24,13 @@ class FileWithPath:
     contents: str
 
 
-def get_percentage(line_rate: float) -> float:
-    """
-    From a number between 0 and 1, compute a number between 0 and 100
-    truncated to 2 decimal digits.
-    """
-    # This was surprising hard to get right. Simple implementations
-    # kept rounding `5.1` to `5.09`.
-    dec = decimal.Decimal(str(line_rate)) * 100
-    return float(dec.quantize(decimal.Decimal("0.01"), rounding=decimal.ROUND_DOWN))
-
-
 def compute_files(
-    line_rate: float,
+    line_rate: decimal.Decimal,
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
     http_session: httpx.Client,
 ) -> list[FileWithPath]:
-    line_rate = get_percentage(line_rate)
+    line_rate *= decimal.Decimal("100")
     color = badge.get_badge_color(
         rate=line_rate,
         minimum_green=minimum_green,
@@ -67,8 +56,8 @@ def compute_files(
     ]
 
 
-def compute_datafile(line_rate: float) -> str:
-    return json.dumps({"coverage": line_rate})
+def compute_datafile(line_rate: decimal.Decimal) -> str:
+    return json.dumps({"coverage": float(line_rate)})
 
 
 def parse_datafile(contents):

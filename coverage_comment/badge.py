@@ -11,7 +11,7 @@ import httpx
 
 
 def get_badge_color(
-    rate: float,
+    rate: decimal.Decimal,
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
 ) -> str:
@@ -24,10 +24,9 @@ def get_badge_color(
 
 
 def compute_badge_endpoint_data(
-    line_rate: float,
+    line_rate: decimal.Decimal,
     color: str,
 ) -> str:
-
     badge = {
         "schemaVersion": 1,
         "label": "Coverage",
@@ -39,7 +38,7 @@ def compute_badge_endpoint_data(
 
 
 def compute_badge_image(
-    line_rate: float, color: str, http_session: httpx.Client
+    line_rate: decimal.Decimal, color: str, http_session: httpx.Client
 ) -> str:
     return http_session.get(
         "https://img.shields.io/static/v1?"

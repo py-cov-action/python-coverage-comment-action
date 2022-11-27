@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import functools
 import io
 import os
@@ -142,7 +143,7 @@ def coverage_obj():
         info=coverage_module.CoverageInfo(
             covered_lines=5,
             num_statements=6,
-            percent_covered=0.75,
+            percent_covered=decimal.Decimal("0.75"),
             missing_lines=1,
             excluded_lines=0,
             num_branches=2,
@@ -159,7 +160,7 @@ def coverage_obj():
                 info=coverage_module.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=0.75,
+                    percent_covered=decimal.Decimal("0.75"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=2,
@@ -184,7 +185,7 @@ def coverage_obj_no_branch():
         info=coverage_module.CoverageInfo(
             covered_lines=5,
             num_statements=6,
-            percent_covered=0.75,
+            percent_covered=decimal.Decimal("0.75"),
             missing_lines=1,
             excluded_lines=0,
             num_branches=None,
@@ -201,7 +202,7 @@ def coverage_obj_no_branch():
                 info=coverage_module.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=0.75,
+                    percent_covered=decimal.Decimal("0.75"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=None,
@@ -226,7 +227,7 @@ def coverage_obj_many_missing_lines():
         info=coverage_module.CoverageInfo(
             covered_lines=7,
             num_statements=10,
-            percent_covered=0.8,
+            percent_covered=decimal.Decimal("0.8"),
             missing_lines=12,
             excluded_lines=0,
             num_branches=2,
@@ -243,7 +244,7 @@ def coverage_obj_many_missing_lines():
                 info=coverage_module.CoverageInfo(
                     covered_lines=5,
                     num_statements=10,
-                    percent_covered=0.5,
+                    percent_covered=decimal.Decimal("0.5"),
                     missing_lines=5,
                     excluded_lines=0,
                     num_branches=2,
@@ -260,7 +261,7 @@ def coverage_obj_many_missing_lines():
                 info=coverage_module.CoverageInfo(
                     covered_lines=3,
                     num_statements=6,
-                    percent_covered=0.5,
+                    percent_covered=decimal.Decimal("0.5"),
                     missing_lines=3,
                     excluded_lines=0,
                     num_branches=2,
@@ -278,12 +279,12 @@ def diff_coverage_obj():
     return coverage_module.DiffCoverage(
         total_num_lines=5,
         total_num_violations=1,
-        total_percent_covered=0.8,
+        total_percent_covered=decimal.Decimal("0.8"),
         num_changed_lines=39,
         files={
             "codebase/code.py": coverage_module.FileDiffCoverage(
                 path="codebase/code.py",
-                percent_covered=0.8,
+                percent_covered=decimal.Decimal("0.8"),
                 violation_lines=[7, 9],
             )
         },

@@ -1,3 +1,4 @@
+import decimal
 from collections.abc import Callable
 from importlib import resources
 
@@ -69,5 +70,11 @@ def read_template_file() -> str:
     return resources.read_text("coverage_comment", "default.md.j2")
 
 
-def pct(val):
-    return f"{val:.0%}"
+def pct(val: decimal.Decimal | float) -> str:
+    if type(val) == decimal.Decimal:
+        val *= decimal.Decimal("100")
+        return (
+            f"{val.quantize(decimal.Decimal('1'), rounding=decimal.ROUND_HALF_DOWN)}%"
+        )
+    else:
+        return f"{val:.0%}"

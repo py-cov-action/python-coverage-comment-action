@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 import pytest
 
@@ -77,7 +78,7 @@ def test_template_full():
         info=coverage.CoverageInfo(
             covered_lines=6,
             num_statements=6,
-            percent_covered=1.0,
+            percent_covered=decimal.Decimal("1"),
             missing_lines=0,
             excluded_lines=0,
             num_branches=2,
@@ -94,7 +95,7 @@ def test_template_full():
                 info=coverage.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=5 / 6,
+                    percent_covered=decimal.Decimal("5") / decimal.Decimal("6"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=2,
@@ -111,7 +112,7 @@ def test_template_full():
                 info=coverage.CoverageInfo(
                     covered_lines=6,
                     num_statements=6,
-                    percent_covered=1.0,
+                    percent_covered=decimal.Decimal("1"),
                     missing_lines=0,
                     excluded_lines=0,
                     num_branches=2,
@@ -126,17 +127,17 @@ def test_template_full():
     diff_cov = coverage.DiffCoverage(
         total_num_lines=6,
         total_num_violations=0,
-        total_percent_covered=1.0,
+        total_percent_covered=decimal.Decimal("1"),
         num_changed_lines=39,
         files={
             "codebase/code.py": coverage.FileDiffCoverage(
                 path="codebase/code.py",
-                percent_covered=1 / 2,
+                percent_covered=decimal.Decimal("0.5"),
                 violation_lines=[5],
             ),
             "codebase/other.py": coverage.FileDiffCoverage(
                 path="codebase/other.py",
-                percent_covered=1,
+                percent_covered=decimal.Decimal("1"),
                 violation_lines=[],
             ),
         },
@@ -173,7 +174,7 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
     diff_cov = coverage.DiffCoverage(
         total_num_lines=0,
         total_num_violations=0,
-        total_percent_covered=1.0,
+        total_percent_covered=decimal.Decimal("1"),
         num_changed_lines=39,
         files={},
     )

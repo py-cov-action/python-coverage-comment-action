@@ -1,8 +1,25 @@
+import decimal
 import json
 
 import pytest
 
 from coverage_comment import coverage, subprocess
+
+
+@pytest.mark.parametrize(
+    "num_covered, num_total, expected_coverage",
+    [
+        (0, 10, "0"),
+        (0, 0, "1"),
+        (5, 0, "1"),
+        (5, 10, "0.5"),
+        (1, 100, "0.01"),
+    ],
+)
+def test_compute_coverage(num_covered, num_total, expected_coverage):
+    assert coverage.compute_coverage(num_covered, num_total) == decimal.Decimal(
+        expected_coverage
+    )
 
 
 def test_get_coverage_info(mocker, coverage_json, coverage_obj):
