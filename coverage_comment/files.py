@@ -60,8 +60,10 @@ def compute_datafile(line_rate: decimal.Decimal) -> str:
     return json.dumps({"coverage": float(line_rate)})
 
 
-def parse_datafile(contents):
-    return float(json.loads(contents)["coverage"]) / 100
+def parse_datafile(contents) -> decimal.Decimal:
+    return decimal.Decimal(str(json.loads(contents)["coverage"])) / decimal.Decimal(
+        "100"
+    )
 
 
 class ImageURLs(TypedDict):

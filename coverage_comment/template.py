@@ -42,7 +42,7 @@ class TemplateError(Exception):
 def get_markdown_comment(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
-    previous_coverage_rate: float | None,
+    previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
     custom_template: str | None = None,
 ):

@@ -11,7 +11,7 @@ def test_get_markdown_comment(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template="""
         {{ previous_coverage_rate | pct }}
         {{ coverage.info.percent_covered | pct }}
@@ -42,7 +42,7 @@ def test_template(coverage_obj, diff_coverage_obj):
     result = template.get_markdown_comment(
         coverage=coverage_obj,
         diff_coverage=diff_coverage_obj,
-        previous_coverage_rate=0.92,
+        previous_coverage_rate=decimal.Decimal("0.92"),
         base_template=template.read_template_file(),
         custom_template="""{% extends "base" %}
         {% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
@@ -146,7 +146,7 @@ def test_template_full():
     result = template.get_markdown_comment(
         coverage=cov,
         diff_coverage=diff_cov,
-        previous_coverage_rate=1.0,
+        previous_coverage_rate=decimal.Decimal("1.0"),
         base_template=template.read_template_file(),
     )
     expected = """## Coverage report
@@ -182,7 +182,7 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
     result = template.get_markdown_comment(
         coverage=coverage_obj,
         diff_coverage=diff_cov,
-        previous_coverage_rate=1.0,
+        previous_coverage_rate=decimal.Decimal("1.0"),
         base_template=template.read_template_file(),
     )
     expected = """## Coverage report
@@ -235,7 +235,7 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file(),
             custom_template="""foo bar""",
         )
@@ -247,14 +247,14 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file(),
             custom_template="""{% extends "foo" %}""",
         )
 
 
 def test_pct():
-    assert template.pct(0.83) == "83%"
+    assert template.pct(decimal.Decimal("0.83")) == "83%"
 
 
 def test_uptodate():

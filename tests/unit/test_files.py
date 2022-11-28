@@ -36,7 +36,9 @@ def test_compute_datafile():
 
 
 def test_parse_datafile():
-    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == 0.1234
+    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == decimal.Decimal(
+        "0.1234"
+    )
 
 
 def test_get_urls():
