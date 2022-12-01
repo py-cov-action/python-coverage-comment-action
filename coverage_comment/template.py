@@ -73,8 +73,6 @@ def read_template_file() -> str:
 def pct(val: decimal.Decimal | float) -> str:
     if type(val) == decimal.Decimal:
         val *= decimal.Decimal("100")
-        return (
-            f"{val.quantize(decimal.Decimal('1'), rounding=decimal.ROUND_HALF_DOWN)}%"
-        )
+        return f"{val.quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_DOWN).normalize():f}%"
     else:
         return f"{val:.0%}"

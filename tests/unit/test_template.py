@@ -159,7 +159,7 @@ The branch rate is `100%`.
 <summary>Diff Coverage details (click to unfold)</summary>
 
 ### codebase/code.py
-`50%` of new lines are covered (`83%` of the complete file).
+`50%` of new lines are covered (`83.33%` of the complete file).
 Missing lines: `5`
 
 ### codebase/other.py
@@ -253,8 +253,19 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
         )
 
 
-def test_pct():
-    assert template.pct(decimal.Decimal("0.83")) == "83%"
+@pytest.mark.parametrize(
+    "value, displayed_coverage",
+    [
+        ("0.83", "83%"),
+        ("0.99999", "99.99%"),
+        ("0.00001", "0%"),
+        ("0.0501", "5.01%"),
+        ("1", "100%"),
+        ("0.8392", "83.92%"),
+    ],
+)
+def test_pct(value, displayed_coverage):
+    assert template.pct(decimal.Decimal(value)) == displayed_coverage
 
 
 def test_uptodate():
