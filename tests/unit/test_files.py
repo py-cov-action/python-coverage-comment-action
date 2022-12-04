@@ -1,40 +1,18 @@
+import decimal
 import pathlib
-
-import pytest
 
 from coverage_comment import files
 
 
-@pytest.mark.parametrize(
-    "input, output",
-    [
-        (1, 100),
-        (0.99999, 99.99),
-        (0.05, 5.0),
-        (0.051, 5.1),
-        (0.0512, 5.12),
-        (0.05121, 5.12),
-        (0.05129, 5.12),
-    ],
-)
-def test_get_percentage(input, output):
-    # Yeah, I didn't foresee that we would need so many samples to make
-    # sure the function works, but floats are hard. It all comes from:
-    # >>> 5.1 * 100
-    # 509.99999999999994
-    assert files.get_percentage(input) == output
-
-
 def test_compute_files(session):
-
     session.register(
         "GET", "https://img.shields.io/static/v1?label=Coverage&message=12%25&color=red"
     )(text="foo")
 
     result = files.compute_files(
-        line_rate=0.1234,
-        minimum_green=25,
-        minimum_orange=70,
+        line_rate=decimal.Decimal("0.1234"),
+        minimum_green=decimal.Decimal("25"),
+        minimum_orange=decimal.Decimal("70"),
         http_session=session,
     )
     expected = [
@@ -51,11 +29,16 @@ def test_compute_files(session):
 
 
 def test_compute_datafile():
-    assert files.compute_datafile(line_rate=12.34) == """{"coverage": 12.34}"""
+    assert (
+        files.compute_datafile(line_rate=decimal.Decimal("12.34"))
+        == """{"coverage": 12.34}"""
+    )
 
 
 def test_parse_datafile():
-    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == 0.1234
+    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == decimal.Decimal(
+        "0.1234"
+    )
 
 
 def test_get_urls():

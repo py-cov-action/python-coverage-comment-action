@@ -1,3 +1,5 @@
+import decimal
+
 import pytest
 
 from coverage_comment import badge
@@ -6,19 +8,24 @@ from coverage_comment import badge
 @pytest.mark.parametrize(
     "rate, expected",
     [
-        (10, "red"),
-        (80, "orange"),
-        (99, "brightgreen"),
+        (decimal.Decimal("10"), "red"),
+        (decimal.Decimal("80"), "orange"),
+        (decimal.Decimal("99"), "brightgreen"),
     ],
 )
 def test_get_badge_color(rate, expected):
-    color = badge.get_badge_color(rate=rate, minimum_green=90, minimum_orange=60)
+    color = badge.get_badge_color(
+        rate=rate,
+        minimum_green=decimal.Decimal("90"),
+        minimum_orange=decimal.Decimal("60"),
+    )
     assert color == expected
 
 
 def test_compute_badge_endpoint_data():
-
-    badge_data = badge.compute_badge_endpoint_data(line_rate=27.42, color="red")
+    badge_data = badge.compute_badge_endpoint_data(
+        line_rate=decimal.Decimal("27.42"), color="red"
+    )
     expected = """{"schemaVersion": 1, "label": "Coverage", "message": "27%", "color": "red"}"""
     assert badge_data == expected
 
@@ -29,7 +36,7 @@ def test_compute_badge_image(session):
     )(text="foo")
 
     badge_data = badge.compute_badge_image(
-        line_rate=27.42, color="red", http_session=session
+        line_rate=decimal.Decimal("27.42"), color="red", http_session=session
     )
 
     assert badge_data == "foo"

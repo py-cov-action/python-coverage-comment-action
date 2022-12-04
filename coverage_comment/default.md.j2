@@ -5,9 +5,9 @@
 The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}`{{" "}}
 {%- endblock coverage_evolution_wording %}
 {%- block emoji_coverage -%}
-{%- if previous_coverage_rate < coverage.info.percent_covered -%}
+{%- if previous_coverage_rate | float < coverage.info.percent_covered | float -%}
 {%- block emoji_coverage_up -%}:arrow_up:{%- endblock emoji_coverage_up -%}
-{%- elif previous_coverage_rate > coverage.info.percent_covered -%}
+{%- elif previous_coverage_rate | float > coverage.info.percent_covered | float -%}
 {%- block emoji_coverage_down -%}:arrow_down:{%- endblock emoji_coverage_down -%}
 {%- else -%}
 {%- block emoji_coverage_constant -%}:arrow_right:{%- endblock emoji_coverage_constant -%}

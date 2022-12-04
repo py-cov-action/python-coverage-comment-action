@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import decimal
 import json
 import pathlib
 import tempfile
@@ -19,7 +20,7 @@ class CoverageMetadata:
 class CoverageInfo:
     covered_lines: int
     num_statements: int
-    percent_covered: float
+    percent_covered: decimal.Decimal
     missing_lines: int
     excluded_lines: int
     num_branches: int | None
@@ -47,7 +48,7 @@ class Coverage:
 @dataclasses.dataclass
 class FileDiffCoverage:
     path: str
-    percent_covered: float
+    percent_covered: decimal.Decimal
     violation_lines: list[int]
 
 
@@ -55,9 +56,15 @@ class FileDiffCoverage:
 class DiffCoverage:
     total_num_lines: int
     total_num_violations: int
-    total_percent_covered: float
+    total_percent_covered: decimal.Decimal
     num_changed_lines: int
     files: dict[pathlib.Path, FileDiffCoverage]
+
+
+def compute_coverage(num_covered: int, num_total: int) -> decimal.Decimal:
+    if num_total == 0:
+        return decimal.Decimal("1")
+    return decimal.Decimal(num_covered) / decimal.Decimal(num_total)
 
 
 def get_coverage_info(merge: bool) -> Coverage:
@@ -139,7 +146,12 @@ def extract_info(data) -> Coverage:
                 info=CoverageInfo(
                     covered_lines=file_data["summary"]["covered_lines"],
                     num_statements=file_data["summary"]["num_statements"],
-                    percent_covered=file_data["summary"]["percent_covered"] / 100,
+                    percent_covered=compute_coverage(
+                        file_data["summary"]["covered_lines"]
+                        + file_data["summary"].get("covered_branches", 0),
+                        file_data["summary"]["num_statements"]
+                        + file_data["summary"].get("num_branches", 0),
+                    ),
                     missing_lines=file_data["summary"]["missing_lines"],
                     excluded_lines=file_data["summary"]["excluded_lines"],
                     num_branches=file_data["summary"].get("num_branches"),
@@ -155,7 +167,12 @@ def extract_info(data) -> Coverage:
         info=CoverageInfo(
             covered_lines=data["totals"]["covered_lines"],
             num_statements=data["totals"]["num_statements"],
-            percent_covered=data["totals"]["percent_covered"] / 100,
+            percent_covered=compute_coverage(
+                data["totals"]["covered_lines"]
+                + data["totals"].get("covered_branches", 0),
+                data["totals"]["num_statements"]
+                + data["totals"].get("num_branches", 0),
+            ),
             missing_lines=data["totals"]["missing_lines"],
             excluded_lines=data["totals"]["excluded_lines"],
             num_branches=data["totals"].get("num_branches"),
@@ -204,12 +221,16 @@ def extract_diff_info(data) -> DiffCoverage:
     return DiffCoverage(
         total_num_lines=data["total_num_lines"],
         total_num_violations=data["total_num_violations"],
-        total_percent_covered=data["total_percent_covered"] / 100,
+        total_percent_covered=compute_coverage(
+            data["total_num_lines"] - data["total_num_violations"],
+            data["total_num_lines"],
+        ),
         num_changed_lines=data["num_changed_lines"],
         files={
             path: FileDiffCoverage(
                 path=path,
-                percent_covered=file_data["percent_covered"] / 100,
+                percent_covered=decimal.Decimal(str(file_data["percent_covered"]))
+                / decimal.Decimal("100"),
                 violation_lines=file_data["violation_lines"],
             )
             for path, file_data in data["src_stats"].items()

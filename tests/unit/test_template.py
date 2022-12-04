@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 import pytest
 
@@ -10,7 +11,7 @@ def test_get_markdown_comment(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template="""
         {{ previous_coverage_rate | pct }}
         {{ coverage.info.percent_covered | pct }}
@@ -41,7 +42,7 @@ def test_template(coverage_obj, diff_coverage_obj):
     result = template.get_markdown_comment(
         coverage=coverage_obj,
         diff_coverage=diff_coverage_obj,
-        previous_coverage_rate=0.92,
+        previous_coverage_rate=decimal.Decimal("0.92"),
         base_template=template.read_template_file(),
         custom_template="""{% extends "base" %}
         {% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
@@ -77,7 +78,7 @@ def test_template_full():
         info=coverage.CoverageInfo(
             covered_lines=6,
             num_statements=6,
-            percent_covered=1.0,
+            percent_covered=decimal.Decimal("1"),
             missing_lines=0,
             excluded_lines=0,
             num_branches=2,
@@ -94,7 +95,7 @@ def test_template_full():
                 info=coverage.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=5 / 6,
+                    percent_covered=decimal.Decimal("5") / decimal.Decimal("6"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=2,
@@ -111,7 +112,7 @@ def test_template_full():
                 info=coverage.CoverageInfo(
                     covered_lines=6,
                     num_statements=6,
-                    percent_covered=1.0,
+                    percent_covered=decimal.Decimal("1"),
                     missing_lines=0,
                     excluded_lines=0,
                     num_branches=2,
@@ -126,17 +127,17 @@ def test_template_full():
     diff_cov = coverage.DiffCoverage(
         total_num_lines=6,
         total_num_violations=0,
-        total_percent_covered=1.0,
+        total_percent_covered=decimal.Decimal("1"),
         num_changed_lines=39,
         files={
             "codebase/code.py": coverage.FileDiffCoverage(
                 path="codebase/code.py",
-                percent_covered=1 / 2,
+                percent_covered=decimal.Decimal("0.5"),
                 violation_lines=[5],
             ),
             "codebase/other.py": coverage.FileDiffCoverage(
                 path="codebase/other.py",
-                percent_covered=1,
+                percent_covered=decimal.Decimal("1"),
                 violation_lines=[],
             ),
         },
@@ -145,7 +146,7 @@ def test_template_full():
     result = template.get_markdown_comment(
         coverage=cov,
         diff_coverage=diff_cov,
-        previous_coverage_rate=1.0,
+        previous_coverage_rate=decimal.Decimal("1.0"),
         base_template=template.read_template_file(),
     )
     expected = """## Coverage report
@@ -158,7 +159,7 @@ The branch rate is `100%`.
 <summary>Diff Coverage details (click to unfold)</summary>
 
 ### codebase/code.py
-`50%` of new lines are covered (`83%` of the complete file).
+`50%` of new lines are covered (`83.33%` of the complete file).
 Missing lines: `5`
 
 ### codebase/other.py
@@ -173,7 +174,7 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
     diff_cov = coverage.DiffCoverage(
         total_num_lines=0,
         total_num_violations=0,
-        total_percent_covered=1.0,
+        total_percent_covered=decimal.Decimal("1"),
         num_changed_lines=39,
         files={},
     )
@@ -181,7 +182,7 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
     result = template.get_markdown_comment(
         coverage=coverage_obj,
         diff_coverage=diff_cov,
-        previous_coverage_rate=1.0,
+        previous_coverage_rate=decimal.Decimal("1.0"),
         base_template=template.read_template_file(),
     )
     expected = """## Coverage report
@@ -234,7 +235,7 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file(),
             custom_template="""foo bar""",
         )
@@ -246,14 +247,25 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
         template.get_markdown_comment(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
-            previous_coverage_rate=0.92,
+            previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file(),
             custom_template="""{% extends "foo" %}""",
         )
 
 
-def test_pct():
-    assert template.pct(0.83) == "83%"
+@pytest.mark.parametrize(
+    "value, displayed_coverage",
+    [
+        ("0.83", "83%"),
+        ("0.99999", "99.99%"),
+        ("0.00001", "0%"),
+        ("0.0501", "5.01%"),
+        ("1", "100%"),
+        ("0.8392", "83.92%"),
+    ],
+)
+def test_pct(value, displayed_coverage):
+    assert template.pct(decimal.Decimal(value)) == displayed_coverage
 
 
 def test_uptodate():

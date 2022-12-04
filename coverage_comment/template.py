@@ -1,3 +1,4 @@
+import decimal
 from collections.abc import Callable
 from importlib import resources
 
@@ -41,7 +42,7 @@ class TemplateError(Exception):
 def get_markdown_comment(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
-    previous_coverage_rate: float | None,
+    previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
     custom_template: str | None = None,
 ):
@@ -69,5 +70,9 @@ def read_template_file() -> str:
     return resources.read_text("coverage_comment", "default.md.j2")
 
 
-def pct(val):
-    return f"{val:.0%}"
+def pct(val: decimal.Decimal | float) -> str:
+    if type(val) == decimal.Decimal:
+        val *= decimal.Decimal("100")
+        return f"{val.quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_DOWN).normalize():f}%"
+    else:
+        return f"{val:.0%}"
