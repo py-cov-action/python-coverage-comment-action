@@ -60,11 +60,11 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "chardet"
-version = "5.0.0"
+version = "5.1.0"
 description = "Universal encoding detector for Python 3"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [[package]]
 name = "click"
@@ -101,7 +101,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "diff-cover"
-version = "7.1.0"
+version = "7.2.0"
 description = "Run coverage and linting reports on diffs"
 category = "main"
 optional = false
@@ -512,8 +512,8 @@ certifi = [
     {file = "certifi-2022.9.24.tar.gz", hash = "sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14"},
 ]
 chardet = [
-    {file = "chardet-5.0.0-py3-none-any.whl", hash = "sha256:d3e64f022d254183001eccc5db4040520c0f23b1a3f33d6413e099eb7f126557"},
-    {file = "chardet-5.0.0.tar.gz", hash = "sha256:0368df2bfd78b5fc20572bb4e9bb7fb53e2c094f60ae9993339e8671d0afb8aa"},
+    {file = "chardet-5.1.0-py3-none-any.whl", hash = "sha256:362777fb014af596ad31334fde1e8c327dfdb076e1960d1694662d46a6917ab9"},
+    {file = "chardet-5.1.0.tar.gz", hash = "sha256:0d62712b956bc154f85fb0a266e2a3c5913c2967e00348701b32411d6def31e5"},
 ]
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
@@ -576,8 +576,8 @@ coverage = [
     {file = "coverage-6.5.0.tar.gz", hash = "sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84"},
 ]
 diff-cover = [
-    {file = "diff_cover-7.1.0-py3-none-any.whl", hash = "sha256:002e0ff7f232f7185acc7652e4aa2f51eb823eff2eb77e122fc53a04472a5771"},
-    {file = "diff_cover-7.1.0.tar.gz", hash = "sha256:ed1aa13522140f7a1f62807bc7552819d24343ee9398b7a74e94a18c78e2e864"},
+    {file = "diff_cover-7.2.0-py3-none-any.whl", hash = "sha256:16bd4cb5f90afcc5372b668974a33a560e0030df8c2fef425a82d83b15d4662c"},
+    {file = "diff_cover-7.2.0.tar.gz", hash = "sha256:309bcfddbc13650b121462252f3f6967ac196816f8b91e965a2e0c02ba15cc92"},
 ]
 exceptiongroup = [
     {file = "exceptiongroup-1.0.4-py3-none-any.whl", hash = "sha256:542adf9dea4055530d6e1279602fa5cb11dab2395fa650b8674eaec35fc4a828"},
