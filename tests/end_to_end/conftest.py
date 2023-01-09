@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import json as json_module
+import logging
 import os
 import pathlib
 import re
@@ -9,9 +10,12 @@ import subprocess
 import time
 
 import pytest
+import tenacity
 
 # In this directory, `gh` is not the global `gh` fixture, but is instead
 # a fixture letting you use the `gh` CLI tool.
+
+SLEEP_AFTER_API_CALL = 1  # second(s)
 
 
 @pytest.fixture
@@ -86,24 +90,40 @@ def action_ref():
 
 @pytest.fixture
 def _gh(call, gh_config_dir):
-    def gh(*args, token, json=False):
-        stdout = call(
-            "gh",
-            *(f"{e}" for e in args),
-            env={
-                "GH_CONFIG_DIR": gh_config_dir,
-                "GH_TOKEN": token,
-                "NO_COLOR": "1",
-            },
+    def gh(*args, token, json=False, fail_value=None):
+        @tenacity.retry(
+            reraise=True,
+            retry=(
+                tenacity.retry_if_result(
+                    lambda x: fail_value is not None and x == fail_value
+                )
+                | tenacity.retry_if_exception_type()
+            ),
+            stop=tenacity.stop_after_attempt(5),
+            wait=tenacity.wait_incrementing(start=0, increment=5),
+            after=tenacity.after_log(logging.getLogger(), logging.DEBUG),
         )
-        # Giving GitHub an opportunity to synchronize all their systems
-        # (without that, we get random failures sometimes)
-        time.sleep(1)
+        def f():
+            stdout = call(
+                "gh",
+                *(f"{e}" for e in args),
+                env={
+                    "GH_CONFIG_DIR": gh_config_dir,
+                    "GH_TOKEN": token,
+                    "NO_COLOR": "1",
+                },
+            )
 
-        if stdout and json:
-            return json_module.loads(stdout)
-        else:
-            return stdout
+            # Giving GitHub an opportunity to synchronize all their systems
+            # (without that, we get random failures sometimes)
+            time.sleep(SLEEP_AFTER_API_CALL)
+
+            if stdout and json:
+                return json_module.loads(stdout)
+            else:
+                return stdout
+
+        return f()
 
     return gh
 
@@ -208,6 +228,7 @@ def repo_full_name(repo_name, gh_me_username):
 def gh_delete_repo(repo_name):
     def f(gh):
         try:
+            print(f"Deleting repository {repo_name}")
             gh("repo", "delete", repo_name, "--confirm")
         except subprocess.CalledProcessError:
             pass
@@ -220,7 +241,7 @@ def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
     gh_delete_repo(gh_me)
 
     def f(*args):
-
+        print(f"Creating repository {repo_name}")
         gh_me(
             "repo",
             "create",
@@ -245,6 +266,7 @@ def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_nam
     def f():
         # -- . at the end is because we want to clone in the current dir
         # (args after -- are passed to git clone)
+        print(f"Forking repository {gh_me_username}/{repo_name}")
         gh_other("repo", "fork", "--clone", f"{gh_me_username}/{repo_name}", "--", ".")
 
     yield f
@@ -262,35 +284,33 @@ def head_sha1(git):
 
 @pytest.fixture
 def wait_for_run_to_start():
+    @tenacity.retry(
+        stop=tenacity.stop_after_attempt(60),
+        wait=tenacity.wait_fixed(1),
+        reraise=True,
+    )
     def _(*, sha1, branch, gh):
-        for _ in range(60):
-            run = gh(
-                "run",
-                "list",
-                "--branch",
-                branch,
-                "--limit",
-                "1",
-                "--json",
-                "databaseId,headSha",
-                json=True,
-            )
-            if not run:
-                print("No GitHub Action run recorded. Waiting.")
-                time.sleep(1)
-                continue
+        run = gh(
+            "run",
+            "list",
+            "--branch",
+            branch,
+            "--limit",
+            "1",
+            "--json",
+            "databaseId,headSha",
+            json=True,
+        )
+        if not run:
+            print("No GitHub Action run recorded.")
+            raise tenacity.TryAgain()
 
-            latest_run_sha1 = run[0]["headSha"]
-            if latest_run_sha1 != sha1:
-                print(
-                    f"Latest run points to {latest_run_sha1}, expecting {sha1}. Waiting."
-                )
-                time.sleep(1)
-                continue
+        latest_run_sha1 = run[0]["headSha"]
+        if latest_run_sha1 != sha1:
+            print(f"Latest run points to {latest_run_sha1}, expecting {sha1}.")
+            raise tenacity.TryAgain()
 
-            return run[0]["databaseId"]
-
-        pytest.fail("Run didn't start within a minute. Stopping.")
+        return run[0]["databaseId"]
 
     return _
 

@@ -8,8 +8,11 @@ on:
 
 jobs:
   test:
-    name: Run tests & display coverage
+    name: Run tests & display/prepare coverage
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
 
       - uses: actions/checkout@v3

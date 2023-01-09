@@ -40,7 +40,8 @@ def test_public_repo(
     job_id = job_ids[0]
 
     # Then check the logs for this job
-    logs = gh_me("run", "view", f"--job={job_id}", "--log")
+    logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
+
     print("Logs:", logs)
     log_lines = logs.splitlines()
 
@@ -107,8 +108,15 @@ def test_public_repo(
     gh_me("run", "watch", run_id, "--exit-status")
 
     # Check that it added a comment saying coverage went up
-    comment = gh_me("pr", "view", "--json=comments", "--jq=.comments[0].body")
-
+    # Weird thing: apparently, GitHub returns `\n` as the content of a comment
+    # for a few seconds after the comment post. And then it starts working.
+    comment = gh_me(
+        "pr",
+        "view",
+        "--json=comments",
+        "--jq=.comments[0].body",
+        fail_value="\n",
+    )
     assert ":arrow_up:" in comment
 
     # And now let's create a PR from a fork of a different user
@@ -146,7 +154,12 @@ def test_public_repo(
 
     # Check that it added a comment saying coverage went up
     ext_comment = gh_other(
-        "pr", "view", full_branch_name, "--json=comments", "--jq=.comments[0].body"
+        "pr",
+        "view",
+        full_branch_name,
+        "--json=comments",
+        "--jq=.comments[0].body",
+        fail_value="\n",
     )
 
     assert ":arrow_up:" in ext_comment
@@ -185,7 +198,8 @@ def test_private_repo(
     job_id = job_ids[0]
 
     # Then check the logs for this job
-    logs = gh_me("run", "view", f"--job={job_id}", "--log")
+    logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
+    print("Logs:", logs)
 
     # We can't check that the link loads, because it's a private repo but we
     # can check it's the expected link
@@ -231,6 +245,11 @@ def test_private_repo(
     gh_me("run", "watch", run_id, "--exit-status")
 
     # Check that it added a comment saying coverage went up
-    comment = gh_me("pr", "view", "--json=comments", "--jq=.comments[0].body")
-
+    comment = gh_me(
+        "pr",
+        "view",
+        "--json=comments",
+        "--jq=.comments[0].body",
+        fail_value="\n",
+    )
     assert ":arrow_up:" in comment
