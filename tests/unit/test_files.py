@@ -52,3 +52,18 @@ def test_get_urls():
         "dynamic": "https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fendpoint.json",
         "endpoint": "https://img.shields.io/endpoint?url=https://endpoint.json",
     }
+
+
+def test_generate_coverage_html_files(mocker, in_tmp_path):
+    gen = mocker.patch("coverage_comment.coverage.generate_coverage_html_files")
+    cov = in_tmp_path / "htmlcov"
+    cov.mkdir()
+    gitignore = cov / ".gitignore"
+    gitignore.touch()
+
+    assert files.generate_coverage_html_files() == files.FileWithPath(
+        path=pathlib.Path("htmlcov"), contents=None
+    )
+
+    assert gen.called is True
+    assert not gitignore.exists()
