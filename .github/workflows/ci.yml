@@ -13,6 +13,9 @@ jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3

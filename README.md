@@ -79,6 +79,14 @@ jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
@@ -116,6 +124,17 @@ jobs:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
+      # Gives the action the necessary permissions for looking up the
+      # workflow that launched this workflow, and download the related
+      # artifact that contains the comment to be published
+      actions: read
     steps:
       # DO NOT run actions/checkout here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
@@ -187,6 +206,9 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v3
 

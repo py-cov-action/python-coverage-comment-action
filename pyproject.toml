@@ -22,14 +22,16 @@ diff-cover = "*"
 httpx = {version = "*", extras = ["http2"]}
 Jinja2 = "*"
 
-[tool.poetry.dev-dependencies]
-isort = "*"
+[tool.poetry.group.dev.dependencies]
 black = "*"
-mypy = "*"
 flake8 = "*"
+isort = "*"
+mypy = "*"
 pytest = "*"
-pytest-mock = "*"
 pytest-cov = "^4.0.0"
+pytest-mock = "*"
+tenacity = "^8.1.0"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
