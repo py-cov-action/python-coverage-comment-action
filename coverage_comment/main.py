@@ -81,7 +81,7 @@ def action(
             )
         else:
             # event_name == "push"
-            return save_badge(
+            return save_coverage_data_files(
                 config=config,
                 coverage=coverage,
                 github_session=github_session,
@@ -234,7 +234,7 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
     return 0
 
 
-def save_badge(
+def save_coverage_data_files(
     config: settings.Config,
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
@@ -253,13 +253,15 @@ def save_badge(
         log.info("Skipping badge save as we're not on the default branch")
         return 0
 
-    log.info("Saving coverage files & badge into the repository")
-    files_to_save = files.compute_files(
+    log.info("Computing coverage files & badge")
+    all_files = files.compute_files(
         line_rate=coverage.info.percent_covered,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
         http_session=http_session,
     )
+    log.info("Generating HTML coverage report")
+    all_files.append(files.generate_coverage_html_files())
     is_public = repo_info.is_public()
     url_getter = functools.partial(
         storage.get_file_url,
@@ -276,7 +278,7 @@ def save_badge(
         is_public=is_public,
     )
     storage.upload_files(
-        files=files_to_save,
+        files=all_files,
         git=git,
         branch=config.COVERAGE_DATA_BRANCH,
         initial_file=readme_file,

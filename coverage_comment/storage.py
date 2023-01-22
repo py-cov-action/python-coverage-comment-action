@@ -98,7 +98,9 @@ def upload_files(
             )
 
         for file in files:
-            file.path.write_text(file.contents)
+            log.debug("Adding {file}")
+            if file.contents is not None:
+                file.path.write_text(file.contents)
             git.add(str(file.path))
 
         try:

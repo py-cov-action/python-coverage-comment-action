@@ -90,6 +90,10 @@ def get_coverage_info(merge: bool) -> Coverage:
     return extract_info(json.loads(json_coverage))
 
 
+def generate_coverage_html_files() -> None:
+    subprocess.run("coverage", "html")
+
+
 def extract_info(data) -> Coverage:
     """
     {

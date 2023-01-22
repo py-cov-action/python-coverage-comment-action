@@ -11,7 +11,7 @@ from typing import TypedDict
 
 import httpx
 
-from coverage_comment import badge
+from coverage_comment import badge, coverage
 
 ENDPOINT_PATH = pathlib.Path("endpoint.json")
 DATA_PATH = pathlib.Path("data.json")
@@ -21,7 +21,7 @@ BADGE_PATH = pathlib.Path("badge.svg")
 @dataclasses.dataclass
 class FileWithPath:
     path: pathlib.Path
-    contents: str
+    contents: str | None
 
 
 def compute_files(
@@ -78,3 +78,8 @@ def get_urls(url_getter: Callable) -> ImageURLs:
         "endpoint": badge.get_endpoint_url(endpoint_url=url_getter(path=ENDPOINT_PATH)),
         "dynamic": badge.get_dynamic_url(endpoint_url=url_getter(path=ENDPOINT_PATH)),
     }
+
+
+def generate_coverage_html_files() -> FileWithPath:
+    coverage.generate_coverage_html_files()
+    return FileWithPath(path=pathlib.Path("htmlcov"), contents=None)
