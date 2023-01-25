@@ -94,6 +94,10 @@ def generate_coverage_html_files() -> None:
     subprocess.run("coverage", "html", "--skip-empty")
 
 
+def generate_coverage_markdown() -> str:
+    return subprocess.run("coverage", "report", "--format=markdown", "--show-missing")
+
+
 def extract_info(data) -> Coverage:
     """
     {

@@ -105,6 +105,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     git.register(f"git add {files_to_save[0].path}")()
     git.register(f"git add {files_to_save[1].path}")()
     git.register(f"git add {files_to_save[2].path}")()
+    git.register("git add readme.txt")()
     git.register("git diff --staged --exit-code")(exit_code=1 if has_diff else 0)
 
     if has_diff:

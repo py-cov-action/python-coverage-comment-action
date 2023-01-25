@@ -80,3 +80,15 @@ def test_generate_coverage_html_files(mocker):
     assert run.call_args_list == [
         mocker.call("coverage", "html", "--skip-empty"),
     ]
+
+
+def test_generate_coverage_markdown(mocker):
+    run = mocker.patch("coverage_comment.subprocess.run", return_value="foo")
+
+    result = coverage.generate_coverage_markdown()
+
+    assert run.call_args_list == [
+        mocker.call("coverage", "report", "--format=markdown", "--show-missing"),
+    ]
+
+    assert result == "foo"
