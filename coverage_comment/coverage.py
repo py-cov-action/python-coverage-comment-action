@@ -91,7 +91,7 @@ def get_coverage_info(merge: bool) -> Coverage:
 
 
 def generate_coverage_html_files() -> None:
-    subprocess.run("coverage", "html")
+    subprocess.run("coverage", "html", "--skip-empty")
 
 
 def extract_info(data) -> Coverage:

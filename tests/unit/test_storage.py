@@ -74,6 +74,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     files_to_save = [
         files.FileWithPath(path=pathlib.Path("a.txt"), contents="a"),
         files.FileWithPath(path=pathlib.Path("b.txt"), contents="b"),
+        files.FileWithPath(path=pathlib.Path("c.txt"), contents=None),
     ]
 
     # on_coverage_branch
@@ -103,6 +104,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     # upload_files
     git.register(f"git add {files_to_save[0].path}")()
     git.register(f"git add {files_to_save[1].path}")()
+    git.register(f"git add {files_to_save[2].path}")()
     git.register("git diff --staged --exit-code")(exit_code=1 if has_diff else 0)
 
     if has_diff:
@@ -131,6 +133,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
 
     assert files_to_save[0].path.read_text() == files_to_save[0].contents
     assert files_to_save[1].path.read_text() == files_to_save[1].contents
+    assert not files_to_save[2].path.exists()
 
 
 def test_get_datafile_contents__not_found(gh, session):
@@ -181,3 +184,15 @@ def test_get_readme_url():
     result = storage.get_readme_url(repository="foo/bar", branch="baz")
 
     assert result == "https://github.com/foo/bar/tree/baz"
+
+
+def test_get_readme_url__path():
+    result = storage.get_readme_url(repository="foo/bar", branch="baz", path="/foo")
+
+    assert result == "https://github.com/foo/bar/blob/baz/foo"
+
+
+def test_get_html_report_url():
+    result = storage.get_html_report_url(repository="foo/bar", branch="baz")
+    expected = "https://htmlpreview.github.io/?https://github.com/foo/bar/blob/baz/htmlcov/index.html"
+    assert result == expected

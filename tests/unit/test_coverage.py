@@ -68,3 +68,15 @@ def test_get_coverage_info__error_no_source(mocker, get_logs):
         coverage.get_coverage_info(merge=False)
 
     assert get_logs("ERROR", "Cannot read")
+
+
+def test_generate_coverage_html_files(mocker):
+    run = mocker.patch(
+        "coverage_comment.subprocess.run",
+    )
+
+    coverage.generate_coverage_html_files()
+
+    assert run.call_args_list == [
+        mocker.call("coverage", "html", "--skip-empty"),
+    ]
