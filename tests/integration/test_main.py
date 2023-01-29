@@ -356,7 +356,8 @@ You can use the following URLs to display your badge:
 - Badge from shields dynamic url (less useful but you never know):
     https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fpy-cov-action%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
 
-See more details and ready-to-copy-paste-markdown at https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
+See more details and ready-to-copy-paste-markdown at:
+    https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
 
 
@@ -400,7 +401,8 @@ def test_action__push__default_branch__private(
 - Badge SVG available at:
     https://github.com/py-cov-action/foobar/raw/python-coverage-comment-action-data/badge.svg
 
-See more details and ready-to-copy-paste-markdown at https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
+See more details and ready-to-copy-paste-markdown at:
+    https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
 
 
