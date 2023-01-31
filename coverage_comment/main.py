@@ -35,6 +35,7 @@ def main():
     )
     http_session = httpx.Client()
     git = subprocess.Git()
+    storage.fix_ownership_issues(git=git)
 
     exit_code = action(
         config=config,

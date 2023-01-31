@@ -160,3 +160,22 @@ def get_file_url(
 
 def get_readme_url(repository: str, branch: str) -> str:
     return f"https://github.com/{repository}/tree/{branch}"
+
+
+def fix_ownership_issues(git: subprocess.Git):
+    # As of 2023-01-30, GitHub changed _something_ to the ownership of the git repo
+    # which confuses git like hell:
+    #
+    #     fatal: detected dubious ownership in repository at '/github/workspace'
+    #     To add an exception for this directory, call:
+    #         git config --global --add safe.directory /github/workspace
+    #
+    # Of course, this makes sense only when the action runs in GHA, but it's harmless
+    # when testing the action locally, except that it will add random trash to the
+    # user's git config.
+    #
+    # From git's doc:
+    # > This config setting is only respected when specified in a system or global
+    # > config, not when it is specified in a repository config or via the command line
+    # > option
+    git.config("--global", "--add", "safe.directory", "/github/workspace")
