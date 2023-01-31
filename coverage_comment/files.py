@@ -84,6 +84,6 @@ def generate_coverage_html_files() -> FileWithPath:
     coverage.generate_coverage_html_files()
     path = pathlib.Path("htmlcov")
     # Coverage will create a .gitignore if the htmlcov dir didn't exist before,
-    # se we may or may not have one.
+    # so we may or may not have one.
     (path / ".gitignore").unlink(missing_ok=True)
     return FileWithPath(path=path, contents=None)
