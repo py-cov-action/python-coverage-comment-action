@@ -67,7 +67,6 @@ Missing lines: `7`, `9`
 
 
 def test_template_full():
-
     cov = coverage.Coverage(
         meta=coverage.CoverageMetadata(
             version="1.2.3",
@@ -230,7 +229,6 @@ def test_read_template_file():
 
 
 def test_template__no_marker(coverage_obj, diff_coverage_obj):
-
     with pytest.raises(template.MissingMarker):
         template.get_markdown_comment(
             coverage=coverage_obj,
@@ -242,7 +240,6 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
 
 
 def test_template__broken_template(coverage_obj, diff_coverage_obj):
-
     with pytest.raises(template.TemplateError):
         template.get_markdown_comment(
             coverage=coverage_obj,

@@ -7,7 +7,6 @@ from coverage_comment import files, storage
 
 
 def test_initialize_branch(git, tmp_path):
-
     readme_path = tmp_path / "readme.txt"
     git.register("git checkout --orphan foo")()
     git.register("git reset --hard")()
@@ -32,7 +31,6 @@ def test_initialize_branch(git, tmp_path):
 
 
 def test_on_coverage_branch(git):
-
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git checkout foo")()
@@ -43,7 +41,6 @@ def test_on_coverage_branch(git):
 
 
 def test_on_coverage_branch__detached_head(git):
-
     git.register("git branch --show-current")(exit_code=1)
     git.register("git rev-parse --short HEAD")(stdout="123abc")
     git.register("git fetch")()
@@ -55,7 +52,6 @@ def test_on_coverage_branch__detached_head(git):
 
 
 def test_on_coverage_branch__branch_doesnt_exist(git):
-
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git checkout foo")(exit_code=1)
@@ -73,7 +69,6 @@ def test_on_coverage_branch__branch_doesnt_exist(git):
     ],
 )
 def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
-
     readme_path = pathlib.Path("readme.txt")
     initial_file = files.FileWithPath(path=readme_path, contents="foo")
     files_to_save = [
@@ -183,7 +178,6 @@ def test_get_file_url(is_public, expected):
 
 
 def test_get_readme_url():
-
     result = storage.get_readme_url(repository="foo/bar", branch="baz")
 
     assert result == "https://github.com/foo/bar/tree/baz"

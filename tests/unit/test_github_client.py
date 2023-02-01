@@ -4,7 +4,6 @@ from coverage_comment import github_client
 
 
 def test_github_client__get(session, gh):
-
     session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
         json={"foo": "bar"}
     )

@@ -43,7 +43,6 @@ def test_get_repository_info(gh, session):
 
 
 def test_download_artifact(gh, session, zip_bytes):
-
     artifacts = [
         {"name": "bar", "id": 456},
         {"name": "foo", "id": 789},
@@ -68,7 +67,6 @@ def test_download_artifact(gh, session, zip_bytes):
 
 
 def test_download_artifact__no_artifact(gh, session):
-
     artifacts = [
         {"name": "bar", "id": 456},
     ]
@@ -87,7 +85,6 @@ def test_download_artifact__no_artifact(gh, session):
 
 
 def test_download_artifact__no_file(gh, session, zip_bytes):
-
     artifacts = [
         {"name": "foo", "id": 789},
     ]

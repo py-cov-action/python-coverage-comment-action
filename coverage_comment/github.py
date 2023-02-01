@@ -75,7 +75,6 @@ def download_artifact(
 def get_pr_number_from_workflow_run(
     github: github_client.GitHub, repository: str, run_id: int
 ) -> int:
-
     # It's quite horrendous to access the PR number from a workflow run,
     # especially when it's not the "pull_request" workflow run itself but a
     # "workflow_run" workflow run that runs after the "pull_request" workflow
@@ -134,7 +133,6 @@ def post_comment(
     contents: str,
     marker: str,
 ) -> None:
-
     issue_comments_path = github.repos(repository).issues(pr_number).comments
     comments_path = github.repos(repository).issues.comments
 
