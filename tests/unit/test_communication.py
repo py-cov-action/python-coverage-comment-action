@@ -5,7 +5,6 @@ from coverage_comment import communication
 
 @pytest.mark.parametrize("is_public", [True, False])
 def test_get_readme_and_log(is_public):
-
     readme_file, log = communication.get_readme_and_log(
         image_urls={
             "direct": "https://a",

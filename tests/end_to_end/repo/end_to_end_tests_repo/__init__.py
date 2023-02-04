@@ -1,5 +1,4 @@
 def f(a="", b="", c="", d=""):
-
     elements = []
     if a:
         elements.append(a)

@@ -30,7 +30,6 @@ def initialize_branch(
     branch: str,
     initial_file: files.FileWithPath,
 ):
-
     log.info(f"Creating branch {branch}")
     git.checkout("--orphan", branch)
     git.reset("--hard")
