@@ -10,7 +10,6 @@ def get_readme_and_log(
     markdown_report: str,
     is_public: bool,
 ) -> tuple[files.FileWithPath, str]:
-
     readme_markdown = template.get_readme_markdown(
         is_public=is_public,
         readme_url=readme_url,
