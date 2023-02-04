@@ -80,7 +80,7 @@ def get_urls(url_getter: Callable) -> ImageURLs:
     }
 
 
-def generate_coverage_html_files() -> FileWithPath:
+def get_coverage_html_files() -> FileWithPath:
     coverage.generate_coverage_html_files()
     path = pathlib.Path("htmlcov")
     # Coverage will create a .gitignore if the htmlcov dir didn't exist before,

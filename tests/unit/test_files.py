@@ -54,14 +54,14 @@ def test_get_urls():
     }
 
 
-def test_generate_coverage_html_files(mocker, in_tmp_path):
+def test_get_coverage_html_files(mocker, in_tmp_path):
     gen = mocker.patch("coverage_comment.coverage.generate_coverage_html_files")
     cov = in_tmp_path / "htmlcov"
     cov.mkdir()
     gitignore = cov / ".gitignore"
     gitignore.touch()
 
-    assert files.generate_coverage_html_files() == files.FileWithPath(
+    assert files.get_coverage_html_files() == files.FileWithPath(
         path=pathlib.Path("htmlcov"), contents=None
     )
 
