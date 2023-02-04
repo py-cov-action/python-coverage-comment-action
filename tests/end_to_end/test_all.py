@@ -1,8 +1,10 @@
 import base64
 
 import httpx
+import pytest
 
 
+@pytest.mark.repo_suffix("public")
 def test_public_repo(
     gh_create_repo,
     wait_for_run_to_start,
@@ -165,6 +167,7 @@ def test_public_repo(
     assert ":arrow_up:" in ext_comment
 
 
+@pytest.mark.repo_suffix("private")
 def test_private_repo(
     gh_create_repo,
     wait_for_run_to_start,
