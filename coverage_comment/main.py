@@ -269,7 +269,7 @@ def save_coverage_data_files(
     markdown_report = coverage_module.generate_coverage_markdown()
 
     url_getter = functools.partial(
-        storage.get_file_url,
+        storage.get_raw_file_url,
         is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
         branch=config.COVERAGE_DATA_BRANCH,

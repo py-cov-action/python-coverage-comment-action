@@ -171,8 +171,8 @@ def test_get_datafile_contents(gh, session):
         (True, "https://raw.githubusercontent.com/foo/bar/baz/qux"),
     ],
 )
-def test_get_file_url(is_public, expected):
-    result = storage.get_file_url(
+def test_get_raw_file_url(is_public, expected):
+    result = storage.get_raw_file_url(
         repository="foo/bar",
         branch="baz",
         path=pathlib.Path("qux"),

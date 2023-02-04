@@ -136,7 +136,7 @@ def get_datafile_contents(
     return base64.b64decode(response.content).decode()
 
 
-def get_file_url(
+def get_raw_file_url(
     repository: str,
     branch: str,
     path: pathlib.Path,
