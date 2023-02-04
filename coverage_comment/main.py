@@ -274,7 +274,7 @@ def save_coverage_data_files(
         repository=config.GITHUB_REPOSITORY,
         branch=config.COVERAGE_DATA_BRANCH,
     )
-    readme_url = storage.get_readme_url(
+    readme_url = storage.get_repo_file_url(
         branch=config.COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )

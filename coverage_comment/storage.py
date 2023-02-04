@@ -159,13 +159,13 @@ def get_file_url(
     # seconds.
 
 
-def get_readme_url(repository: str, branch: str, path: str | None = None) -> str:
+def get_repo_file_url(repository: str, branch: str, path: str | None = None) -> str:
     part = "blob" if path else "tree"
     return f"https://github.com/{repository}/{part}/{branch}{path or ''}"
 
 
 def get_html_report_url(repository: str, branch: str) -> str:
-    readme_url = get_readme_url(
+    readme_url = get_repo_file_url(
         repository=repository, branch=branch, path="/htmlcov/index.html"
     )
     return f"https://htmlpreview.github.io/?{readme_url}"

@@ -181,14 +181,14 @@ def test_get_file_url(is_public, expected):
     assert result == expected
 
 
-def test_get_readme_url():
-    result = storage.get_readme_url(repository="foo/bar", branch="baz")
+def test_get_repo_file_url():
+    result = storage.get_repo_file_url(repository="foo/bar", branch="baz")
 
     assert result == "https://github.com/foo/bar/tree/baz"
 
 
-def test_get_readme_url__path():
-    result = storage.get_readme_url(repository="foo/bar", branch="baz", path="/foo")
+def test_get_repo_file_url__path():
+    result = storage.get_repo_file_url(repository="foo/bar", branch="baz", path="/foo")
 
     assert result == "https://github.com/foo/bar/blob/baz/foo"
 
