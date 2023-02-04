@@ -1,5 +1,5 @@
 # If you change anything here, bump the version in:
-# - Dockerfile.run
+# - Dockerfile
 # - .github/workflows/docker.yml
 
 FROM python:3.10-slim
@@ -8,6 +8,9 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y git; \
     rm -rf /var/lib/apt/lists/*
+
+# https://github.com/actions/runner-images/issues/6775
+RUN git config --system --add safe.directory *
 
 WORKDIR /workdir
 
