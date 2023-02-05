@@ -4,10 +4,11 @@
 
 ## Presentation
 
-Publish diff coverage report as PR comment, and create a coverage badge to
-display on the readme.
+Publish diff coverage report as PR comment, create a coverage badge to
+display on the readme, and a browsable HTML coverage report (hosted in a dedicated
+branch of the repository)
 
-See example at: https://github.com/py-cov-action/python-coverage-comment-action-v3-example
+[See this action in action](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
 ## What does it do?
 
@@ -25,12 +26,12 @@ of coverage rate attributed to this PR, as well as the rate of coverage
 for lines that this PR introduces. There's also a small analysis for each
 file in a collapsed block.
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-v3-example/pull/2#issuecomment-1244431724
+See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example/pull/2#issuecomment-1244431724).
 
 ### Default branch mode
 
 On repository's default branch, it will extract the coverage rate and create
-files that will be stored on a dedicated orphan branch in the repository.
+files that will be stored on a dedicated independant branch in your repository.
 
 These files include:
 
@@ -39,8 +40,10 @@ These files include:
   repository is public to customize the look of your badge
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
+- A short file-by-file coverage report embedded directy into the branch's README
+- The full HTML coverage report and links to make this report browsable
 
-See: https://github.com/py-cov-action/python-coverage-comment-action-v3-example
+See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
 ## Usage
 
@@ -323,8 +326,8 @@ coverage (percentage) of the whole project from the PR build:
 
 # Other topics
 ## Pinning
-On the examples above, the version was set to `v2` (a branch). You can also pin
-a specific version such as `v2.0.0` (a tag). There are still things left to
+On the examples above, the version was set to `v3` (a branch). You can also pin
+a specific version such as `v3.0.0` (a tag). There are still things left to
 figure out in how to manage releases and version. If you're interested, please
 open an issue to discuss this.
 
@@ -336,9 +339,9 @@ version to an exact tag, and use dependabot to update it regularily.
 This action is tested with 100% coverage. That said, coverage isn't all, and
 there may be a lot of remaining issues :)
 
-I'm not prioritizing maintenance on this action, but I'll do my best to assist
-questions and PRs. Feature requests are most likely not to be taken but if
-you're ready to do a PR, I'll gladly work with you.
+We accept Pull Requests (for bug fixes and previously-discussed features), and bug
+reports. For feature requests, this might depend on how much time we have on our hands
+at the moment, and how well you manage to sell it but don't get your hopes too high.
 
 ## Generic coverage
 
