@@ -173,11 +173,19 @@ def escape_data(s: str) -> str:
     return s.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
-def send_workflow_command(command: str, command_value: str, **kwargs: str) -> None:
+def get_workflow_command(command: str, command_value: str, **kwargs: str) -> str:
+    """
+    Returns a string that can be printed to send a workflow command
+    https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+    """
     values_listed = [f"{key}={escape_property(value)}" for key, value in kwargs.items()]
 
     context = f" {','.join(values_listed)}" if values_listed else ""
-    print(f"::{command}{context}::{escape_data(command_value)}")
+    return f"::{command}{context}::{escape_data(command_value)}"
+
+
+def send_workflow_command(command: str, command_value: str, **kwargs: str) -> None:
+    print(get_workflow_command(command=command, command_value=command_value, **kwargs))
 
 
 def create_missing_coverage_annotation(annotation_type: str, file: str, line: int):
