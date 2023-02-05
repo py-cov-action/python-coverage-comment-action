@@ -4,6 +4,8 @@ import inspect
 import pathlib
 from typing import Any
 
+from coverage_comment import log
+
 
 class MissingEnvironmentVariable(Exception):
     pass
@@ -81,7 +83,11 @@ class Config:
 
     @classmethod
     def clean_verbose(cls, value: str) -> bool:
-        return str_to_bool(value)
+        if str_to_bool(value):
+            log.info(
+                "VERBOSE setting is deprecated. For increased debug output, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging"
+            )
+        return False
 
     @classmethod
     def clean_force_workflow_run(cls, value: str) -> bool:

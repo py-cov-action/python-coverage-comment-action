@@ -21,14 +21,11 @@ from coverage_comment import (
 
 
 def main():
-    logging.basicConfig(level="INFO")
+    logging.basicConfig(level="DEBUG")
     logging.getLogger().handlers[0].formatter = log_utils.GitHubFormatter()
 
     log.info("Starting action")
     config = settings.Config.from_environ(environ=os.environ)
-    if config.VERBOSE:
-        logging.getLogger().setLevel("DEBUG")
-        log.debug(f"Settings: {config}")
 
     github_session = httpx.Client(
         base_url="https://api.github.com",

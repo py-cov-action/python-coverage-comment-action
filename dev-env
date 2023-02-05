@@ -131,7 +131,6 @@ function run(){
 event push
 ref branch
 run $(gh run list --limit 1 --json databaseId --jq='.[].databaseId')
-export VERBOSE=true
 
 function help(){
 

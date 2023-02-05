@@ -264,9 +264,6 @@ jobs:
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
     ANNOTATION_TYPE: warning
 
-    # If true, produces more output. Useful for debugging.
-    VERBOSE: false
-
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
     COMMENT_ARTIFACT_NAME: python-coverage-comment-action
@@ -281,6 +278,9 @@ jobs:
     # Name of the branch in which coverage data will be stored on the repository.
     # Please make sure that this branch is not protected.
     COVERAGE_DATA_BRANCH: python-coverage-comment-action-data
+
+    # Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
+    VERBOSE: false
 ```
 
 ## Overriding the template

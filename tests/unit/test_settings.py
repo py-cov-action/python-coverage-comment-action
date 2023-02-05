@@ -81,7 +81,6 @@ def config():
         "MINIMUM_GREEN": decimal.Decimal("90"),
         "MINIMUM_ORANGE": decimal.Decimal("50.8"),
         "MERGE_COVERAGE_FILES": True,
-        "VERBOSE": False,
     }
 
     def _(**kwargs):

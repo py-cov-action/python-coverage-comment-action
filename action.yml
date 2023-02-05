@@ -67,7 +67,7 @@ inputs:
     default: warning
   VERBOSE:
     description: >
-      If true, produces more output. Useful for debugging.
+      Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     default: false
 outputs:
   COMMENT_FILE_WRITTEN:
