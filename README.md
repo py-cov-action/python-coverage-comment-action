@@ -284,7 +284,7 @@ jobs:
 
 By default, comments are generated from a
 [Jinja](https://jinja.palletsprojects.com) template that you can read
-[here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v2/coverage_comment/default.md.j2).
+[here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v3/coverage_comment/template_files/comment.md.j2).
 
 If you want to change this template, you can set ``COMMENT_TEMPLATE``. This is
 an advanced usage, so you're likely to run into more road bumps.
