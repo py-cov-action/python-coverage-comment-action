@@ -30,33 +30,33 @@ def test_initialize_branch(git, tmp_path):
     assert readme_path.read_text() == "bar"
 
 
-def test_on_coverage_branch(git):
+def test_checked_out_branch(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git checkout foo")()
 
-    with storage.on_coverage_branch(git=git, branch="foo") as exists:
+    with storage.checked_out_branch(git=git, branch="foo") as exists:
         assert exists is True
         git.register("git checkout bar")()
 
 
-def test_on_coverage_branch__detached_head(git):
+def test_checked_out_branch__detached_head(git):
     git.register("git branch --show-current")(exit_code=1)
     git.register("git rev-parse --short HEAD")(stdout="123abc")
     git.register("git fetch")()
     git.register("git checkout foo")()
 
-    with storage.on_coverage_branch(git=git, branch="foo") as exists:
+    with storage.checked_out_branch(git=git, branch="foo") as exists:
         assert exists is True
         git.register("git checkout 123abc")()
 
 
-def test_on_coverage_branch__branch_doesnt_exist(git):
+def test_checked_out_branch__branch_doesnt_exist(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git checkout foo")(exit_code=1)
 
-    with storage.on_coverage_branch(git=git, branch="foo") as exists:
+    with storage.checked_out_branch(git=git, branch="foo") as exists:
         assert exists is False
         git.register("git checkout bar")()
 
@@ -77,7 +77,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
         files.FileWithPath(path=pathlib.Path("c.txt"), contents=None),
     ]
 
-    # on_coverage_branch
+    # checked_out_branch
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git checkout foo")(exit_code=0 if branch_exists else 1)
@@ -122,7 +122,7 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
         )()
         git.register("git push origin foo")()
 
-    # __exit__ of on_coverage_branch
+    # __exit__ of checked_out_branch
     git.register("git checkout bar")()
 
     storage.upload_files(

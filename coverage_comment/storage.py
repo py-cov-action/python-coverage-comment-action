@@ -44,7 +44,7 @@ def initialize_branch(
 
 
 @contextlib.contextmanager
-def on_coverage_branch(git: subprocess.Git, branch: str):
+def checked_out_branch(git: subprocess.Git, branch: str):
     try:
         current_checkout = git.branch("--show-current").strip()
     except subprocess.SubProcessError:
@@ -89,7 +89,7 @@ def upload_files(
     initial_file : files.FileWithPath
         In case the branch didn't exist, initialize it with this initial file.
     """
-    with on_coverage_branch(git=git, branch=branch) as branch_exists:
+    with checked_out_branch(git=git, branch=branch) as branch_exists:
         if not branch_exists:
             initialize_branch(
                 git=git,
