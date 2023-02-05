@@ -181,16 +181,27 @@ def test_get_raw_file_url(is_public, expected):
     assert result == expected
 
 
-def test_get_repo_file_url():
+@pytest.mark.parametrize(
+    "path, expected",
+    [
+        ("", "https://github.com/foo/bar/tree/baz"),
+        ("/", "https://github.com/foo/bar/tree/baz"),
+        ("qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
+        ("qux/", "https://github.com/foo/bar/tree/baz/qux"),
+        ("/qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
+        ("/qux/", "https://github.com/foo/bar/tree/baz/qux"),
+    ],
+)
+def test_get_repo_file_url(path, expected):
+    result = storage.get_repo_file_url(repository="foo/bar", branch="baz", path=path)
+
+    assert result == expected
+
+
+def test_get_repo_file_url__no_path():
     result = storage.get_repo_file_url(repository="foo/bar", branch="baz")
 
     assert result == "https://github.com/foo/bar/tree/baz"
-
-
-def test_get_repo_file_url__path():
-    result = storage.get_repo_file_url(repository="foo/bar", branch="baz", path="/foo")
-
-    assert result == "https://github.com/foo/bar/blob/baz/foo"
 
 
 def test_get_html_report_url():

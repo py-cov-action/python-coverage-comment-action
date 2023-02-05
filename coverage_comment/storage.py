@@ -159,9 +159,19 @@ def get_raw_file_url(
     # seconds.
 
 
-def get_repo_file_url(repository: str, branch: str, path: str | None = None) -> str:
-    part = "blob" if path else "tree"
-    return f"https://github.com/{repository}/{part}/{branch}{path or ''}"
+def get_repo_file_url(repository: str, branch: str, path: str = "/") -> str:
+    """
+    Computes the GitHub Web UI URL for a given path:
+    If the path is empty or ends with a slash, it will be interpreted as a folder,
+    so the URL will point to the page listing files and displaying the README.
+    Otherwise, the URL will point to the page displaying the file contents within
+    the UI.
+    Leading and trailing slashes in path are removed from the final URL.
+    """
+    # See test_get_repo_file_url for precise specifications
+    path = "/" + path.lstrip("/")
+    part = "tree" if path.endswith("/") else "blob"
+    return f"https://github.com/{repository}/{part}/{branch}{path}".rstrip("/")
 
 
 def get_html_report_url(repository: str, branch: str) -> str:
