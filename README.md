@@ -4,9 +4,8 @@
 
 ## Presentation
 
-Publish diff coverage report as PR comment, create a coverage badge to
-display on the readme, and a browsable HTML coverage report (hosted in a dedicated
-branch of the repository)
+Publish diff coverage report as PR comment, and create a coverage badge to
+display on the readme.
 
 [See this action in action](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
@@ -40,8 +39,6 @@ These files include:
   repository is public to customize the look of your badge
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
-- A short file-by-file coverage report embedded directy into the branch's README
-- The full HTML coverage report and links to make this report browsable
 
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 

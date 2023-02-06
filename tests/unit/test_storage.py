@@ -74,7 +74,6 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     files_to_save = [
         files.FileWithPath(path=pathlib.Path("a.txt"), contents="a"),
         files.FileWithPath(path=pathlib.Path("b.txt"), contents="b"),
-        files.FileWithPath(path=pathlib.Path("c.txt"), contents=None),
     ]
 
     # on_coverage_branch
@@ -104,8 +103,6 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
     # upload_files
     git.register(f"git add {files_to_save[0].path}")()
     git.register(f"git add {files_to_save[1].path}")()
-    git.register(f"git add {files_to_save[2].path}")()
-    git.register("git add readme.txt")()
     git.register("git diff --staged --exit-code")(exit_code=1 if has_diff else 0)
 
     if has_diff:
@@ -134,7 +131,6 @@ def test_upload_files(git, in_tmp_path, branch_exists, has_diff):
 
     assert files_to_save[0].path.read_text() == files_to_save[0].contents
     assert files_to_save[1].path.read_text() == files_to_save[1].contents
-    assert not files_to_save[2].path.exists()
 
 
 def test_get_datafile_contents__not_found(gh, session):
@@ -171,8 +167,8 @@ def test_get_datafile_contents(gh, session):
         (True, "https://raw.githubusercontent.com/foo/bar/baz/qux"),
     ],
 )
-def test_get_raw_file_url(is_public, expected):
-    result = storage.get_raw_file_url(
+def test_get_file_url(is_public, expected):
+    result = storage.get_file_url(
         repository="foo/bar",
         branch="baz",
         path=pathlib.Path("qux"),
@@ -181,30 +177,7 @@ def test_get_raw_file_url(is_public, expected):
     assert result == expected
 
 
-@pytest.mark.parametrize(
-    "path, expected",
-    [
-        ("", "https://github.com/foo/bar/tree/baz"),
-        ("/", "https://github.com/foo/bar/tree/baz"),
-        ("qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
-        ("qux/", "https://github.com/foo/bar/tree/baz/qux"),
-        ("/qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
-        ("/qux/", "https://github.com/foo/bar/tree/baz/qux"),
-    ],
-)
-def test_get_repo_file_url(path, expected):
-    result = storage.get_repo_file_url(repository="foo/bar", branch="baz", path=path)
-
-    assert result == expected
-
-
-def test_get_repo_file_url__no_path():
-    result = storage.get_repo_file_url(repository="foo/bar", branch="baz")
+def test_get_readme_url():
+    result = storage.get_readme_url(repository="foo/bar", branch="baz")
 
     assert result == "https://github.com/foo/bar/tree/baz"
-
-
-def test_get_html_report_url():
-    result = storage.get_html_report_url(repository="foo/bar", branch="baz")
-    expected = "https://htmlpreview.github.io/?https://github.com/foo/bar/blob/baz/htmlcov/index.html"
-    assert result == expected

@@ -323,8 +323,6 @@ def test_action__push__default_branch(
     git.register("git add endpoint.json")()
     git.register("git add data.json")()
     git.register("git add badge.svg")()
-    git.register("git add htmlcov")()
-    git.register("git add README.md")()
     git.register("git diff --staged --exit-code")(exit_code=1)
     git.register("git commit --message Update badge")()
     git.register("git push origin python-coverage-comment-action-data")()
@@ -339,70 +337,21 @@ def test_action__push__default_branch(
     assert result == 0
 
     assert not get_logs("INFO", "Skipping badge")
-    assert get_logs("INFO", "Saving coverage files")
-
-    log = get_logs("INFO", "Badge SVG available at")[0]
-    expected = """You can browse the full coverage report at:
-    https://htmlpreview.github.io/?https://github.com/py-cov-action/foobar/blob/python-coverage-comment-action-data/htmlcov/index.html
-
-You can use the following URLs to display your badge:
-
-- Badge SVG available at:
-    https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/badge.svg
-
-- Badge from shields endpoint is easier to customize but doesn't work with private repo:
-    https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/endpoint.json
-
-- Badge from shields dynamic url (less useful but you never know):
-    https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fpy-cov-action%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
-
-See more details and ready-to-copy-paste-markdown at:
-    https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
-    assert log == expected
-
-
-def test_action__push__default_branch__private(
-    push_config, session, in_integration_env, get_logs, git
-):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "private"}
-    )
-    session.register(
-        "GET",
-        "https://img.shields.io/static/v1?label=Coverage&message=85%25&color=orange",
-    )(text="<this is a svg badge>")
-
-    git.register("git branch --show-current")(stdout="foo")
-    git.register("git fetch")()
-    git.register("git checkout python-coverage-comment-action-data")()
-    git.register("git add endpoint.json")()
-    git.register("git add data.json")()
-    git.register("git add badge.svg")()
-    git.register("git add README.md")()
-    git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message Update badge")()
-    git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git checkout foo")()
-
-    result = main.action(
-        config=push_config(),
-        github_session=session,
-        http_session=session,
-        git=git,
-    )
-    assert result == 0
-
-    assert not get_logs("INFO", "Skipping badge")
-    assert get_logs("INFO", "Saving coverage files")
+    assert get_logs("INFO", "Saving coverage files & badge into the repository")
 
     log = get_logs("INFO", "Badge SVG available at")[0]
     expected = """You can use the following URLs to display your badge:
 
-- Badge SVG available at:
-    https://github.com/py-cov-action/foobar/raw/python-coverage-comment-action-data/badge.svg
+Badge SVG available at:
+    https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/badge.svg
 
-See more details and ready-to-copy-paste-markdown at:
-    https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
+Badge from shields endpoint is easier to customize but doesn't work with private repo:
+    https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/py-cov-action/foobar/python-coverage-comment-action-data/endpoint.json
+
+Badge from shields dynamic url (less useful but you never know):
+    https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2Fpy-cov-action%2Ffoobar%2Fpython-coverage-comment-action-data%2Fendpoint.json
+
+See more details and ready-to-copy-paste-markdown at https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
 
 

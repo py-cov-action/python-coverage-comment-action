@@ -11,7 +11,7 @@ from typing import TypedDict
 
 import httpx
 
-from coverage_comment import badge, coverage
+from coverage_comment import badge
 
 ENDPOINT_PATH = pathlib.Path("endpoint.json")
 DATA_PATH = pathlib.Path("data.json")
@@ -21,7 +21,7 @@ BADGE_PATH = pathlib.Path("badge.svg")
 @dataclasses.dataclass
 class FileWithPath:
     path: pathlib.Path
-    contents: str | None
+    contents: str
 
 
 def compute_files(
@@ -78,12 +78,3 @@ def get_urls(url_getter: Callable) -> ImageURLs:
         "endpoint": badge.get_endpoint_url(endpoint_url=url_getter(path=ENDPOINT_PATH)),
         "dynamic": badge.get_dynamic_url(endpoint_url=url_getter(path=ENDPOINT_PATH)),
     }
-
-
-def get_coverage_html_files() -> FileWithPath:
-    coverage.generate_coverage_html_files()
-    path = pathlib.Path("htmlcov")
-    # Coverage will create a .gitignore if the htmlcov dir didn't exist before,
-    # so we may or may not have one.
-    (path / ".gitignore").unlink(missing_ok=True)
-    return FileWithPath(path=path, contents=None)
