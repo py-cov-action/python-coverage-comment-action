@@ -90,8 +90,8 @@ def get_coverage_info(merge: bool) -> Coverage:
     return extract_info(json.loads(json_coverage))
 
 
-def generate_coverage_html_files() -> None:
-    subprocess.run("coverage", "html", "--skip-empty")
+def generate_coverage_html_files(path: pathlib.Path) -> None:
+    subprocess.run("coverage", "html", "--skip-empty", "--directory", str(path))
 
 
 def generate_coverage_markdown() -> str:

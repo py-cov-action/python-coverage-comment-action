@@ -1,5 +1,6 @@
 import decimal
 import json
+import pathlib
 
 import pytest
 
@@ -75,10 +76,10 @@ def test_generate_coverage_html_files(mocker):
         "coverage_comment.subprocess.run",
     )
 
-    coverage.generate_coverage_html_files()
+    coverage.generate_coverage_html_files(path=pathlib.Path("/tmp/foo"))
 
     assert run.call_args_list == [
-        mocker.call("coverage", "html", "--skip-empty"),
+        mocker.call("coverage", "html", "--skip-empty", "--directory", "/tmp/foo"),
     ]
 
 
