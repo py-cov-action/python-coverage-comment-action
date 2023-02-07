@@ -292,7 +292,7 @@ def diff_coverage_obj():
 
 
 @pytest.fixture
-def session():
+def session(is_failed):
     """
     You get a session object. Register responses on it:
         session.register(method="GET", path="/a/b")(status_code=200)
@@ -355,7 +355,8 @@ def session():
 
     session = Session()
     yield session
-    assert not session.responses
+    if not is_failed:
+        assert not session.responses
 
 
 @pytest.fixture
@@ -401,7 +402,7 @@ def zip_bytes():
 
 
 @pytest.fixture
-def git():
+def git(is_failed):
     """
     You get a git object. Register calls on it:
         git.register("git checkout master")(exit_code=1)
@@ -444,7 +445,8 @@ def git():
 
     git = Git()
     yield git
-    assert not git.expected_calls
+    if not is_failed:
+        assert not git.expected_calls
 
 
 @pytest.fixture
@@ -453,3 +455,22 @@ def output_file(tmp_path):
     file.touch()
 
     return file
+
+
+_is_failed = []
+
+
+def pytest_runtest_logreport(report):
+    if report.outcome == "failed":
+        _is_failed.append(True)
+
+
+@pytest.fixture
+def is_failed():
+    _is_failed.clear()
+
+    def f():
+        return bool(_is_failed)
+
+    yield f
+    _is_failed.clear()
