@@ -25,7 +25,7 @@ GIT_COMMIT_MESSAGE = "Update badge"
 
 
 @contextlib.contextmanager
-def on_coverage_branch(git: subprocess.Git, branch: str):
+def switch_to_branch(git: subprocess.Git, branch: str):
     try:
         current_checkout = git.branch("--show-current").strip()
     except subprocess.SubProcessError:
@@ -75,7 +75,7 @@ def commit_operations(
     initial_file : files.Operation
         In case the branch didn't exist, initialize it with this initial file.
     """
-    with on_coverage_branch(git=git, branch=branch):
+    with switch_to_branch(git=git, branch=branch):
         for op in operations:
             op.apply()
             git.add(str(op.path))

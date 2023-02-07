@@ -6,18 +6,18 @@ import pytest
 from coverage_comment import files, storage
 
 
-def test_on_coverage_branch(git):
+def test_switch_to_branch(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git reset --hard")()
     git.register("git rev-parse --verify foo")()
     git.register("git switch foo")()
 
-    with storage.on_coverage_branch(git=git, branch="foo"):
+    with storage.switch_to_branch(git=git, branch="foo"):
         git.register("git switch bar")()
 
 
-def test_on_coverage_branch__detached_head(git):
+def test_switch_to_branch__detached_head(git):
     git.register("git branch --show-current")(exit_code=1)
     git.register("git rev-parse --short HEAD")(stdout="123abc")
     git.register("git fetch")()
@@ -25,18 +25,18 @@ def test_on_coverage_branch__detached_head(git):
     git.register("git rev-parse --verify foo")()
     git.register("git switch foo")()
 
-    with storage.on_coverage_branch(git=git, branch="foo"):
+    with storage.switch_to_branch(git=git, branch="foo"):
         git.register("git switch 123abc")()
 
 
-def test_on_coverage_branch__branch_doesnt_exist(git):
+def test_switch_to_branch__branch_doesnt_exist(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git reset --hard")()
     git.register("git rev-parse --verify foo")(exit_code=1)
     git.register("git switch --orphan foo")()
 
-    with storage.on_coverage_branch(git=git, branch="foo"):
+    with storage.switch_to_branch(git=git, branch="foo"):
         git.register("git switch bar")()
 
 
@@ -46,7 +46,7 @@ def test_commit_operations__no_diff(git, in_tmp_path):
         files.WriteFile(path=pathlib.Path("b.txt"), contents="b"),
     ]
 
-    # on_coverage_branch
+    # switch_to_branch
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git reset --hard")()
@@ -58,7 +58,7 @@ def test_commit_operations__no_diff(git, in_tmp_path):
     git.register(f"git add {operations[1].path}")()
     git.register("git diff --staged --exit-code")()  # no diff
 
-    # __exit__ of on_coverage_branch
+    # __exit__ of switch_to_branch
     git.register("git switch bar")()
 
     storage.commit_operations(
@@ -78,7 +78,7 @@ def test_commit_operations(git, in_tmp_path):
         files.WriteFile(path=pathlib.Path("b.txt"), contents="b"),
     ]
 
-    # on_coverage_branch
+    # switch_to_branch
     git.register("git branch --show-current")(stdout="bar")
     git.register("git fetch")()
     git.register("git reset --hard")()
@@ -104,7 +104,7 @@ def test_commit_operations(git, in_tmp_path):
     )()
     git.register("git push origin foo")()
 
-    # __exit__ of on_coverage_branch
+    # __exit__ of switch_to_branch
     git.register("git switch bar")()
 
     storage.commit_operations(
