@@ -365,22 +365,3 @@ def add_coverage_line(git):
         git("commit", "-m", "improve coverage")
 
     return f
-
-
-_is_failed = []
-
-
-def pytest_runtest_logreport(report):
-    if report.outcome == "failed":
-        _is_failed.append(True)
-
-
-@pytest.fixture
-def is_failed():
-    _is_failed.clear()
-
-    def f():
-        return bool(_is_failed)
-
-    yield f
-    _is_failed.clear()
