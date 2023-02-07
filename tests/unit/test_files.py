@@ -4,6 +4,26 @@ import pathlib
 from coverage_comment import files
 
 
+def test_write_file(tmp_path):
+    files.WriteFile(path=tmp_path / "a", contents="foo").apply()
+
+    assert (tmp_path / "a").read_text() == "foo"
+
+
+def test_replace_dir(tmp_path):
+    (tmp_path / "foo").mkdir()
+    (tmp_path / "foo/foofile").touch()
+    (tmp_path / "bar").mkdir()
+    (tmp_path / "bar/barfile").touch()
+
+    files.ReplaceDir(path=(tmp_path / "bar"), source=(tmp_path / "foo")).apply()
+
+    assert not (tmp_path / "foo").exists()
+    assert (tmp_path / "bar").exists()
+    assert (tmp_path / "bar/foofile").exists()
+    assert not (tmp_path / "bar/barfile").exists()
+
+
 def test_compute_files(session):
     session.register(
         "GET", "https://img.shields.io/static/v1?label=Coverage&message=12%25&color=red"

@@ -6,22 +6,53 @@ import dataclasses
 import decimal
 import json
 import pathlib
+import shutil
 from collections.abc import Callable
-from typing import TypedDict
+from typing import Protocol, TypedDict
 
 import httpx
 
-from coverage_comment import badge, coverage
+from coverage_comment import badge, coverage, log
 
 ENDPOINT_PATH = pathlib.Path("endpoint.json")
 DATA_PATH = pathlib.Path("data.json")
 BADGE_PATH = pathlib.Path("badge.svg")
 
 
+class Operation(Protocol):
+    path: pathlib.Path
+
+    def apply(self):
+        ...
+
+
 @dataclasses.dataclass
 class WriteFile:
     path: pathlib.Path
-    contents: str | None
+    contents: str
+
+    def apply(self):
+        preview_len = 50
+        ellipsis = "..." if len(self.contents) > preview_len else ""
+        log.debug(f"Writing file {self.path} ({self.contents[:preview_len]}{ellipsis})")
+        self.path.write_text(self.contents)
+
+
+@dataclasses.dataclass
+class ReplaceDir:
+    """
+    Deletes the dir at `path`, then copies the dir from source to destination
+    """
+
+    source: pathlib.Path
+    path: pathlib.Path
+
+    def apply(self):
+        if self.path.exists():
+            log.debug(f"Deleting {self.path}")
+            shutil.rmtree(self.path)
+        log.debug(f"Moving {self.source} to {self.path}")
+        shutil.move(self.source, self.path)
 
 
 def compute_files(
@@ -29,7 +60,7 @@ def compute_files(
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
     http_session: httpx.Client,
-) -> list[FileWithPath]:
+) -> list[Operation]:
     line_rate *= decimal.Decimal("100")
     color = badge.get_badge_color(
         rate=line_rate,
