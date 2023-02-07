@@ -19,7 +19,7 @@ BADGE_PATH = pathlib.Path("badge.svg")
 
 
 @dataclasses.dataclass
-class FileWithPath:
+class WriteFile:
     path: pathlib.Path
     contents: str | None
 
@@ -37,17 +37,17 @@ def compute_files(
         minimum_orange=minimum_orange,
     )
     return [
-        FileWithPath(
+        WriteFile(
             path=ENDPOINT_PATH,
             contents=badge.compute_badge_endpoint_data(
                 line_rate=line_rate, color=color
             ),
         ),
-        FileWithPath(
+        WriteFile(
             path=DATA_PATH,
             contents=compute_datafile(line_rate=line_rate),
         ),
-        FileWithPath(
+        WriteFile(
             path=BADGE_PATH,
             contents=badge.compute_badge_image(
                 line_rate=line_rate, color=color, http_session=http_session

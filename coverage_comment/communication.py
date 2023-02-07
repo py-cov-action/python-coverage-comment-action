@@ -9,7 +9,7 @@ def get_readme_and_log(
     html_report_url: str,
     markdown_report: str,
     is_public: bool,
-) -> tuple[files.FileWithPath, str]:
+) -> tuple[files.WriteFile, str]:
     readme_markdown = template.get_readme_markdown(
         is_public=is_public,
         readme_url=readme_url,
@@ -27,7 +27,7 @@ def get_readme_and_log(
         endpoint_image_url=image_urls["endpoint"],
         dynamic_image_url=image_urls["dynamic"],
     )
-    readme = files.FileWithPath(
+    readme = files.WriteFile(
         path=pathlib.Path("README.md"),
         contents=readme_markdown,
     )
