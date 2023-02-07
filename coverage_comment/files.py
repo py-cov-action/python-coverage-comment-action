@@ -7,6 +7,7 @@ import decimal
 import json
 import pathlib
 import shutil
+import tempfile
 from collections.abc import Callable
 from typing import Protocol, TypedDict
 
@@ -111,10 +112,10 @@ def get_urls(url_getter: Callable) -> ImageURLs:
     }
 
 
-def get_coverage_html_files() -> FileWithPath:
-    coverage.generate_coverage_html_files()
-    path = pathlib.Path("htmlcov")
-    # Coverage will create a .gitignore if the htmlcov dir didn't exist before,
-    # so we may or may not have one.
-    (path / ".gitignore").unlink(missing_ok=True)
-    return FileWithPath(path=path, contents=None)
+def get_coverage_html_files(gen_dir: pathlib.Path = pathlib.Path("/tmp")) -> ReplaceDir:
+    source = pathlib.Path(tempfile.mkdtemp(dir=gen_dir))
+    coverage.generate_coverage_html_files(path=source)
+    dest = pathlib.Path("htmlcov")
+    # Coverage may or may not create a .gitignore.
+    (source / ".gitignore").unlink(missing_ok=True)
+    return ReplaceDir(source=source, path=dest)
