@@ -50,27 +50,30 @@ def test_public_repo(
     # The easiest way to check the links is to assume there will be no other
     # line with a link prefixed by 4 spaces. If at some point there is, we'll
     # change the test.
-    links = [line.strip().split()[-1] for line in log_lines if "    https://" in line]
-    assert len(links) == 3
+    links = {line.strip().split()[-1] for line in log_lines if "    https://" in line}
+    # - html report
+    # - badge 1, 2 and 3
+    # - coverage branch readme url
+    assert len(links) == 5
 
     client = httpx.Client()
 
-    # Check that all 3 links are valid and lead to a 200
+    # Check that all 5 links are valid and lead to a 200
     # It's made this way to avoid hardcoding links in the test, because I assume
     # they'll be evolving.
+    number_of_svgs = 0
     for link in links:
         response = client.get(link)
         response.raise_for_status()
-        assert response.text.startswith("<svg")
+        number_of_svgs += int(response.text.startswith("<svg"))
+
+    assert number_of_svgs == 3
 
     # Check that logs point to the branch that has the readme file.
     data_branch_url = (
         f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data"
     )
-    assert data_branch_url in logs
-
-    # Also, at this point, the branch should really exist.
-    client.get(data_branch_url).raise_for_status()
+    assert data_branch_url in links
 
     # Time to check the Readme contents
     raw_url_prefix = (
@@ -82,7 +85,7 @@ def test_public_repo(
     response.raise_for_status()
     # And all previously found links should be present
     readme = response.text
-    for link in links:
+    for link in links - {data_branch_url}:
         assert link in readme
 
     # And while we're at it, there are 2 other files we want to check in this

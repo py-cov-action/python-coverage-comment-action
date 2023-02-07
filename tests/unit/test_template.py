@@ -6,9 +6,9 @@ import pytest
 from coverage_comment import coverage, template
 
 
-def test_get_markdown_comment(coverage_obj, diff_coverage_obj):
+def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
     result = (
-        template.get_markdown_comment(
+        template.get_comment_markdown(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
@@ -39,11 +39,11 @@ def test_get_markdown_comment(coverage_obj, diff_coverage_obj):
 
 
 def test_template(coverage_obj, diff_coverage_obj):
-    result = template.get_markdown_comment(
+    result = template.get_comment_markdown(
         coverage=coverage_obj,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=decimal.Decimal("0.92"),
-        base_template=template.read_template_file(),
+        base_template=template.read_template_file("comment.md.j2"),
         custom_template="""{% extends "base" %}
         {% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
         """,
@@ -142,11 +142,11 @@ def test_template_full():
         },
     )
 
-    result = template.get_markdown_comment(
+    result = template.get_comment_markdown(
         coverage=cov,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
-        base_template=template.read_template_file(),
+        base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
 The coverage rate went from `100%` to `100%` :arrow_right:
@@ -178,11 +178,11 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
         files={},
     )
 
-    result = template.get_markdown_comment(
+    result = template.get_comment_markdown(
         coverage=coverage_obj,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
-        base_template=template.read_template_file(),
+        base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
 The coverage rate went from `100%` to `75%` :arrow_down:
@@ -196,11 +196,11 @@ _None of the new lines are part of the tested code. Therefore, there is no cover
 
 
 def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_obj):
-    result = template.get_markdown_comment(
+    result = template.get_comment_markdown(
         coverage=coverage_obj_no_branch,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=None,
-        base_template=template.read_template_file(),
+        base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
 > **Note**
@@ -223,29 +223,29 @@ Missing lines: `7`, `9`
 
 
 def test_read_template_file():
-    assert template.read_template_file().startswith(
+    assert template.read_template_file("comment.md.j2").startswith(
         "{% block title %}## Coverage report{% endblock title %}"
     )
 
 
 def test_template__no_marker(coverage_obj, diff_coverage_obj):
     with pytest.raises(template.MissingMarker):
-        template.get_markdown_comment(
+        template.get_comment_markdown(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
-            base_template=template.read_template_file(),
+            base_template=template.read_template_file("comment.md.j2"),
             custom_template="""foo bar""",
         )
 
 
 def test_template__broken_template(coverage_obj, diff_coverage_obj):
     with pytest.raises(template.TemplateError):
-        template.get_markdown_comment(
+        template.get_comment_markdown(
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
-            base_template=template.read_template_file(),
+            base_template=template.read_template_file("comment.md.j2"),
             custom_template="""{% extends "foo" %}""",
         )
 
