@@ -16,14 +16,12 @@ def test_compute_files(session):
         http_session=session,
     )
     expected = [
-        files.FileWithPath(
+        files.WriteFile(
             path=pathlib.Path("endpoint.json"),
             contents='{"schemaVersion": 1, "label": "Coverage", "message": "12%", "color": "red"}',
         ),
-        files.FileWithPath(
-            path=pathlib.Path("data.json"), contents='{"coverage": 12.34}'
-        ),
-        files.FileWithPath(path=pathlib.Path("badge.svg"), contents="foo"),
+        files.WriteFile(path=pathlib.Path("data.json"), contents='{"coverage": 12.34}'),
+        files.WriteFile(path=pathlib.Path("badge.svg"), contents="foo"),
     ]
     assert result == expected
 
