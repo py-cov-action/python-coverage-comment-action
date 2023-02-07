@@ -319,7 +319,9 @@ def test_action__push__default_branch(
 
     git.register("git branch --show-current")(stdout="foo")
     git.register("git fetch")()
-    git.register("git checkout python-coverage-comment-action-data")()
+    git.register("git reset --hard")()
+    git.register("git rev-parse --verify python-coverage-comment-action-data")()
+    git.register("git switch python-coverage-comment-action-data")()
     git.register("git add endpoint.json")()
     git.register("git add data.json")()
     git.register("git add badge.svg")()
@@ -328,7 +330,7 @@ def test_action__push__default_branch(
     git.register("git diff --staged --exit-code")(exit_code=1)
     git.register("git commit --message Update badge")()
     git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git checkout foo")()
+    git.register("git switch foo")()
 
     result = main.action(
         config=push_config(),
@@ -374,7 +376,9 @@ def test_action__push__default_branch__private(
 
     git.register("git branch --show-current")(stdout="foo")
     git.register("git fetch")()
-    git.register("git checkout python-coverage-comment-action-data")()
+    git.register("git reset --hard")()
+    git.register("git rev-parse --verify python-coverage-comment-action-data")()
+    git.register("git switch python-coverage-comment-action-data")()
     git.register("git add endpoint.json")()
     git.register("git add data.json")()
     git.register("git add badge.svg")()
@@ -382,7 +386,7 @@ def test_action__push__default_branch__private(
     git.register("git diff --staged --exit-code")(exit_code=1)
     git.register("git commit --message Update badge")()
     git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git checkout foo")()
+    git.register("git switch foo")()
 
     result = main.action(
         config=push_config(),

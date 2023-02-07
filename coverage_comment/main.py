@@ -260,7 +260,7 @@ def save_coverage_data_files(
         return 0
 
     log.info("Computing coverage files & badge")
-    all_files = files.compute_files(
+    operations: list[files.Operation] = files.compute_files(
         line_rate=coverage.info.percent_covered,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
@@ -270,7 +270,7 @@ def save_coverage_data_files(
     is_public = repo_info.is_public()
     if is_public:
         log.info("Generating HTML coverage report")
-        all_files.append(files.get_coverage_html_files())
+        operations.append(files.get_coverage_html_files())
 
     markdown_report = coverage_module.generate_coverage_markdown()
 
@@ -295,11 +295,11 @@ def save_coverage_data_files(
         html_report_url=html_report_url,
         markdown_report=markdown_report,
     )
-    storage.upload_files(
-        files=all_files,
+    operations.append(readme_file)
+    storage.commit_operations(
+        operations=operations,
         git=git,
         branch=config.COVERAGE_DATA_BRANCH,
-        initial_file=readme_file,
     )
 
     log.info(log_message)
