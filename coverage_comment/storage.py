@@ -21,26 +21,7 @@ COMMIT_ENVIRONMENT = {
     "GIT_COMMITTER_NAME": GITHUB_ACTIONS_BOT_NAME,
     "GIT_COMMITTER_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
 }
-INITIAL_GIT_COMMIT_MESSAGE = "Initialize python-coverage-comment-action special branch"
 GIT_COMMIT_MESSAGE = "Update badge"
-
-
-def initialize_branch(
-    git: subprocess.Git,
-    branch: str,
-    initial_file: files.FileWithPath,
-):
-    log.info(f"Creating branch {branch}")
-    git.checkout("--orphan", branch)
-    git.reset("--hard")
-
-    initial_file.path.write_text(initial_file.contents)
-    git.add(str(initial_file.path))
-    git.commit(
-        "--message",
-        INITIAL_GIT_COMMIT_MESSAGE,
-        env=COMMIT_ENVIRONMENT,
-    )
 
 
 @contextlib.contextmanager
@@ -54,54 +35,50 @@ def checked_out_branch(git: subprocess.Git, branch: str):
 
     git.fetch()
 
-    branch_exists = True
+    log.debug("Resetting all changes")
+    # Goodbye `.coverage` file.
+    git.reset("--hard")
+
     try:
-        git.checkout(branch)
-        log.debug(f"Branch {branch} exist.")
+        git.rev_parse("--verify", branch)
     except subprocess.SubProcessError:
         log.debug(f"Branch {branch} doesn't exist.")
-        branch_exists = False
+        log.info(f"Creating branch {branch}")
+        git.switch("--orphan", branch)
+    else:
+        log.debug(f"Branch {branch} exist.")
+        git.switch(branch)
 
     try:
-        yield branch_exists
+        yield
     finally:
         log.debug(f"Back to checkout of {current_checkout}")
-        git.checkout(current_checkout)
+        git.switch(current_checkout)
 
 
-def upload_files(
-    files: list[files.FileWithPath],
+def commit_operations(
+    operations: list[files.Operation],
     git: subprocess.Git,
     branch: str,
-    initial_file: files.FileWithPath,
 ):
     """
     Store the given files.
 
     Parameters
     ----------
-    files : list[files.FileWithPath]
-        Files to store
+    operations : list[files.Operation]
+        File operations to process
     git : subprocess.Git
         Git actor
     branch : str
         branch on which to store the files
-    initial_file : files.FileWithPath
+    initial_file : files.Operation
         In case the branch didn't exist, initialize it with this initial file.
     """
-    with checked_out_branch(git=git, branch=branch) as branch_exists:
-        if not branch_exists:
-            initialize_branch(
-                git=git,
-                branch=branch,
-                initial_file=initial_file,
-            )
-
-        for file in files + [initial_file]:
-            log.debug(f"Adding {file}")
-            if file.contents is not None:
-                file.path.write_text(file.contents)
-            git.add(str(file.path))
+    with checked_out_branch(git=git, branch=branch):
+        for op in operations:
+            op.apply()
+            git.add(str(op.path))
 
         try:
             git.diff("--staged", "--exit-code")
