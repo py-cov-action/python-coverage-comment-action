@@ -124,6 +124,13 @@ def test_public_repo(
     )
     assert ":arrow_up:" in comment
 
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+    git("fetch")
+
+    run_id = wait_for_run_to_start(sha1=head_sha1(remote=True), branch="main", gh=gh_me)
+    gh_me("run", "watch", run_id, "--exit-status")
+
     # And now let's create a PR from a fork of a different user
     gh_create_fork()
     with cd("fork"):
@@ -259,3 +266,10 @@ def test_private_repo(
         fail_value="\n",
     )
     assert ":arrow_up:" in comment
+
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+    git("fetch")
+
+    run_id = wait_for_run_to_start(sha1=head_sha1(remote=True), branch="main", gh=gh_me)
+    gh_me("run", "watch", run_id, "--exit-status")
