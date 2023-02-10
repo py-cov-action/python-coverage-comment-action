@@ -126,7 +126,7 @@ def test_public_repo(
 
     # Let's merge the PR and see if everything works fine
     gh_me("pr", "merge", "1", "--merge")
-    git("fetch")
+    git("fetch", env={"GITHUB_TOKEN": token_me})
 
     run_id = wait_for_run_to_start(sha1=head_sha1(remote=True), branch="main", gh=gh_me)
     gh_me("run", "watch", run_id, "--exit-status")
@@ -269,7 +269,7 @@ def test_private_repo(
 
     # Let's merge the PR and see if everything works fine
     gh_me("pr", "merge", "1", "--merge")
-    git("fetch")
+    git("fetch", env={"GITHUB_TOKEN": token_me})
 
     run_id = wait_for_run_to_start(sha1=head_sha1(remote=True), branch="main", gh=gh_me)
     gh_me("run", "watch", run_id, "--exit-status")
