@@ -9,7 +9,7 @@ def test_public_repo(
     gh_create_repo,
     wait_for_run_to_start,
     wait_for_run_triggered_by_user_to_start,
-    head_sha1,
+    get_sha1,
     gh_me,
     gh_other,
     repo_full_name,
@@ -25,7 +25,7 @@ def test_public_repo(
     gh_create_repo("--public")
 
     # GitHub Actions should start soon
-    run_id = wait_for_run_to_start(sha1=head_sha1(), branch="main", gh=gh_me)
+    run_id = wait_for_run_to_start(sha1=get_sha1(), branch="main", gh=gh_me)
 
     # AAAaand it's started. Now let's wait for it to end.
     # Also, raise if it doesn't end succefully. That half of the job.
@@ -104,7 +104,7 @@ def test_public_repo(
         git("checkout", "-b", "new_branch")
         add_coverage_line("a,b,c,,a-b-c")
         git("push", "origin", "new_branch", env={"GITHUB_TOKEN": token_me})
-        sha1 = head_sha1()
+        sha1 = get_sha1()
 
     gh_me("pr", "create", "--fill")
 
@@ -124,13 +124,22 @@ def test_public_repo(
     )
     assert ":arrow_up:" in comment
 
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+    git("fetch", env={"GITHUB_TOKEN": token_me})
+
+    run_id = wait_for_run_to_start(
+        sha1=get_sha1("origin/main"), branch="main", gh=gh_me
+    )
+    gh_me("run", "watch", run_id, "--exit-status")
+
     # And now let's create a PR from a fork of a different user
     gh_create_fork()
     with cd("fork"):
         git("checkout", "-b", "external_branch")
         add_coverage_line("a,b,c,,a-b-c")
         git("push", "origin", "external_branch", env={"GITHUB_TOKEN": token_other})
-        ext_sha1 = head_sha1()
+        ext_sha1 = get_sha1()
 
     full_branch_name = f"{gh_other_username}:external_branch"
     gh_other("pr", "create", "--fill", "--head", full_branch_name)
@@ -174,7 +183,7 @@ def test_public_repo(
 def test_private_repo(
     gh_create_repo,
     wait_for_run_to_start,
-    head_sha1,
+    get_sha1,
     gh_me,
     repo_full_name,
     cd,
@@ -186,7 +195,7 @@ def test_private_repo(
     gh_create_repo("--private")
 
     # Actions will start soon
-    run_id = wait_for_run_to_start(sha1=head_sha1(), branch="main", gh=gh_me)
+    run_id = wait_for_run_to_start(sha1=get_sha1(), branch="main", gh=gh_me)
 
     # AAAaand it's started. Now let's wait for it to end.
     # Also, raise if it doesn't end succefully. That half of the job.
@@ -242,7 +251,7 @@ def test_private_repo(
         git("checkout", "-b", "new_branch")
         add_coverage_line("a,b,c,,a-b-c")
         git("push", "origin", "new_branch", env={"GITHUB_TOKEN": token_me})
-        sha1 = head_sha1()
+        sha1 = get_sha1()
 
     gh_me("pr", "create", "--fill")
 
@@ -259,3 +268,13 @@ def test_private_repo(
         fail_value="\n",
     )
     assert ":arrow_up:" in comment
+
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+
+    git("fetch", env={"GITHUB_TOKEN": token_me})
+
+    run_id = wait_for_run_to_start(
+        sha1=get_sha1("origin/main"), branch="main", gh=gh_me
+    )
+    gh_me("run", "watch", run_id, "--exit-status")

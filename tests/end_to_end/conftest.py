@@ -286,9 +286,9 @@ def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_nam
 
 
 @pytest.fixture
-def head_sha1(git):
-    def _():
-        return git("rev-parse", "HEAD").strip()
+def get_sha1(git):
+    def _(spec="HEAD"):
+        return git("rev-parse", spec).strip()
 
     return _
 
