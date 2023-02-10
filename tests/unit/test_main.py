@@ -58,3 +58,26 @@ def test_main(mocker, get_logs):
 
     assert get_logs("INFO", "Starting action")
     assert get_logs("INFO", "Ending action")
+
+
+def test_main__exception(mocker, get_logs):
+    # This test simulates an exception in the main part of the action. This should be catched and logged.
+    exit = mocker.patch("sys.exit")
+    mocker.patch(
+        "coverage_comment.main.action", side_effect=Exception("Mocked exception")
+    )
+
+    os.environ.update(
+        {
+            "GITHUB_REPOSITORY": "foo/bar",
+            "GITHUB_PR_RUN_ID": "",
+            "GITHUB_REF": "ref",
+            "GITHUB_TOKEN": "token",
+            "GITHUB_BASE_REF": "",
+            "GITHUB_EVENT_NAME": "push",
+        }
+    )
+    main.main()
+    exit.assert_called_with(1)
+
+    assert get_logs("ERROR", "Critical error")
