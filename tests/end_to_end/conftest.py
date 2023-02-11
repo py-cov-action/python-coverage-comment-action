@@ -252,6 +252,15 @@ def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
             f"--source={git_repo}",
             *args,
         )
+        # Someday, we may be able to change that to a variable instead of a secret
+        # https://github.com/cli/cli/pull/6928
+        gh_me(
+            "secret",
+            "set",
+            "--app=actions",
+            "ACTIONS_STEP_DEBUG",
+            "--body=true",
+        )
         return git_repo
 
     yield f

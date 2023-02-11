@@ -22,7 +22,6 @@ def base_config():
             "GITHUB_REPOSITORY": "py-cov-action/foobar",
             # Action settings
             "MERGE_COVERAGE_FILES": True,
-            "VERBOSE": False,
         }
         return settings.Config(**(defaults | kwargs))
 

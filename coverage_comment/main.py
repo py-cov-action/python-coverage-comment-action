@@ -12,6 +12,7 @@ from coverage_comment import (
     github,
     github_client,
     log,
+    log_utils,
     settings,
     storage,
     subprocess,
@@ -20,32 +21,37 @@ from coverage_comment import (
 
 
 def main():
-    logging.basicConfig(level="INFO")
+    try:
+        logging.basicConfig(level="DEBUG")
+        logging.getLogger().handlers[0].formatter = log_utils.GitHubFormatter()
 
-    log.info("Starting action")
-    config = settings.Config.from_environ(environ=os.environ)
-    if config.VERBOSE:
-        logging.getLogger().setLevel("DEBUG")
-        log.debug(f"Settings: {config}")
+        log.info("Starting action")
+        config = settings.Config.from_environ(environ=os.environ)
 
-    github_session = httpx.Client(
-        base_url="https://api.github.com",
-        follow_redirects=True,
-        headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
-    )
-    http_session = httpx.Client()
-    git = subprocess.Git()
-    storage.fix_ownership_issues(git=git)
+        github_session = httpx.Client(
+            base_url="https://api.github.com",
+            follow_redirects=True,
+            headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
+        )
+        http_session = httpx.Client()
+        git = subprocess.Git()
+        storage.fix_ownership_issues(git=git)
 
-    exit_code = action(
-        config=config,
-        github_session=github_session,
-        http_session=http_session,
-        git=git,
-    )
+        exit_code = action(
+            config=config,
+            github_session=github_session,
+            http_session=http_session,
+            git=git,
+        )
 
-    log.info("Ending action")
-    sys.exit(exit_code)
+        log.info("Ending action")
+        sys.exit(exit_code)
+
+    except Exception:
+        log.exception(
+            "Critical error. Please look for open issues or open one in https://github.com/py-cov-action/python-coverage-comment-action/"
+        )
+        sys.exit(1)
 
 
 def action(

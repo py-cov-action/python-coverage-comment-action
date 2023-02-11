@@ -291,18 +291,26 @@ def test_set_output(output_file):
     assert output_file.read_text() == "foo=true\n"
 
 
+def test_get_workflow_command():
+    output = github.get_workflow_command(
+        command="foo", command_value="bar", file="main.py", line="1", title="someTitle"
+    )
+
+    assert output == "::foo file=main.py,line=1,title=someTitle::bar"
+
+
+def test_get_workflow_command_no_kwargs():
+    output = github.get_workflow_command(command="group", command_value="title")
+
+    assert output == "::group::title"
+
+
 def test_send_workflow_command(capsys):
     github.send_workflow_command(
         command="foo", command_value="bar", file="main.py", line="1", title="someTitle"
     )
     output = capsys.readouterr()
     assert output.out.strip() == "::foo file=main.py,line=1,title=someTitle::bar"
-
-
-def test_send_workflow_command_no_kwargs(capsys):
-    github.send_workflow_command(command="group", command_value="title")
-    output = capsys.readouterr()
-    assert output.out.strip() == "::group::title"
 
 
 def test_create_missing_coverage_annotation(capsys):

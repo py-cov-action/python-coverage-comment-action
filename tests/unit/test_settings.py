@@ -66,6 +66,29 @@ def test_config__from_environ__ok():
     )
 
 
+def test_config__verbose_deprecated(get_logs):
+    assert settings.Config.from_environ(
+        {
+            "GITHUB_BASE_REF": "master",
+            "GITHUB_TOKEN": "foo",
+            "GITHUB_REPOSITORY": "owner/repo",
+            "GITHUB_REF": "master",
+            "GITHUB_EVENT_NAME": "pull",
+            "GITHUB_PR_RUN_ID": "123",
+            "VERBOSE": "true",
+        }
+    ) == settings.Config(
+        GITHUB_BASE_REF="master",
+        GITHUB_TOKEN="foo",
+        GITHUB_REPOSITORY="owner/repo",
+        GITHUB_REF="master",
+        GITHUB_EVENT_NAME="pull",
+        GITHUB_PR_RUN_ID=123,
+        VERBOSE=False,
+    )
+    assert get_logs("INFO", "VERBOSE setting is deprecated")
+
+
 @pytest.fixture
 def config():
     defaults = {
@@ -81,7 +104,6 @@ def config():
         "MINIMUM_GREEN": decimal.Decimal("90"),
         "MINIMUM_ORANGE": decimal.Decimal("50.8"),
         "MERGE_COVERAGE_FILES": True,
-        "VERBOSE": False,
     }
 
     def _(**kwargs):
