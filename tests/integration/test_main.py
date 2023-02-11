@@ -318,9 +318,8 @@ def test_action__push__default_branch(
     )(text="<this is a svg badge>")
 
     git.register("git branch --show-current")(stdout="foo")
-    git.register("git fetch origin python-coverage-comment-action-data")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify origin/python-coverage-comment-action-data")()
+    git.register("git fetch origin python-coverage-comment-action-data")()
     git.register("git switch python-coverage-comment-action-data")()
     git.register("git add endpoint.json")()
     git.register("git add data.json")()
@@ -375,9 +374,8 @@ def test_action__push__default_branch__private(
     )(text="<this is a svg badge>")
 
     git.register("git branch --show-current")(stdout="foo")
-    git.register("git fetch origin python-coverage-comment-action-data")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify origin/python-coverage-comment-action-data")()
+    git.register("git fetch origin python-coverage-comment-action-data")()
     git.register("git switch python-coverage-comment-action-data")()
     git.register("git add endpoint.json")()
     git.register("git add data.json")()

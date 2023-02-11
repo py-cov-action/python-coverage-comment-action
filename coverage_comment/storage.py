@@ -33,15 +33,26 @@ def checked_out_branch(git: subprocess.Git, branch: str):
 
     log.debug(f"Current checkout is {current_checkout}")
 
-    git.fetch("origin", branch)
-
     log.debug("Resetting all changes")
     # Goodbye `.coverage` file.
     git.reset("--hard")
 
     try:
-        git.rev_parse("--verify", f"origin/{branch}")
+        git.fetch("origin", branch)
     except subprocess.SubProcessError:
+        # Branch seems to no exist, OR fetch failed for a different reason.
+        # Let's make sure:
+        # 1/ Fetch again, but this time all the remote
+        git.fetch("origin")
+        # 2/ And check that our branch really doesn't exist
+        try:
+            git.rev_parse("--verify", f"origin/{branch}")
+        except subprocess.SubProcessError:
+            # Ok good, the branch really doesn't exist.
+            pass
+        else:
+            # Ok, our branch exist, but we failed to fetch it. Let's raise.
+            raise
         log.debug(f"Branch {branch} doesn't exist.")
         log.info(f"Creating branch {branch}")
         git.switch("--orphan", branch)
