@@ -33,14 +33,14 @@ def checked_out_branch(git: subprocess.Git, branch: str):
 
     log.debug(f"Current checkout is {current_checkout}")
 
-    git.fetch()
+    git.fetch("origin", branch)
 
     log.debug("Resetting all changes")
     # Goodbye `.coverage` file.
     git.reset("--hard")
 
     try:
-        git.rev_parse("--verify", branch)
+        git.rev_parse("--verify", f"origin/{branch}")
     except subprocess.SubProcessError:
         log.debug(f"Branch {branch} doesn't exist.")
         log.info(f"Creating branch {branch}")

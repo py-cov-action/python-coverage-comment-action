@@ -8,9 +8,9 @@ from coverage_comment import files, storage
 
 def test_checked_out_branch(git):
     git.register("git branch --show-current")(stdout="bar")
-    git.register("git fetch")()
+    git.register("git fetch origin foo")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify foo")()
+    git.register("git rev-parse --verify origin/foo")()
     git.register("git switch foo")()
 
     with storage.checked_out_branch(git=git, branch="foo"):
@@ -20,9 +20,9 @@ def test_checked_out_branch(git):
 def test_checked_out_branch__detached_head(git):
     git.register("git branch --show-current")(exit_code=1)
     git.register("git rev-parse --short HEAD")(stdout="123abc")
-    git.register("git fetch")()
+    git.register("git fetch origin foo")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify foo")()
+    git.register("git rev-parse --verify origin/foo")()
     git.register("git switch foo")()
 
     with storage.checked_out_branch(git=git, branch="foo"):
@@ -31,9 +31,9 @@ def test_checked_out_branch__detached_head(git):
 
 def test_checked_out_branch__branch_does_not_exist(git):
     git.register("git branch --show-current")(stdout="bar")
-    git.register("git fetch")()
+    git.register("git fetch origin foo")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify foo")(exit_code=1)
+    git.register("git rev-parse --verify origin/foo")(exit_code=1)
     git.register("git switch --orphan foo")()
 
     with storage.checked_out_branch(git=git, branch="foo"):
@@ -48,9 +48,9 @@ def test_commit_operations__no_diff(git, in_tmp_path):
 
     # checked_out_branch
     git.register("git branch --show-current")(stdout="bar")
-    git.register("git fetch")()
+    git.register("git fetch origin foo")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify foo")()
+    git.register("git rev-parse --verify origin/foo")()
     git.register("git switch foo")()
 
     # upload_files
@@ -80,9 +80,9 @@ def test_commit_operations(git, in_tmp_path):
 
     # checked_out_branch
     git.register("git branch --show-current")(stdout="bar")
-    git.register("git fetch")()
+    git.register("git fetch origin foo")()
     git.register("git reset --hard")()
-    git.register("git rev-parse --verify foo")()
+    git.register("git rev-parse --verify origin/foo")()
     git.register("git switch foo")()
 
     # upload_files
