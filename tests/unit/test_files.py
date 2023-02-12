@@ -4,6 +4,26 @@ import pathlib
 from coverage_comment import files
 
 
+def test_write_file(tmp_path):
+    files.WriteFile(path=tmp_path / "a", contents="foo").apply()
+
+    assert (tmp_path / "a").read_text() == "foo"
+
+
+def test_replace_dir(tmp_path):
+    (tmp_path / "foo").mkdir()
+    (tmp_path / "foo/foofile").touch()
+    (tmp_path / "bar").mkdir()
+    (tmp_path / "bar/barfile").touch()
+
+    files.ReplaceDir(path=(tmp_path / "bar"), source=(tmp_path / "foo")).apply()
+
+    assert not (tmp_path / "foo").exists()
+    assert (tmp_path / "bar").exists()
+    assert (tmp_path / "bar/foofile").exists()
+    assert not (tmp_path / "bar/barfile").exists()
+
+
 def test_compute_files(session):
     session.register(
         "GET", "https://img.shields.io/static/v1?label=Coverage&message=12%25&color=red"
@@ -16,14 +36,12 @@ def test_compute_files(session):
         http_session=session,
     )
     expected = [
-        files.FileWithPath(
+        files.WriteFile(
             path=pathlib.Path("endpoint.json"),
             contents='{"schemaVersion": 1, "label": "Coverage", "message": "12%", "color": "red"}',
         ),
-        files.FileWithPath(
-            path=pathlib.Path("data.json"), contents='{"coverage": 12.34}'
-        ),
-        files.FileWithPath(path=pathlib.Path("badge.svg"), contents="foo"),
+        files.WriteFile(path=pathlib.Path("data.json"), contents='{"coverage": 12.34}'),
+        files.WriteFile(path=pathlib.Path("badge.svg"), contents="foo"),
     ]
     assert result == expected
 
@@ -52,3 +70,23 @@ def test_get_urls():
         "dynamic": "https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fendpoint.json",
         "endpoint": "https://img.shields.io/endpoint?url=https://endpoint.json",
     }
+
+
+def test_get_coverage_html_files(mocker, in_tmp_path):
+    def gen_side_effect(path):
+        (path / ".gitignore").touch()
+        (path / "index.html").touch()
+
+    gen = mocker.patch(
+        "coverage_comment.coverage.generate_coverage_html_files",
+        side_effect=gen_side_effect,
+    )
+    gen_dir = in_tmp_path / "gen"
+    gen_dir.mkdir()
+    rep = files.get_coverage_html_files(gen_dir=gen_dir)
+    (source_htmlcov,) = gen_dir.iterdir()
+
+    assert rep == files.ReplaceDir(path=pathlib.Path("htmlcov"), source=source_htmlcov)
+
+    assert gen.called is True
+    assert not (source_htmlcov / "gitignore").exists()

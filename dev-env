@@ -51,7 +51,7 @@ function create-repo(){
 }
 
 function delete-repo(){
-    gh repo delete "${GITHUB_REPOSITORY}" --confirm
+    gh repo delete "${GITHUB_REPOSITORY}"
     if [ "${TMPDIR}" != "" ]; then
         rm -rf ${TMPDIR}/* ${TMPDIR}/.*
     fi

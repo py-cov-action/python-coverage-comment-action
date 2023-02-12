@@ -9,7 +9,7 @@ def test_public_repo(
     gh_create_repo,
     wait_for_run_to_start,
     wait_for_run_triggered_by_user_to_start,
-    head_sha1,
+    get_sha1,
     gh_me,
     gh_other,
     repo_full_name,
@@ -25,7 +25,7 @@ def test_public_repo(
     gh_create_repo("--public")
 
     # GitHub Actions should start soon
-    run_id = wait_for_run_to_start(sha1=head_sha1(), branch="main", gh=gh_me)
+    run_id = wait_for_run_to_start(sha1=get_sha1(), branch="main", gh=gh_me)
 
     # AAAaand it's started. Now let's wait for it to end.
     # Also, raise if it doesn't end succefully. That half of the job.
@@ -50,27 +50,30 @@ def test_public_repo(
     # The easiest way to check the links is to assume there will be no other
     # line with a link prefixed by 4 spaces. If at some point there is, we'll
     # change the test.
-    links = [line.strip().split()[-1] for line in log_lines if "    https://" in line]
-    assert len(links) == 3
+    links = {line.strip().split()[-1] for line in log_lines if "    https://" in line}
+    # - html report
+    # - badge 1, 2 and 3
+    # - coverage branch readme url
+    assert len(links) == 5
 
     client = httpx.Client()
 
-    # Check that all 3 links are valid and lead to a 200
+    # Check that all 5 links are valid and lead to a 200
     # It's made this way to avoid hardcoding links in the test, because I assume
     # they'll be evolving.
+    number_of_svgs = 0
     for link in links:
         response = client.get(link)
         response.raise_for_status()
-        assert response.text.startswith("<svg")
+        number_of_svgs += int(response.text.startswith("<svg"))
+
+    assert number_of_svgs == 3
 
     # Check that logs point to the branch that has the readme file.
     data_branch_url = (
         f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data"
     )
-    assert data_branch_url in logs
-
-    # Also, at this point, the branch should really exist.
-    client.get(data_branch_url).raise_for_status()
+    assert data_branch_url in links
 
     # Time to check the Readme contents
     raw_url_prefix = (
@@ -82,7 +85,7 @@ def test_public_repo(
     response.raise_for_status()
     # And all previously found links should be present
     readme = response.text
-    for link in links:
+    for link in links - {data_branch_url}:
         assert link in readme
 
     # And while we're at it, there are 2 other files we want to check in this
@@ -101,7 +104,7 @@ def test_public_repo(
         git("checkout", "-b", "new_branch")
         add_coverage_line("a,b,c,,a-b-c")
         git("push", "origin", "new_branch", env={"GITHUB_TOKEN": token_me})
-        sha1 = head_sha1()
+        sha1 = get_sha1()
 
     gh_me("pr", "create", "--fill")
 
@@ -121,13 +124,22 @@ def test_public_repo(
     )
     assert ":arrow_up:" in comment
 
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+    git("fetch", env={"GITHUB_TOKEN": token_me})
+
+    run_id = wait_for_run_to_start(
+        sha1=get_sha1("origin/main"), branch="main", gh=gh_me
+    )
+    gh_me("run", "watch", run_id, "--exit-status")
+
     # And now let's create a PR from a fork of a different user
-    gh_create_fork()
     with cd("fork"):
+        gh_create_fork()
         git("checkout", "-b", "external_branch")
-        add_coverage_line("a,b,c,,a-b-c")
+        add_coverage_line("a,,c,d,a-c-d")
         git("push", "origin", "external_branch", env={"GITHUB_TOKEN": token_other})
-        ext_sha1 = head_sha1()
+        ext_sha1 = get_sha1()
 
     full_branch_name = f"{gh_other_username}:external_branch"
     gh_other("pr", "create", "--fill", "--head", full_branch_name)
@@ -171,7 +183,7 @@ def test_public_repo(
 def test_private_repo(
     gh_create_repo,
     wait_for_run_to_start,
-    head_sha1,
+    get_sha1,
     gh_me,
     repo_full_name,
     cd,
@@ -183,7 +195,7 @@ def test_private_repo(
     gh_create_repo("--private")
 
     # Actions will start soon
-    run_id = wait_for_run_to_start(sha1=head_sha1(), branch="main", gh=gh_me)
+    run_id = wait_for_run_to_start(sha1=get_sha1(), branch="main", gh=gh_me)
 
     # AAAaand it's started. Now let's wait for it to end.
     # Also, raise if it doesn't end succefully. That half of the job.
@@ -239,7 +251,7 @@ def test_private_repo(
         git("checkout", "-b", "new_branch")
         add_coverage_line("a,b,c,,a-b-c")
         git("push", "origin", "new_branch", env={"GITHUB_TOKEN": token_me})
-        sha1 = head_sha1()
+        sha1 = get_sha1()
 
     gh_me("pr", "create", "--fill")
 
@@ -256,3 +268,13 @@ def test_private_repo(
         fail_value="\n",
     )
     assert ":arrow_up:" in comment
+
+    # Let's merge the PR and see if everything works fine
+    gh_me("pr", "merge", "1", "--merge")
+
+    git("fetch", env={"GITHUB_TOKEN": token_me})
+
+    run_id = wait_for_run_to_start(
+        sha1=get_sha1("origin/main"), branch="main", gh=gh_me
+    )
+    gh_me("run", "watch", run_id, "--exit-status")

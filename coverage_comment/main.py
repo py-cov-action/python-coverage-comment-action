@@ -87,7 +87,7 @@ def action(
             )
         else:
             # event_name == "push"
-            return save_badge(
+            return save_coverage_data_files(
                 config=config,
                 coverage=coverage,
                 github_session=github_session,
@@ -125,11 +125,11 @@ def generate_comment(
         previous_coverage = files.parse_datafile(contents=previous_coverage_data_file)
 
     try:
-        comment = template.get_markdown_comment(
+        comment = template.get_comment_markdown(
             coverage=coverage,
             diff_coverage=diff_coverage,
             previous_coverage_rate=previous_coverage,
-            base_template=template.read_template_file(),
+            base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
         )
     except template.MissingMarker:
@@ -240,7 +240,7 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
     return 0
 
 
-def save_badge(
+def save_coverage_data_files(
     config: settings.Config,
     coverage: coverage_module.Coverage,
     github_session: httpx.Client,
@@ -259,33 +259,47 @@ def save_badge(
         log.info("Skipping badge save as we're not on the default branch")
         return 0
 
-    log.info("Saving coverage files & badge into the repository")
-    files_to_save = files.compute_files(
+    log.info("Computing coverage files & badge")
+    operations: list[files.Operation] = files.compute_files(
         line_rate=coverage.info.percent_covered,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
         http_session=http_session,
     )
+
     is_public = repo_info.is_public()
+    if is_public:
+        log.info("Generating HTML coverage report")
+        operations.append(files.get_coverage_html_files())
+
+    markdown_report = coverage_module.generate_coverage_markdown()
+
     url_getter = functools.partial(
-        storage.get_file_url,
+        storage.get_raw_file_url,
         is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
         branch=config.COVERAGE_DATA_BRANCH,
     )
-    readme_file, log_message = communication.get_readme_and_log(
-        readme_url=storage.get_readme_url(
-            branch=config.COVERAGE_DATA_BRANCH,
-            repository=config.GITHUB_REPOSITORY,
-        ),
-        image_urls=files.get_urls(url_getter=url_getter),
-        is_public=is_public,
+    readme_url = storage.get_repo_file_url(
+        branch=config.COVERAGE_DATA_BRANCH,
+        repository=config.GITHUB_REPOSITORY,
     )
-    storage.upload_files(
-        files=files_to_save,
+    html_report_url = storage.get_html_report_url(
+        branch=config.COVERAGE_DATA_BRANCH,
+        repository=config.GITHUB_REPOSITORY,
+    )
+    readme_file, log_message = communication.get_readme_and_log(
+        is_public=is_public,
+        readme_url=readme_url,
+        image_urls=files.get_urls(url_getter=url_getter),
+        html_report_url=html_report_url,
+        markdown_report=markdown_report,
+    )
+    operations.append(readme_file)
+    storage.commit_operations(
+        operations=operations,
         git=git,
         branch=config.COVERAGE_DATA_BRANCH,
-        initial_file=readme_file,
     )
 
     log.info(log_message)

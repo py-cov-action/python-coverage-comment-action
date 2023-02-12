@@ -39,7 +39,7 @@ class TemplateError(Exception):
     pass
 
 
-def get_markdown_comment(
+def get_comment_markdown(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: decimal.Decimal | None,
@@ -66,8 +66,52 @@ def get_markdown_comment(
     return comment
 
 
-def read_template_file() -> str:
-    return resources.read_text("coverage_comment", "default.md.j2")
+def get_readme_markdown(
+    is_public: bool,
+    readme_url: str,
+    markdown_report: str,
+    direct_image_url: str,
+    html_report_url: str | None,
+    dynamic_image_url: str | None,
+    endpoint_image_url: str | None,
+):
+    env = SandboxedEnvironment()
+    template = jinja2.Template(read_template_file("readme.md.j2"))
+    return env.get_template(template).render(
+        is_public=is_public,
+        readme_url=readme_url,
+        markdown_report=markdown_report,
+        direct_image_url=direct_image_url,
+        html_report_url=html_report_url,
+        dynamic_image_url=dynamic_image_url,
+        endpoint_image_url=endpoint_image_url,
+    )
+
+
+def get_log_message(
+    is_public: bool,
+    readme_url: str,
+    direct_image_url: str,
+    html_report_url: str | None,
+    dynamic_image_url: str | None,
+    endpoint_image_url: str | None,
+):
+    env = SandboxedEnvironment()
+    template = jinja2.Template(read_template_file("log.txt.j2"))
+    return env.get_template(template).render(
+        is_public=is_public,
+        html_report_url=html_report_url,
+        direct_image_url=direct_image_url,
+        endpoint_image_url=endpoint_image_url,
+        dynamic_image_url=dynamic_image_url,
+        readme_url=readme_url,
+    )
+
+
+def read_template_file(template: str) -> str:
+    return (
+        resources.files("coverage_comment") / "template_files" / template
+    ).read_text()
 
 
 def pct(val: decimal.Decimal | float) -> str:

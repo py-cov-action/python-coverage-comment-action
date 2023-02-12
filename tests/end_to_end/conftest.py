@@ -231,7 +231,7 @@ def gh_delete_repo(repo_name):
     def f(gh):
         try:
             print(f"Deleting repository {repo_name}")
-            gh("repo", "delete", repo_name, "--confirm")
+            gh("repo", "delete", repo_name, "--yes")
         except subprocess.CalledProcessError:
             pass
 
@@ -286,9 +286,9 @@ def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_nam
 
 
 @pytest.fixture
-def head_sha1(git):
-    def _():
-        return git("rev-parse", "HEAD").strip()
+def get_sha1(git):
+    def _(spec="HEAD"):
+        return git("rev-parse", spec).strip()
 
     return _
 
@@ -359,28 +359,9 @@ def wait_for_run_triggered_by_user_to_start():
 def add_coverage_line(git):
     def f(line):
         csv_file = pathlib.Path("tests/cases.csv")
-        csv_file.write_text(csv_file.read_text() + line)
+        csv_file.write_text(csv_file.read_text() + line + "\n")
 
         git("add", str(csv_file))
         git("commit", "-m", "improve coverage")
 
     return f
-
-
-_is_failed = []
-
-
-def pytest_runtest_logreport(report):
-    if report.outcome == "failed":
-        _is_failed.append(True)
-
-
-@pytest.fixture
-def is_failed():
-    _is_failed.clear()
-
-    def f():
-        return bool(_is_failed)
-
-    yield f
-    _is_failed.clear()

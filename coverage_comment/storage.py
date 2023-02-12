@@ -21,26 +21,7 @@ COMMIT_ENVIRONMENT = {
     "GIT_COMMITTER_NAME": GITHUB_ACTIONS_BOT_NAME,
     "GIT_COMMITTER_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
 }
-INITIAL_GIT_COMMIT_MESSAGE = "Initialize python-coverage-comment-action special branch"
-GIT_COMMIT_MESSAGE = "Update badge"
-
-
-def initialize_branch(
-    git: subprocess.Git,
-    branch: str,
-    initial_file: files.FileWithPath,
-):
-    log.info(f"Creating branch {branch}")
-    git.checkout("--orphan", branch)
-    git.reset("--hard")
-
-    initial_file.path.write_text(initial_file.contents)
-    git.add(str(initial_file.path))
-    git.commit(
-        "--message",
-        INITIAL_GIT_COMMIT_MESSAGE,
-        env=COMMIT_ENVIRONMENT,
-    )
+GIT_COMMIT_MESSAGE = "Update coverage data"
 
 
 @contextlib.contextmanager
@@ -52,54 +33,63 @@ def checked_out_branch(git: subprocess.Git, branch: str):
 
     log.debug(f"Current checkout is {current_checkout}")
 
-    git.fetch()
+    log.debug("Resetting all changes")
+    # Goodbye `.coverage` file.
+    git.reset("--hard")
 
-    branch_exists = True
     try:
-        git.checkout(branch)
-        log.debug(f"Branch {branch} exist.")
+        git.fetch("origin", branch)
     except subprocess.SubProcessError:
+        # Branch seems to no exist, OR fetch failed for a different reason.
+        # Let's make sure:
+        # 1/ Fetch again, but this time all the remote
+        git.fetch("origin")
+        # 2/ And check that our branch really doesn't exist
+        try:
+            git.rev_parse("--verify", f"origin/{branch}")
+        except subprocess.SubProcessError:
+            # Ok good, the branch really doesn't exist.
+            pass
+        else:
+            # Ok, our branch exist, but we failed to fetch it. Let's raise.
+            raise
         log.debug(f"Branch {branch} doesn't exist.")
-        branch_exists = False
+        log.info(f"Creating branch {branch}")
+        git.switch("--orphan", branch)
+    else:
+        log.debug(f"Branch {branch} exist.")
+        git.switch(branch)
 
     try:
-        yield branch_exists
+        yield
     finally:
         log.debug(f"Back to checkout of {current_checkout}")
-        git.checkout(current_checkout)
+        git.switch(current_checkout)
 
 
-def upload_files(
-    files: list[files.FileWithPath],
+def commit_operations(
+    operations: list[files.Operation],
     git: subprocess.Git,
     branch: str,
-    initial_file: files.FileWithPath,
 ):
     """
     Store the given files.
 
     Parameters
     ----------
-    files : list[files.FileWithPath]
-        Files to store
+    operations : list[files.Operation]
+        File operations to process
     git : subprocess.Git
         Git actor
     branch : str
         branch on which to store the files
-    initial_file : files.FileWithPath
+    initial_file : files.Operation
         In case the branch didn't exist, initialize it with this initial file.
     """
-    with checked_out_branch(git=git, branch=branch) as branch_exists:
-        if not branch_exists:
-            initialize_branch(
-                git=git,
-                branch=branch,
-                initial_file=initial_file,
-            )
-
-        for file in files:
-            file.path.write_text(file.contents)
-            git.add(str(file.path))
+    with checked_out_branch(git=git, branch=branch):
+        for op in operations:
+            op.apply()
+            git.add(str(op.path))
 
         try:
             git.diff("--staged", "--exit-code")
@@ -134,7 +124,7 @@ def get_datafile_contents(
     return base64.b64decode(response.content).decode()
 
 
-def get_file_url(
+def get_raw_file_url(
     repository: str,
     branch: str,
     path: pathlib.Path,
@@ -157,8 +147,26 @@ def get_file_url(
     # seconds.
 
 
-def get_readme_url(repository: str, branch: str) -> str:
-    return f"https://github.com/{repository}/tree/{branch}"
+def get_repo_file_url(repository: str, branch: str, path: str = "/") -> str:
+    """
+    Computes the GitHub Web UI URL for a given path:
+    If the path is empty or ends with a slash, it will be interpreted as a folder,
+    so the URL will point to the page listing files and displaying the README.
+    Otherwise, the URL will point to the page displaying the file contents within
+    the UI.
+    Leading and trailing slashes in path are removed from the final URL.
+    """
+    # See test_get_repo_file_url for precise specifications
+    path = "/" + path.lstrip("/")
+    part = "tree" if path.endswith("/") else "blob"
+    return f"https://github.com/{repository}/{part}/{branch}{path}".rstrip("/")
+
+
+def get_html_report_url(repository: str, branch: str) -> str:
+    readme_url = get_repo_file_url(
+        repository=repository, branch=branch, path="/htmlcov/index.html"
+    )
+    return f"https://htmlpreview.github.io/?{readme_url}"
 
 
 def fix_ownership_issues(git: subprocess.Git):
