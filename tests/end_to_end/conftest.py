@@ -231,7 +231,7 @@ def gh_delete_repo(repo_name):
     def f(gh):
         try:
             print(f"Deleting repository {repo_name}")
-            gh("repo", "delete", repo_name, "--confirm")
+            gh("repo", "delete", repo_name, "--yes")
         except subprocess.CalledProcessError:
             pass
 
