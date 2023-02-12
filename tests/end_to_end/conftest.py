@@ -239,7 +239,15 @@ def gh_delete_repo(repo_name):
 
 
 @pytest.fixture
-def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
+def team_users():
+    team = {"ewjoachim", "kieferro"}
+    if pr_author := os.environ.get("COVERAGE_COMMENT_E2E_PR_AUTHOR"):
+        team.add(pr_author)
+    return team
+
+
+@pytest.fixture
+def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name, team_users):
     gh_delete_repo(gh_me)
 
     def f(*args):
@@ -261,6 +269,13 @@ def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
             "ACTIONS_STEP_DEBUG",
             "--body=true",
         )
+        for username in team_users:
+            gh_me(
+                "api",
+                "--method",
+                "PUT",
+                f"/repos/{{owner}}/{{repo}}/collaborators/{username}",
+            )
         return git_repo
 
     yield f

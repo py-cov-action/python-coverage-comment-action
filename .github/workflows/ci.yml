@@ -46,6 +46,7 @@ jobs:
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
           COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.sha }}
           COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ github.event.number }}
+          COVERAGE_COMMENT_E2E_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
 
       - name: Coverage comment
         id: coverage_comment
