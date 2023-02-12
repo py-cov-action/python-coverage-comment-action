@@ -21,7 +21,7 @@ COMMIT_ENVIRONMENT = {
     "GIT_COMMITTER_NAME": GITHUB_ACTIONS_BOT_NAME,
     "GIT_COMMITTER_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
 }
-GIT_COMMIT_MESSAGE = "Update badge"
+GIT_COMMIT_MESSAGE = "Update coverage data"
 
 
 @contextlib.contextmanager

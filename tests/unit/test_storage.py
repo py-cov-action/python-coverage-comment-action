@@ -103,7 +103,7 @@ def test_commit_operations(git, in_tmp_path):
     # (yes, it's missing the quotes, but this is just an artifact from our test
     # double)
     git.register(
-        "git commit --message Update badge",
+        "git commit --message Update coverage data",
         env={
             "GIT_AUTHOR_NAME": "github-actions",
             "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",

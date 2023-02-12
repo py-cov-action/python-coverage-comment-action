@@ -327,7 +327,7 @@ def test_action__push__default_branch(
     git.register("git add htmlcov")()
     git.register("git add README.md")()
     git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message Update badge")()
+    git.register("git commit --message Update coverage data")()
     git.register("git push origin python-coverage-comment-action-data")()
     git.register("git switch foo")()
 
@@ -382,7 +382,7 @@ def test_action__push__default_branch__private(
     git.register("git add badge.svg")()
     git.register("git add README.md")()
     git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message Update badge")()
+    git.register("git commit --message Update coverage data")()
     git.register("git push origin python-coverage-comment-action-data")()
     git.register("git switch foo")()
 
