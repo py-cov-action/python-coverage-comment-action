@@ -58,7 +58,7 @@
             <span class="text">77 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">77<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
-            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">1<span class="text"> excluded</span></button>
             <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">0<span class="text"> partial</span></button>
         </h2>
         <p class="text">
@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_files_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v7.1.0</a>,
-            created at 2023-02-05 10:23 +0000
+            created at 2023-02-12 15:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -174,8 +174,8 @@
     <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">    <span class="key">return</span> <span class="nam">extract_info</span><span class="op">(</span><span class="nam">json</span><span class="op">.</span><span class="nam">loads</span><span class="op">(</span><span class="nam">json_coverage</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="key">def</span> <span class="nam">generate_coverage_html_files</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="str">"coverage"</span><span class="op">,</span> <span class="str">"html"</span><span class="op">,</span> <span class="str">"--skip-empty"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="key">def</span> <span class="nam">generate_coverage_html_files</span><span class="op">(</span><span class="nam">path</span><span class="op">:</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="str">"coverage"</span><span class="op">,</span> <span class="str">"html"</span><span class="op">,</span> <span class="str">"--skip-empty"</span><span class="op">,</span> <span class="str">"--directory"</span><span class="op">,</span> <span class="nam">str</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="key">def</span> <span class="nam">generate_coverage_markdown</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -293,7 +293,7 @@
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="key">def</span> <span class="nam">extract_diff_info</span><span class="op">(</span><span class="nam">data</span><span class="op">)</span> <span class="op">-></span> <span class="nam">DiffCoverage</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="exc show_exc"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="str">    {</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="str">        "report_name": "XML",</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="str">        "diff_name": "master...HEAD, staged and unstaged changes",</span>&nbsp;</span><span class="r"></span></p>
@@ -337,7 +337,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_files_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v7.1.0</a>,
-            created at 2023-02-05 10:23 +0000
+            created at 2023-02-12 15:16 +0000
         </p>
     </div>
 </footer>
