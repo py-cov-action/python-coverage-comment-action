@@ -359,7 +359,7 @@ def wait_for_run_triggered_by_user_to_start():
 def add_coverage_line(git):
     def f(line):
         csv_file = pathlib.Path("tests/cases.csv")
-        csv_file.write_text(csv_file.read_text() + line)
+        csv_file.write_text(csv_file.read_text() + line + "\n")
 
         git("add", str(csv_file))
         git("commit", "-m", "improve coverage")

@@ -134,10 +134,10 @@ def test_public_repo(
     gh_me("run", "watch", run_id, "--exit-status")
 
     # And now let's create a PR from a fork of a different user
-    gh_create_fork()
     with cd("fork"):
+        gh_create_fork()
         git("checkout", "-b", "external_branch")
-        add_coverage_line("a,b,c,,a-b-c")
+        add_coverage_line("a,,c,d,a-c-d")
         git("push", "origin", "external_branch", env={"GITHUB_TOKEN": token_other})
         ext_sha1 = get_sha1()
 
