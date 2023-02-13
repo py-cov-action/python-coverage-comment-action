@@ -242,7 +242,8 @@ def gh_delete_repo(repo_name):
 def team_users():
     team = {"ewjoachim", "kieferro"}
     if pr_author := os.environ.get("COVERAGE_COMMENT_E2E_PR_AUTHOR"):
-        team.add(pr_author)
+        if "[bot]" not in pr_author:
+            team.add(pr_author)
     return team
 
 
