@@ -31,7 +31,7 @@ def call():
                 **kwargs,
             )
         except subprocess.CalledProcessError as exc:
-            print("/n".join([exc.stdout, exc.stderr]))
+            print("\n".join([exc.stdout, exc.stderr]))
             raise
         return call.stdout
 
