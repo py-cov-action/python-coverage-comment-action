@@ -22,7 +22,7 @@ def run(*args, **kwargs) -> str:
             **kwargs,
         ).stdout
     except subprocess.CalledProcessError as exc:
-        raise SubProcessError("/n".join([exc.stdout, exc.stderr])) from exc
+        raise SubProcessError("\n".join([exc.stdout, exc.stderr])) from exc
 
 
 class Git:
