@@ -48,7 +48,7 @@ def main():
 
     except Exception:
         log.exception(
-            "Critical error. Please look for open issues or open one in https://github.com/py-cov-action/python-coverage-comment-action/"
+            "Critical error. This error possibly occurred because the permissions of the workflow are set incorrectly. You can see the correct setting of permissions here: https://github.com/py-cov-action/python-coverage-comment-action#basic-usage\nOtherwise please look for open issues or open one in https://github.com/py-cov-action/python-coverage-comment-action/"
         )
         sys.exit(1)
 
