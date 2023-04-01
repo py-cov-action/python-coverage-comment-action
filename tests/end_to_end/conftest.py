@@ -270,6 +270,14 @@ def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name, team_u
             "ACTIONS_STEP_DEBUG",
             "--body=true",
         )
+        return git_repo
+
+    yield f
+
+    if not is_failed():
+        gh_delete_repo(gh_me)
+
+    else:
         for username in team_users:
             gh_me(
                 "api",
@@ -277,12 +285,6 @@ def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name, team_u
                 "PUT",
                 f"/repos/{{owner}}/{{repo}}/collaborators/{username}",
             )
-        return git_repo
-
-    yield f
-
-    if not is_failed():
-        gh_delete_repo(gh_me)
 
 
 @pytest.fixture

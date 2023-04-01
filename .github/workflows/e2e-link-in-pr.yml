@@ -16,7 +16,7 @@ jobs:
           gh pr comment ${LINK} --body-file - <<EOF
             [End-to-end public repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public)
             [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
-            @${AUTHOR} will be added to the private repo
+            If the tests fail, @${AUTHOR} will be added to the private repo
           EOF
         env:
           LINK: ${{ github.event.pull_request.html_url }}
