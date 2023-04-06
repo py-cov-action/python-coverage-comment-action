@@ -6,6 +6,9 @@ on:
     branches:
       - 'main'
 
+concurrency:
+  group: CI
+
 jobs:
   test:
     name: Run tests & display/prepare coverage
