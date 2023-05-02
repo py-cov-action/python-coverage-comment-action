@@ -370,6 +370,19 @@ docker).
 A previous version of this action did things with the wiki. This is not the case
 anymore.
 
+## .coverage file generated on a non-unix file system
+
+If your project needs to be built and tested on a non-unix os adding 
+
+```
+[paths]
+source =
+    */project/module
+    *\project\module
+```
+
+to .coveragerc will help the action to find the covered files.
+
 ## Private repositories
 
 This action is supposedly compatible with private repository. Just make sure
