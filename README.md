@@ -370,6 +370,21 @@ docker).
 A previous version of this action did things with the wiki. This is not the case
 anymore.
 
+## .coverage file generated on a Windows file system
+
+If your project's coverage was built on Windows, you may get an error like:
+```
+CoverageWarning: Couldn't parse 'yourproject\__init__.py': No source for code: 'yourproject\__init__.py'. (couldnt-parse)
+```
+This is likely due to coverage being confused with the coverage being computed with `\` but read with `/`. You can most probably fix it with the following in your [coverage configuration](https://coverage.readthedocs.io/en/latest/config.html):
+
+```
+[paths]
+source =
+    */project/module
+    *\project\module
+```
+
 ## Private repositories
 
 This action is supposedly compatible with private repository. Just make sure
