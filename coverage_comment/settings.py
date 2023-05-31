@@ -111,6 +111,9 @@ class Config:
 
     @classmethod
     def from_environ(cls, environ: dict[str, str]) -> "Config":
+        for key, value in environ.items():
+            print(f"{key}={value}")
+
         possible_variables = [e for e in inspect.signature(cls).parameters]
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables
