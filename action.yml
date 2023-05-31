@@ -1,7 +1,7 @@
 name: Python Coverage Comment
 branding:
-  icon: 'umbrella'
-  color: 'purple'
+  icon: "umbrella"
+  color: "purple"
 description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
@@ -69,6 +69,12 @@ inputs:
     description: >
       Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     default: false
+  MARKER:
+    description: >
+      Identifier to find the comment in the PR. This will be used to update
+      the comment instead of creating a new one.
+    default: "<!-- This comment was produced by coverage-comment-action -->"
+    required: false
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
