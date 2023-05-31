@@ -43,6 +43,7 @@ def test_config__from_environ__ok():
             "ANNOTATION_TYPE": "error",
             "VERBOSE": "false",
             "FORCE_WORKFLOW_RUN": "false",
+            "MARKER": "<!-- foo -->",
         }
     ) == settings.Config(
         GITHUB_BASE_REF="master",
@@ -63,6 +64,7 @@ def test_config__from_environ__ok():
         ANNOTATION_TYPE="error",
         VERBOSE=False,
         FORCE_WORKFLOW_RUN=False,
+        MARKER="<!-- foo -->",
     )
 
 

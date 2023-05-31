@@ -42,6 +42,7 @@ class Config:
     COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
+    MARKER: str = "<!-- This comment was produced by python-coverage-comment-action -->"
     GITHUB_OUTPUT: pathlib.Path | None = None
     MINIMUM_GREEN: decimal.Decimal = decimal.Decimal("100")
     MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal("70")
@@ -51,7 +52,6 @@ class Config:
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
-    MARKER: str | None = None
 
     # Clean methods
     @classmethod
