@@ -96,3 +96,4 @@ runs:
     ANNOTATE_MISSING_LINES: ${{ inputs.ANNOTATE_MISSING_LINES }}
     ANNOTATION_TYPE: ${{ inputs.ANNOTATION_TYPE }}
     VERBOSE: ${{ inputs.VERBOSE }}
+    MARKER: ${{ inputs.MARKER }}
