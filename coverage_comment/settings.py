@@ -51,6 +51,7 @@ class Config:
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
+    MARKER: str = "<!-- This comment was produced by python-coverage-comment-action -->"
 
     # Clean methods
     @classmethod

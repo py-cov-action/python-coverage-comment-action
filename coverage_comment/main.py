@@ -130,6 +130,7 @@ def generate_comment(
             previous_coverage_rate=previous_coverage,
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
+            marker=config.MARKER,
         )
     except template.MissingMarker:
         log.error(
@@ -159,7 +160,7 @@ def generate_comment(
             repository=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             contents=comment,
-            marker=template.MARKER,
+            marker=config.MARKER,
         )
     except github.CannotPostComment:
         log.debug("Exception when posting comment", exc_info=True)
@@ -232,7 +233,7 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
         repository=config.GITHUB_REPOSITORY,
         pr_number=pr_number,
         contents=comment,
-        marker=template.MARKER,
+        marker=config.MARKER,
     )
     log.info("Comment posted in PR")
 

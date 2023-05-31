@@ -22,6 +22,7 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
             custom_template="""{% extends "base" %}
         {% block foo %}bar{% endblock foo %}
         """,
+            marker="<!-- This a fake marker-->",
         )
         .strip()
         .split(maxsplit=4)
@@ -32,7 +33,7 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
         "75%",
         "80%",
         "bar",
-        "<!-- This comment was produced by python-coverage-comment-action -->",
+        "<!-- This a fake marker-->",
     ]
 
     assert result == expected
