@@ -15,7 +15,7 @@ class InvalidAnnotationType(Exception):
     pass
 
 
-def path_below(path_str: str) -> pathlib.Path:
+def path_below(path_str: str | pathlib.Path) -> pathlib.Path:
     try:
         return pathlib.Path(path_str).resolve().relative_to(pathlib.Path.cwd())
     except ValueError as exc:
@@ -41,6 +41,7 @@ class Config:
     GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
     COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
+    COVERAGE_PATH: pathlib.Path = pathlib.Path(".")
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     GITHUB_OUTPUT: pathlib.Path | None = None
@@ -100,6 +101,10 @@ class Config:
 
     @classmethod
     def clean_comment_filename(cls, value: str) -> pathlib.Path:
+        return path_below(value)
+
+    @classmethod
+    def clean_coverage_path(cls, value: str) -> pathlib.Path:
         return path_below(value)
 
     @classmethod
