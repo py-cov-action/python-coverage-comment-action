@@ -28,11 +28,11 @@ def test_get_coverage_info(mocker, coverage_json, coverage_obj):
         "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
     )
 
-    result = coverage.get_coverage_info(merge=True)
+    result = coverage.get_coverage_info(merge=True, coverage_path=".")
 
     assert run.call_args_list == [
-        mocker.call("coverage", "combine"),
-        mocker.call("coverage", "json", "-o", "-"),
+        mocker.call("coverage", "combine", path="."),
+        mocker.call("coverage", "json", "-o", "-", path="."),
     ]
 
     assert result == coverage_obj
@@ -43,9 +43,9 @@ def test_get_coverage_info__no_merge(mocker, coverage_json):
         "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
     )
 
-    coverage.get_coverage_info(merge=False)
+    coverage.get_coverage_info(merge=False, coverage_path=".")
 
-    assert mocker.call("coverage", "combine") not in run.call_args_list
+    assert mocker.call("coverage", "combine", path=".") not in run.call_args_list
 
 
 def test_get_coverage_info__error_base(mocker, get_logs):
@@ -54,7 +54,7 @@ def test_get_coverage_info__error_base(mocker, get_logs):
     )
 
     with pytest.raises(subprocess.SubProcessError):
-        coverage.get_coverage_info(merge=False)
+        coverage.get_coverage_info(merge=False, coverage_path=".")
 
     assert not get_logs("ERROR")
 
@@ -66,7 +66,7 @@ def test_get_coverage_info__error_no_source(mocker, get_logs):
     )
 
     with pytest.raises(subprocess.SubProcessError):
-        coverage.get_coverage_info(merge=False)
+        coverage.get_coverage_info(merge=False, coverage_path=".")
 
     assert get_logs("ERROR", "Cannot read")
 
@@ -76,20 +76,26 @@ def test_generate_coverage_html_files(mocker):
         "coverage_comment.subprocess.run",
     )
 
-    coverage.generate_coverage_html_files(path=pathlib.Path("/tmp/foo"))
+    coverage.generate_coverage_html_files(
+        destination=pathlib.Path("/tmp/foo"), coverage_path="."
+    )
 
     assert run.call_args_list == [
-        mocker.call("coverage", "html", "--skip-empty", "--directory", "/tmp/foo"),
+        mocker.call(
+            "coverage", "html", "--skip-empty", "--directory", "/tmp/foo", path="."
+        ),
     ]
 
 
 def test_generate_coverage_markdown(mocker):
     run = mocker.patch("coverage_comment.subprocess.run", return_value="foo")
 
-    result = coverage.generate_coverage_markdown()
+    result = coverage.generate_coverage_markdown(coverage_path=".")
 
     assert run.call_args_list == [
-        mocker.call("coverage", "report", "--format=markdown", "--show-missing"),
+        mocker.call(
+            "coverage", "report", "--format=markdown", "--show-missing", path="."
+        ),
     ]
 
     assert result == "foo"

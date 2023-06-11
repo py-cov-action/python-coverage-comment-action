@@ -1,5 +1,6 @@
 import functools
 import os
+import pathlib
 import subprocess
 from typing import Any
 
@@ -12,10 +13,11 @@ class GitError(SubProcessError):
     pass
 
 
-def run(*args, **kwargs) -> str:
+def run(*args, path: pathlib.Path, **kwargs) -> str:
     try:
         return subprocess.run(
             args,
+            cwd=path,
             text=True,
             check=True,
             capture_output=True,
@@ -62,4 +64,5 @@ class Git:
             raise GitError from exc
 
     def __getattr__(self, name: str) -> Any:
+        return functools.partial(self._git, name.replace("_", "-"))
         return functools.partial(self._git, name.replace("_", "-"))

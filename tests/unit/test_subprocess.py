@@ -4,16 +4,20 @@ from coverage_comment import subprocess
 
 
 def test_run__ok():
-    subprocess.run("echo", "yay") == "yay"
+    assert subprocess.run("echo", "yay", path=".").strip() == "yay"
+
+
+def test_run__path():
+    assert subprocess.run("pwd", path="/").strip() == "/"
 
 
 def test_run__kwargs():
-    subprocess.run("pwd", cwd="/") == "/"
+    assert "A=B" in subprocess.run("env", env={"A": "B"}, path=".")
 
 
 def test_run__error():
     with pytest.raises(subprocess.SubProcessError):
-        subprocess.run("false")
+        subprocess.run("false", path=".")
 
 
 @pytest.fixture
