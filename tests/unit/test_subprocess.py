@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 
 from coverage_comment import subprocess
@@ -28,7 +30,7 @@ def environ(mocker):
 def test_git(mocker, environ):
     run = mocker.patch("coverage_comment.subprocess.run")
     git = subprocess.Git()
-    git.cwd = "/tmp"
+    git.cwd = pathlib.Path("/tmp")
     environ["A"] = "B"
 
     git.clone("https://some_address.git", "--depth", "1", text=True)
@@ -42,11 +44,17 @@ def test_git(mocker, environ):
                 "https://some_address.git",
                 "--depth",
                 "1",
-                cwd="/tmp",
+                path=pathlib.Path("/tmp"),
                 text=True,
                 env=mocker.ANY,
             ),
-            mocker.call("git", "add", "some_file", cwd="/tmp", env=mocker.ANY),
+            mocker.call(
+                "git",
+                "add",
+                "some_file",
+                path=pathlib.Path("/tmp"),
+                env=mocker.ANY,
+            ),
         ]
     )
 
@@ -76,4 +84,5 @@ def test_git__error(mocker):
     git = subprocess.Git()
 
     with pytest.raises(subprocess.GitError):
+        git.add("some_file")
         git.add("some_file")

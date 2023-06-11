@@ -42,7 +42,7 @@ class Git:
     >>> git.rev_parse("--short", "HEAD")
     """
 
-    cwd = "."
+    cwd = pathlib.Path(".")
 
     def _git(self, *args: str, env: dict[str, str] | None = None, **kwargs) -> str:
         # When setting the `env` argument to run, instead of inheriting env
@@ -56,7 +56,7 @@ class Git:
             return run(
                 "git",
                 *args,
-                cwd=self.cwd,
+                path=self.cwd,
                 env=os.environ | (env or {}),
                 **kwargs,
             )
