@@ -13,7 +13,7 @@ def create_pr_annotations(annotation_type: str, coverage: coverage_module.DiffCo
         for missing_line in file_coverage.violation_lines:
             github.create_missing_coverage_annotation(
                 annotation_type=annotation_type,
-                file=filepath.name,
+                file=str(filepath),
                 line=missing_line,
             )
 

@@ -28,7 +28,6 @@ flake8 = "*"
 isort = "*"
 mypy = "*"
 pytest = "*"
-pytest-cov = "^4.0.0"
 pytest-mock = "*"
 tenacity = "^8.1.0"
 
