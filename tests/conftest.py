@@ -4,6 +4,7 @@ import functools
 import io
 import os
 import zipfile
+from pathlib import Path
 
 import httpx
 import pytest
@@ -281,7 +282,7 @@ def diff_coverage_obj():
         total_percent_covered=decimal.Decimal("0.8"),
         num_changed_lines=39,
         files={
-            "codebase/code.py": coverage_module.FileDiffCoverage(
+            Path("codebase/code.py"): coverage_module.FileDiffCoverage(
                 path="codebase/code.py",
                 percent_covered=decimal.Decimal("0.8"),
                 violation_lines=[7, 9],
