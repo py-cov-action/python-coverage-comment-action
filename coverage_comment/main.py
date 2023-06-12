@@ -5,10 +5,9 @@ import sys
 
 import httpx
 
+from coverage_comment import annotations, comment_file, communication
+from coverage_comment import coverage as coverage_module
 from coverage_comment import (
-    annotations,
-    comment_file,
-    communication,
     files,
     github,
     github_client,
@@ -19,7 +18,6 @@ from coverage_comment import (
     subprocess,
     template,
 )
-from coverage_comment import coverage as coverage_module
 
 
 def main():
@@ -77,8 +75,10 @@ def action(
         coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
         if event_name == "pull_request":
             if config.ANNOTATE_MISSING_LINES:
-                diff_coverage = coverage_module.get_diff_coverage_info(base_ref=config.GITHUB_BASE_REF)
-                
+                diff_coverage = coverage_module.get_diff_coverage_info(
+                    base_ref=config.GITHUB_BASE_REF
+                )
+
                 annotations.create_pr_annotations(
                     annotation_type=config.ANNOTATION_TYPE, coverage=diff_coverage
                 )
