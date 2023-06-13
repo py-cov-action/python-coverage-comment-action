@@ -5,6 +5,7 @@ import io
 import os
 import zipfile
 from pathlib import Path
+from typing import Callable
 
 import httpx
 import pytest
@@ -44,7 +45,7 @@ def push_config(base_config):
 
 
 @pytest.fixture
-def pull_request_config(base_config):
+def pull_request_config(base_config) -> Callable:
     def _(**kwargs):
         defaults = {
             # GitHub stuff
@@ -213,6 +214,7 @@ def coverage_obj_no_branch():
             )
         },
     )
+
 
 @pytest.fixture
 def diff_coverage_obj():
