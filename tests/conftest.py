@@ -214,6 +214,7 @@ def coverage_obj_no_branch():
         },
     )
 
+
 @pytest.fixture
 def diff_coverage_obj():
     return coverage_module.DiffCoverage(
