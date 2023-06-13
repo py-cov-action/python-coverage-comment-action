@@ -58,7 +58,7 @@ class DiffCoverage:
     total_num_violations: int
     total_percent_covered: decimal.Decimal
     num_changed_lines: int
-    files: dict[pathlib.Path, FileDiffCoverage]
+    files: dict[str, FileDiffCoverage]
 
 
 def compute_coverage(num_covered: int, num_total: int) -> decimal.Decimal:

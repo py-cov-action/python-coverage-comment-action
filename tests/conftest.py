@@ -273,7 +273,6 @@ def coverage_obj_many_missing_lines():
         },
     )
 
-
 @pytest.fixture
 def diff_coverage_obj():
     return coverage_module.DiffCoverage(
@@ -282,7 +281,7 @@ def diff_coverage_obj():
         total_percent_covered=decimal.Decimal("0.8"),
         num_changed_lines=39,
         files={
-            Path("codebase/code.py"): coverage_module.FileDiffCoverage(
+            "codebase/code.py": coverage_module.FileDiffCoverage(
                 path="codebase/code.py",
                 percent_covered=decimal.Decimal("0.8"),
                 violation_lines=[7, 9],
