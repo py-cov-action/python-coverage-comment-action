@@ -3,6 +3,7 @@ import json
 import os
 import pathlib
 import subprocess
+from typing import Callable
 
 import pytest
 
@@ -28,7 +29,7 @@ def file_path(integration_dir):
 
 
 @pytest.fixture
-def write_file(file_path):
+def write_file(file_path) -> Callable:
     def _(*variables):
         content = "import os"
         for i, var in enumerate(variables):
@@ -255,7 +256,9 @@ def test_action__pull_request__annotations(
     )(status_code=200)
 
     result = main.action(
-        config=pull_request_config(ANNOTATE_MISSING_LINES=True),
+        config=pull_request_config(
+            ANNOTATE_MISSING_LINES=True, COV_DIFF_TO_ORIGIN=False
+        ),
         github_session=session,
         http_session=session,
         git=None,

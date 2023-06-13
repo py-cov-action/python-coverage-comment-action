@@ -191,14 +191,17 @@ def extract_info(data) -> Coverage:
     )
 
 
-def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
+def get_diff_coverage_info(
+    base_ref: str, compare_to_origin: bool = True
+) -> DiffCoverage:
     subprocess.run("git", "fetch", "--depth=1000")
     subprocess.run("coverage", "xml")
     with tempfile.NamedTemporaryFile("r") as f:
+        ref_prefix = "origin/" if compare_to_origin else ""
         subprocess.run(
             "diff-cover",
             "coverage.xml",
-            f"--compare-branch=origin/{base_ref}",
+            f"--compare-branch={ref_prefix}{base_ref}",
             f"--json-report={f.name}",
             "--diff-range-notation=..",
             "--quiet",
