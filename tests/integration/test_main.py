@@ -3,7 +3,7 @@ import json
 import os
 import pathlib
 import subprocess
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
 

@@ -5,7 +5,7 @@ import io
 import os
 import zipfile
 from pathlib import Path
-from typing import Callable
+from collections.abc import Callable
 
 import httpx
 import pytest
