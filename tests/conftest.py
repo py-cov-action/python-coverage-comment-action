@@ -4,7 +4,6 @@ import functools
 import io
 import os
 import zipfile
-from pathlib import Path
 from collections.abc import Callable
 
 import httpx
