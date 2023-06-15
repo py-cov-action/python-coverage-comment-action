@@ -233,6 +233,38 @@ def diff_coverage_obj():
 
 
 @pytest.fixture
+def diff_coverage_obj_many_missing_lines():
+    return coverage_module.DiffCoverage(
+        total_num_lines=20,
+        total_num_violations=1,
+        total_percent_covered=decimal.Decimal("0.7"),
+        num_changed_lines=52,
+        files={
+            "codebase/code.py": coverage_module.FileDiffCoverage(
+                path="codebase/code.py",
+                percent_covered=decimal.Decimal("0.8"),
+                violation_lines=[3, 5, 21, 111],
+            ),
+            "codebase/helper.py": coverage_module.FileDiffCoverage(
+                path="codebase/helper.py",
+                percent_covered=decimal.Decimal("0.6"),
+                violation_lines=[19, 22],
+            ),
+            "codebase/log.py": coverage_module.FileDiffCoverage(
+                path="codebase/log.py",
+                percent_covered=decimal.Decimal("0.9"),
+                violation_lines=[],
+            ),
+            "codebase/files.py": coverage_module.FileDiffCoverage(
+                path="codebase/files.py",
+                percent_covered=decimal.Decimal("0.8"),
+                violation_lines=[120, 121, 122],
+            ),
+        },
+    )
+
+
+@pytest.fixture
 def session(is_failed):
     """
     You get a session object. Register responses on it:
