@@ -48,6 +48,7 @@ class Config:
     MERGE_COVERAGE_FILES: bool = False
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
+    COV_DIFF_TO_ORIGIN: bool = False
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False

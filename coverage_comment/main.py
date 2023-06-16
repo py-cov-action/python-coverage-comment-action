@@ -73,15 +73,22 @@ def action(
 
     if event_name in {"pull_request", "push"}:
         coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
+
         if event_name == "pull_request":
+            diff_coverage = coverage_module.get_diff_coverage_info(
+                base_ref=config.GITHUB_BASE_REF,
+                compare_to_origin=config.COV_DIFF_TO_ORIGIN,
+            )
+
             if config.ANNOTATE_MISSING_LINES:
                 annotations.create_pr_annotations(
-                    annotation_type=config.ANNOTATION_TYPE, coverage=coverage
+                    annotation_type=config.ANNOTATION_TYPE, coverage=diff_coverage
                 )
 
             return generate_comment(
                 config=config,
                 coverage=coverage,
+                diff_coverage=diff_coverage,
                 github_session=github_session,
             )
         else:
@@ -105,15 +112,13 @@ def action(
 def generate_comment(
     config: settings.Config,
     coverage: coverage_module.Coverage,
+    diff_coverage: coverage_module.DiffCoverage,
     github_session: httpx.Client,
 ) -> int:
     log.info("Generating comment for PR")
 
     gh = github_client.GitHub(session=github_session)
 
-    diff_coverage = coverage_module.get_diff_coverage_info(
-        base_ref=config.GITHUB_BASE_REF
-    )
     previous_coverage_data_file = storage.get_datafile_contents(
         github=gh,
         repository=config.GITHUB_REPOSITORY,
