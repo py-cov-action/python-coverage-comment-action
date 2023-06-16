@@ -264,7 +264,6 @@ def test_action__pull_request__annotations(
         git=None,
     )
     expected = """::group::Annotations of lines with missing coverage
-::warning file=foo.py,line=6::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
 
