@@ -3,7 +3,6 @@ import json
 import os
 import pathlib
 import subprocess
-from collections.abc import Callable
 
 import pytest
 
@@ -29,7 +28,7 @@ def file_path(integration_dir):
 
 
 @pytest.fixture
-def write_file(file_path) -> Callable:
+def write_file(file_path):
     def _(*variables):
         content = "import os"
         for i, var in enumerate(variables):
@@ -256,14 +255,13 @@ def test_action__pull_request__annotations(
     )(status_code=200)
 
     result = main.action(
-        config=pull_request_config(
-            ANNOTATE_MISSING_LINES=True, COV_DIFF_TO_ORIGIN=False
-        ),
+        config=pull_request_config(ANNOTATE_MISSING_LINES=True),
         github_session=session,
         http_session=session,
         git=None,
     )
     expected = """::group::Annotations of lines with missing coverage
+::warning file=foo.py,line=6::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
 

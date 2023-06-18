@@ -2,6 +2,3 @@
 .DS_Store
 .coverage
 dev-env-vars
-*.pyc
-.venv
-.vscode/settings.json
