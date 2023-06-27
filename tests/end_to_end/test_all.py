@@ -31,7 +31,7 @@ def test_public_repo(
     # Also, raise if it doesn't end succefully. That half of the job.
     gh_me("run", "watch", run_id, "--exit-status")
 
-    # Now to the other half: maybe it did nothing succesfully, so let's check
+    # Now to the other half: maybe it did nothing successfully, so let's check
     # that the lob log contains the 3 links to our svg images
     repo_api_url = "/repos/{owner}/{repo}"
 
@@ -201,7 +201,7 @@ def test_private_repo(
     # Also, raise if it doesn't end succefully. That half of the job.
     gh_me("run", "watch", run_id, "--exit-status")
 
-    # Now to the other half: maybe it did nothing succesfully. Let's check
+    # Now to the other half: maybe it did nothing successfully. Let's check
     # Stdout contains the expected link. This time, there's only one link
     # (because shields.io can't access a private repo)
 
