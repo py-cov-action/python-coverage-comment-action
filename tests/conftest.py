@@ -3,6 +3,7 @@ import decimal
 import functools
 import io
 import os
+import pathlib
 import zipfile
 
 import httpx
@@ -20,6 +21,7 @@ def base_config():
             "GITHUB_TOKEN": "foo",
             "GITHUB_PR_RUN_ID": 123,
             "GITHUB_REPOSITORY": "py-cov-action/foobar",
+            "GITHUB_STEP_SUMMARY": pathlib.Path("step_summary"),
             # Action settings
             "MERGE_COVERAGE_FILES": True,
         }

@@ -45,6 +45,7 @@ def test_main(mocker, get_logs):
             "GITHUB_TOKEN": "token",
             "GITHUB_BASE_REF": "",
             "GITHUB_EVENT_NAME": "push",
+            "GITHUB_STEP_SUMMARY": "step_summary",
         }
     )
     main.main()
@@ -75,6 +76,7 @@ def test_main__exception(mocker, get_logs):
             "GITHUB_TOKEN": "token",
             "GITHUB_BASE_REF": "",
             "GITHUB_EVENT_NAME": "push",
+            "GITHUB_STEP_SUMMARY": "step_summary",
         }
     )
     main.main()
