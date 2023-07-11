@@ -197,10 +197,10 @@ def create_missing_coverage_annotation(annotation_type: str, file: str, line: in
     )
 
 
-def append_to_environment_file(content: str, filepath: pathlib.Path):
+def append_to_file(content: str, filepath: pathlib.Path):
     with filepath.open(mode="a") as file:
         file.write(content)
 
 
 def add_job_summary(content: str, github_step_summary: pathlib.Path):
-    append_to_environment_file(content=content, filepath=github_step_summary)
+    append_to_file(content=content, filepath=github_step_summary)

@@ -279,7 +279,7 @@ def save_coverage_data_files(
     markdown_report = coverage_module.generate_coverage_markdown()
 
     github.add_job_summary(
-        content=f"## Coverage report\n{markdown_report}",
+        content=f"## Coverage report\n\n{markdown_report}",
         github_step_summary=config.GITHUB_STEP_SUMMARY,
     )
 

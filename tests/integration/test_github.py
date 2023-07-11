@@ -336,7 +336,11 @@ def test_create_missing_coverage_annotation__annotation_type(capsys):
 
 def test_add_job_summary(summary_file):
     github.add_job_summary(
-        content="[job summary content]", github_step_summary=summary_file
+        content="[job summary part 1]\n", github_step_summary=summary_file
     )
+    assert summary_file.read_text() == "[job summary part 1]\n"
 
-    assert summary_file.read_text() == "[job summary content]"
+    github.add_job_summary(
+        content="[job summary part 2]", github_step_summary=summary_file
+    )
+    assert summary_file.read_text() == "[job summary part 1]\n[job summary part 2]"

@@ -366,10 +366,13 @@ You can use the following URLs to display your badge:
 See more details and ready-to-copy-paste-markdown at:
     https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
-    assert "## Coverage report" in summary_file.read_text()
-    assert "Name" in summary_file.read_text()
-    assert "Stmts" in summary_file.read_text()
-    assert "Missing" in summary_file.read_text()
+
+    summary_content = summary_file.read_text()
+
+    assert "## Coverage report" in summary_content
+    assert "Name" in summary_content
+    assert "Stmts" in summary_content
+    assert "Missing" in summary_content
 
 
 def test_action__push__default_branch__private(
