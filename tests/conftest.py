@@ -458,6 +458,14 @@ def output_file(tmp_path):
     return file
 
 
+@pytest.fixture
+def summary_file(tmp_path):
+    file = tmp_path / "step_summary.txt"
+    file.touch()
+
+    return file
+
+
 _is_failed = []
 
 

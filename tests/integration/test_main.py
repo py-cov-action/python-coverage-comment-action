@@ -83,7 +83,7 @@ def integration_env(integration_dir, write_file, run_coverage):
 
 
 def test_action__pull_request__store_comment(
-    pull_request_config, session, in_integration_env, output_file, capsys
+    pull_request_config, session, in_integration_env, output_file, summary_file, capsys
 ):
     # No existing badge in this test
     session.register(
@@ -111,7 +111,9 @@ def test_action__pull_request__store_comment(
     )(status_code=403)
 
     result = main.action(
-        config=pull_request_config(GITHUB_OUTPUT=output_file),
+        config=pull_request_config(
+            GITHUB_OUTPUT=output_file, GITHUB_STEP_SUMMARY=summary_file
+        ),
         github_session=session,
         http_session=session,
         git=None,
@@ -124,6 +126,7 @@ def test_action__pull_request__store_comment(
 
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
+    assert comment == summary_file.read_text()
     assert "No coverage data of the default branch was found for comparison" in comment
     assert "The coverage rate is `85.71%`" in comment
     assert "`100%` of new lines are covered." in comment
@@ -142,7 +145,7 @@ def test_action__pull_request__store_comment(
 
 
 def test_action__pull_request__post_comment(
-    pull_request_config, session, in_integration_env, output_file
+    pull_request_config, session, in_integration_env, output_file, summary_file
 ):
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -175,7 +178,9 @@ def test_action__pull_request__post_comment(
     )
 
     result = main.action(
-        config=pull_request_config(GITHUB_OUTPUT=output_file),
+        config=pull_request_config(
+            GITHUB_OUTPUT=output_file, GITHUB_STEP_SUMMARY=summary_file
+        ),
         github_session=session,
         http_session=session,
         git=None,
@@ -184,6 +189,7 @@ def test_action__pull_request__post_comment(
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
     assert "The coverage rate went from `30%` to `85.71%` :arrow_up:" in comment
+    assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"
 
@@ -307,7 +313,7 @@ def test_action__push__non_default_branch(
 
 
 def test_action__push__default_branch(
-    push_config, session, in_integration_env, get_logs, git
+    push_config, session, in_integration_env, get_logs, git, summary_file
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -332,7 +338,7 @@ def test_action__push__default_branch(
     git.register("git switch foo")()
 
     result = main.action(
-        config=push_config(),
+        config=push_config(GITHUB_STEP_SUMMARY=summary_file),
         github_session=session,
         http_session=session,
         git=git,
@@ -360,6 +366,10 @@ You can use the following URLs to display your badge:
 See more details and ready-to-copy-paste-markdown at:
     https://github.com/py-cov-action/foobar/tree/python-coverage-comment-action-data"""
     assert log == expected
+    assert "## Coverage report" in summary_file.read_text()
+    assert "Name" in summary_file.read_text()
+    assert "Stmts" in summary_file.read_text()
+    assert "Missing" in summary_file.read_text()
 
 
 def test_action__push__default_branch__private(
@@ -490,7 +500,7 @@ def test_action__workflow_run__no_artifact(
 
 
 def test_action__workflow_run__post_comment(
-    workflow_run_config, session, in_integration_env, get_logs, zip_bytes
+    workflow_run_config, session, in_integration_env, get_logs, zip_bytes, summary_file
 ):
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
@@ -533,7 +543,7 @@ def test_action__workflow_run__post_comment(
     )()
 
     result = main.action(
-        config=workflow_run_config(),
+        config=workflow_run_config(GITHUB_STEP_SUMMARY=summary_file),
         github_session=session,
         http_session=session,
         git=None,
@@ -542,3 +552,4 @@ def test_action__workflow_run__post_comment(
     assert result == 0
     assert get_logs("INFO", "Comment file found in artifact, posting to PR")
     assert get_logs("INFO", "Comment posted in PR")
+    assert summary_file.read_text() == ""
