@@ -38,6 +38,7 @@ class Config:
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
+    GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
     COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
@@ -64,6 +65,10 @@ class Config:
     @classmethod
     def clean_github_pr_run_id(cls, value: str) -> int | None:
         return int(value) if value else None
+
+    @classmethod
+    def clean_github_step_summary(cls, value: str) -> pathlib.Path:
+        return pathlib.Path(value)
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
