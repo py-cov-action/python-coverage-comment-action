@@ -12,16 +12,16 @@
 | coverage\_comment/communication.py  |        7 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/coverage.py       |       77 |        0 |       24 |        0 |     100% |           |
 | coverage\_comment/files.py          |       54 |        0 |        6 |        0 |     100% |           |
-| coverage\_comment/github.py         |       94 |        0 |       20 |        0 |     100% |           |
+| coverage\_comment/github.py         |       99 |        0 |       22 |        0 |     100% |           |
 | coverage\_comment/github\_client.py |       64 |        0 |       14 |        0 |     100% |           |
 | coverage\_comment/log.py            |        4 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/log\_utils.py     |        8 |        0 |        0 |        0 |     100% |           |
-| coverage\_comment/main.py           |      114 |        0 |       20 |        0 |     100% |           |
-| coverage\_comment/settings.py       |       92 |        0 |       18 |        0 |     100% |           |
+| coverage\_comment/main.py           |      116 |        0 |       20 |        0 |     100% |           |
+| coverage\_comment/settings.py       |       96 |        0 |       18 |        0 |     100% |           |
 | coverage\_comment/storage.py        |       68 |        0 |        6 |        0 |     100% |           |
 | coverage\_comment/subprocess.py     |       22 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/template.py       |       43 |        0 |        4 |        0 |     100% |           |
-|                           **TOTAL** |  **683** |    **0** |  **122** |    **0** | **100%** |           |
+|                           **TOTAL** |  **694** |    **0** |  **124** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
