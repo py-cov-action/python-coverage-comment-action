@@ -149,6 +149,11 @@ def generate_comment(
         return 1
 
     assert config.GITHUB_PR_NUMBER
+
+    github.add_job_summary(
+        content=comment, github_step_summary=config.GITHUB_STEP_SUMMARY
+    )
+
     try:
         if config.FORCE_WORKFLOW_RUN:
             raise github.CannotPostComment
@@ -272,6 +277,11 @@ def save_coverage_data_files(
         operations.append(files.get_coverage_html_files())
 
     markdown_report = coverage_module.generate_coverage_markdown()
+
+    github.add_job_summary(
+        content=f"## Coverage report\n\n{markdown_report}",
+        github_step_summary=config.GITHUB_STEP_SUMMARY,
+    )
 
     url_getter = functools.partial(
         storage.get_raw_file_url,

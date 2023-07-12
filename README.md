@@ -26,6 +26,8 @@ of coverage rate attributed to this PR, as well as the rate of coverage
 for lines that this PR introduces. There's also a small analysis for each
 file in a collapsed block.
 
+This comment will also be output as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
+
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example/pull/2#issuecomment-1244431724).
 
 ### Default branch mode
@@ -40,7 +42,7 @@ These files include:
   repository is public to customize the look of your badge
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
-- A short file-by-file coverage report embedded directy into the branch's README
+- A short file-by-file coverage report embedded directy into the branch's README. An excerpt from this is also output directly as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
 - The full HTML coverage report and links to make this report browsable
 
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)

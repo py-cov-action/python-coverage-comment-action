@@ -332,3 +332,15 @@ def test_create_missing_coverage_annotation__annotation_type(capsys):
     assert (
         output.out.strip() == "::error file=test.py,line=42::This line has no coverage"
     )
+
+
+def test_add_job_summary(summary_file):
+    github.add_job_summary(
+        content="[job summary part 1]\n", github_step_summary=summary_file
+    )
+    assert summary_file.read_text() == "[job summary part 1]\n"
+
+    github.add_job_summary(
+        content="[job summary part 2]", github_step_summary=summary_file
+    )
+    assert summary_file.read_text() == "[job summary part 1]\n[job summary part 2]"

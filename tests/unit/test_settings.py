@@ -32,6 +32,7 @@ def test_config__from_environ__ok():
             "GITHUB_OUTPUT": "foo.txt",
             "GITHUB_EVENT_NAME": "pull",
             "GITHUB_PR_RUN_ID": "123",
+            "GITHUB_STEP_SUMMARY": "step_summary",
             "COMMENT_ARTIFACT_NAME": "baz",
             "COMMENT_FILENAME": "qux",
             "COMMENT_TEMPLATE": "footemplate",
@@ -52,6 +53,7 @@ def test_config__from_environ__ok():
         GITHUB_OUTPUT=pathlib.Path("foo.txt"),
         GITHUB_EVENT_NAME="pull",
         GITHUB_PR_RUN_ID=123,
+        GITHUB_STEP_SUMMARY=pathlib.Path("step_summary"),
         COMMENT_ARTIFACT_NAME="baz",
         COMMENT_FILENAME=pathlib.Path("qux"),
         COMMENT_TEMPLATE="footemplate",
@@ -75,6 +77,7 @@ def test_config__verbose_deprecated(get_logs):
             "GITHUB_REF": "master",
             "GITHUB_EVENT_NAME": "pull",
             "GITHUB_PR_RUN_ID": "123",
+            "GITHUB_STEP_SUMMARY": "step_summary",
             "VERBOSE": "true",
         }
     ) == settings.Config(
@@ -84,6 +87,7 @@ def test_config__verbose_deprecated(get_logs):
         GITHUB_REF="master",
         GITHUB_EVENT_NAME="pull",
         GITHUB_PR_RUN_ID=123,
+        GITHUB_STEP_SUMMARY=pathlib.Path("step_summary"),
         VERBOSE=False,
     )
     assert get_logs("INFO", "VERBOSE setting is deprecated")
@@ -98,6 +102,7 @@ def config():
         "GITHUB_REF": "master",
         "GITHUB_EVENT_NAME": "pull",
         "GITHUB_PR_RUN_ID": 123,
+        "GITHUB_STEP_SUMMARY": pathlib.Path("step_summary"),
         "COMMENT_ARTIFACT_NAME": "baz",
         "COMMENT_FILENAME": pathlib.Path("qux"),
         "COVERAGE_DATA_BRANCH": "branchname",
