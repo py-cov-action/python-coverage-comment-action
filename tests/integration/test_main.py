@@ -122,7 +122,7 @@ def test_action__pull_request__store_comment(
 
     # Check that no annotations were made
     output = capsys.readouterr()
-    assert output.out.strip() == ""
+    assert output.err.strip() == ""
 
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
@@ -272,7 +272,7 @@ def test_action__pull_request__annotations(
     output = capsys.readouterr()
 
     assert result == 0
-    assert output.out.strip() == expected
+    assert output.err.strip() == expected
 
 
 def test_action__pull_request__post_comment__template_error(

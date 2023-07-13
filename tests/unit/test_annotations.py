@@ -9,7 +9,7 @@ def test_annotations(coverage_obj, capsys):
 ::warning file=codebase/code.py,line=9::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
-    assert output.out.strip() == expected
+    assert output.err.strip() == expected
 
 
 def test_annotations_several_files(coverage_obj_many_missing_lines, capsys):
@@ -28,4 +28,4 @@ def test_annotations_several_files(coverage_obj_many_missing_lines, capsys):
 ::notice file=codebase/caller.py,line=212::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
-    assert output.out.strip() == expected
+    assert output.err.strip() == expected
