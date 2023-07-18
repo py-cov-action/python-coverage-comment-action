@@ -310,7 +310,7 @@ def test_send_workflow_command(capsys):
         command="foo", command_value="bar", file="main.py", line="1", title="someTitle"
     )
     output = capsys.readouterr()
-    assert output.out.strip() == "::foo file=main.py,line=1,title=someTitle::bar"
+    assert output.err.strip() == "::foo file=main.py,line=1,title=someTitle::bar"
 
 
 def test_create_missing_coverage_annotation(capsys):
@@ -319,7 +319,7 @@ def test_create_missing_coverage_annotation(capsys):
     )
     output = capsys.readouterr()
     assert (
-        output.out.strip()
+        output.err.strip()
         == "::warning file=test.py,line=42::This line has no coverage"
     )
 
@@ -330,7 +330,7 @@ def test_create_missing_coverage_annotation__annotation_type(capsys):
     )
     output = capsys.readouterr()
     assert (
-        output.out.strip() == "::error file=test.py,line=42::This line has no coverage"
+        output.err.strip() == "::error file=test.py,line=42::This line has no coverage"
     )
 
 

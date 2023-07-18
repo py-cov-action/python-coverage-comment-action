@@ -3,6 +3,7 @@ import functools
 import io
 import json
 import pathlib
+import sys
 import zipfile
 
 from coverage_comment import github_client, log
@@ -185,7 +186,10 @@ def get_workflow_command(command: str, command_value: str, **kwargs: str) -> str
 
 
 def send_workflow_command(command: str, command_value: str, **kwargs: str) -> None:
-    print(get_workflow_command(command=command, command_value=command_value, **kwargs))
+    print(
+        get_workflow_command(command=command, command_value=command_value, **kwargs),
+        file=sys.stderr,
+    )
 
 
 def create_missing_coverage_annotation(annotation_type: str, file: str, line: int):
