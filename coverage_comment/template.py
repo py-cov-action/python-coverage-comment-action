@@ -7,7 +7,9 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from coverage_comment import coverage as coverage_module
 
-MARKER = """<!-- This comment was produced by python-coverage-comment-action -->"""
+MARKER = (
+    """<!-- This comment was produced by python-coverage-comment-action{id_part} -->"""
+)
 
 
 def uptodate():
@@ -39,11 +41,16 @@ class TemplateError(Exception):
     pass
 
 
+def get_marker(marker_id: str | None):
+    return MARKER.format(id_part=f" (id: {marker_id})" if marker_id else "")
+
+
 def get_comment_markdown(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
+    marker: str,
     custom_template: str | None = None,
     pr_targets_default_branch: bool = True,
 ):
@@ -56,13 +63,13 @@ def get_comment_markdown(
             previous_coverage_rate=previous_coverage_rate,
             coverage=coverage,
             diff_coverage=diff_coverage,
-            marker=MARKER,
+            marker=marker,
             pr_targets_default_branch=pr_targets_default_branch,
         )
     except jinja2.exceptions.TemplateError as exc:
         raise TemplateError from exc
 
-    if MARKER not in comment:
+    if marker not in comment:
         raise MissingMarker()
 
     return comment
