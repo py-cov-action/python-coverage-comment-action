@@ -3,6 +3,7 @@ import json
 import os
 import pathlib
 import subprocess
+import uuid
 
 import pytest
 
@@ -18,8 +19,10 @@ def in_integration_env(integration_env, integration_dir):
 
 
 @pytest.fixture
-def integration_dir(tmpdir_factory):
-    return tmpdir_factory.mktemp("integration_test")
+def integration_dir(tmp_path: pathlib.Path):
+    test_dir = tmp_path / "integration_test"
+    test_dir.mkdir()
+    return test_dir
 
 
 @pytest.fixture
@@ -42,7 +45,7 @@ def write_file(file_path):
 def run_coverage(file_path, integration_dir):
     def _(*variables):
         subprocess.check_call(
-            ["coverage", "run", "--parallel", file_path.basename],
+            ["coverage", "run", "--parallel", file_path.name],
             cwd=integration_dir,
             env=os.environ | dict.fromkeys(variables, "1"),
         )
@@ -51,33 +54,44 @@ def run_coverage(file_path, integration_dir):
 
 
 @pytest.fixture
-def integration_env(integration_dir, write_file, run_coverage):
+def commit(integration_dir):
+    def _():
+        subprocess.check_call(
+            ["git", "add", "."],
+            cwd=integration_dir,
+        )
+        subprocess.check_call(
+            ["git", "commit", "-m", str(uuid.uuid4())],
+            cwd=integration_dir,
+            env={
+                "GIT_AUTHOR_NAME": "foo",
+                "GIT_AUTHOR_EMAIL": "foo",
+                "GIT_COMMITTER_NAME": "foo",
+                "GIT_COMMITTER_EMAIL": "foo",
+                "GIT_CONFIG_GLOBAL": "/dev/null",
+                "GIT_CONFIG_SYSTEM": "/dev/null",
+            },
+        )
+
+    return _
+
+
+@pytest.fixture
+def integration_env(integration_dir, write_file, run_coverage, commit):
     subprocess.check_call(["git", "init", "-b", "main"], cwd=integration_dir)
     # diff coverage reads the "origin/{...}" branch so we simulate an origin remote
     subprocess.check_call(["git", "remote", "add", "origin", "."], cwd=integration_dir)
     write_file("A", "B")
 
-    subprocess.check_call(
-        ["git", "add", "."],
-        cwd=integration_dir,
-    )
-    subprocess.check_call(
-        ["git", "commit", "-m", "commit"],
-        cwd=integration_dir,
-        env={
-            "GIT_AUTHOR_NAME": "foo",
-            "GIT_AUTHOR_EMAIL": "foo",
-            "GIT_COMMITTER_NAME": "foo",
-            "GIT_COMMITTER_EMAIL": "foo",
-            "GIT_CONFIG_GLOBAL": "/dev/null",
-            "GIT_CONFIG_SYSTEM": "/dev/null",
-        },
-    )
+    commit()
     subprocess.check_call(
         ["git", "switch", "-c", "branch"],
         cwd=integration_dir,
     )
-    write_file("A", "B", "C")
+
+    write_file("A", "B", "C", "D")
+    commit()
+
     run_coverage("A", "C")
     subprocess.check_call(["git", "fetch", "origin"], cwd=integration_dir)
 
@@ -128,10 +142,10 @@ def test_action__pull_request__store_comment(
     assert comment == comment_file
     assert comment == summary_file.read_text()
     assert "No coverage data of the default branch was found for comparison" in comment
-    assert "The coverage rate is `85.71%`" in comment
-    assert "`100%` of new lines are covered." in comment
+    assert "The coverage rate is `77.77%`" in comment
+    assert "`75%` of new lines are covered." in comment
     assert (
-        "### foo.py\n`100%` of new lines are covered (`85.71%` of the complete file)"
+        "### foo.py\n`75%` of new lines are covered (`77.77%` of the complete file)"
         in comment
     )
     assert (
@@ -188,7 +202,7 @@ def test_action__pull_request__post_comment(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "The coverage rate went from `30%` to `85.71%` :arrow_up:" in comment
+    assert "The coverage rate went from `30%` to `77.77%` :arrow_up:" in comment
     assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"
@@ -267,7 +281,7 @@ def test_action__pull_request__annotations(
         git=None,
     )
     expected = """::group::Annotations of lines with missing coverage
-::warning file=foo.py,line=6::This line has no coverage
+::warning file=foo.py,line=12::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
 
@@ -320,7 +334,7 @@ def test_action__push__default_branch(
     )
     session.register(
         "GET",
-        "https://img.shields.io/static/v1?label=Coverage&message=85%25&color=orange",
+        "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
     )(text="<this is a svg badge>")
 
     git.register("git branch --show-current")(stdout="foo")
@@ -383,7 +397,7 @@ def test_action__push__default_branch__private(
     )
     session.register(
         "GET",
-        "https://img.shields.io/static/v1?label=Coverage&message=85%25&color=orange",
+        "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
     )(text="<this is a svg badge>")
 
     git.register("git branch --show-current")(stdout="foo")

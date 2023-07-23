@@ -1,8 +1,10 @@
 from coverage_comment import annotations
 
 
-def test_annotations(coverage_obj, capsys):
-    annotations.create_pr_annotations(annotation_type="warning", coverage=coverage_obj)
+def test_annotations(diff_coverage_obj, capsys):
+    annotations.create_pr_annotations(
+        annotation_type="warning", diff_coverage=diff_coverage_obj
+    )
 
     expected = """::group::Annotations of lines with missing coverage
 ::warning file=codebase/code.py,line=7::This line has no coverage
@@ -12,20 +14,18 @@ def test_annotations(coverage_obj, capsys):
     assert output.err.strip() == expected
 
 
-def test_annotations_several_files(coverage_obj_many_missing_lines, capsys):
+def test_annotations_several_files(diff_coverage_obj_many_missing_lines, capsys):
     annotations.create_pr_annotations(
-        annotation_type="notice", coverage=coverage_obj_many_missing_lines
+        annotation_type="notice", diff_coverage=diff_coverage_obj_many_missing_lines
     )
 
     expected = """::group::Annotations of lines with missing coverage
-::notice file=codebase/main.py,line=3::This line has no coverage
-::notice file=codebase/main.py,line=7::This line has no coverage
-::notice file=codebase/main.py,line=13::This line has no coverage
-::notice file=codebase/main.py,line=21::This line has no coverage
-::notice file=codebase/main.py,line=123::This line has no coverage
-::notice file=codebase/caller.py,line=13::This line has no coverage
-::notice file=codebase/caller.py,line=21::This line has no coverage
-::notice file=codebase/caller.py,line=212::This line has no coverage
+::notice file=codebase/code.py,line=7::This line has no coverage
+::notice file=codebase/code.py,line=9::This line has no coverage
+::notice file=codebase/main.py,line=1::This line has no coverage
+::notice file=codebase/main.py,line=2::This line has no coverage
+::notice file=codebase/main.py,line=8::This line has no coverage
+::notice file=codebase/main.py,line=17::This line has no coverage
 ::endgroup::"""
     output = capsys.readouterr()
     assert output.err.strip() == expected

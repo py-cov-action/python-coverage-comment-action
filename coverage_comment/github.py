@@ -192,11 +192,15 @@ def send_workflow_command(command: str, command_value: str, **kwargs: str) -> No
     )
 
 
-def create_missing_coverage_annotation(annotation_type: str, file: str, line: int):
+def create_missing_coverage_annotation(
+    annotation_type: str, file: pathlib.Path, line: int
+):
     send_workflow_command(
         command=annotation_type,
         command_value=MISSING_COVERAGE_MESSAGE,
-        file=file,
+        # This will produce \ paths when running on windows.
+        # GHA doc is unclear whether this is right or not.
+        file=str(file),
         line=str(line),
     )
 

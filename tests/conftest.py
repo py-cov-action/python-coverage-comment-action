@@ -217,65 +217,6 @@ def coverage_obj_no_branch():
 
 
 @pytest.fixture
-def coverage_obj_many_missing_lines():
-    return coverage_module.Coverage(
-        meta=coverage_module.CoverageMetadata(
-            version="1.2.3",
-            timestamp=datetime.datetime(2000, 1, 1),
-            branch_coverage=True,
-            show_contexts=False,
-        ),
-        info=coverage_module.CoverageInfo(
-            covered_lines=7,
-            num_statements=10,
-            percent_covered=decimal.Decimal("0.8"),
-            missing_lines=12,
-            excluded_lines=0,
-            num_branches=2,
-            num_partial_branches=1,
-            covered_branches=1,
-            missing_branches=1,
-        ),
-        files={
-            pathlib.Path("codebase/main.py"): coverage_module.FileCoverage(
-                path=pathlib.Path("codebase/main.py"),
-                executed_lines=[1, 2, 5, 6, 9],
-                missing_lines=[3, 7, 13, 21, 123],
-                excluded_lines=[],
-                info=coverage_module.CoverageInfo(
-                    covered_lines=5,
-                    num_statements=10,
-                    percent_covered=decimal.Decimal("0.5"),
-                    missing_lines=5,
-                    excluded_lines=0,
-                    num_branches=2,
-                    num_partial_branches=1,
-                    covered_branches=1,
-                    missing_branches=1,
-                ),
-            ),
-            pathlib.Path("codebase/caller.py"): coverage_module.FileCoverage(
-                path=pathlib.Path("codebase/caller.py"),
-                executed_lines=[1, 2, 5],
-                missing_lines=[13, 21, 212],
-                excluded_lines=[],
-                info=coverage_module.CoverageInfo(
-                    covered_lines=3,
-                    num_statements=6,
-                    percent_covered=decimal.Decimal("0.5"),
-                    missing_lines=3,
-                    excluded_lines=0,
-                    num_branches=2,
-                    num_partial_branches=1,
-                    covered_branches=1,
-                    missing_branches=1,
-                ),
-            ),
-        },
-    )
-
-
-@pytest.fixture
 def diff_coverage_obj():
     return coverage_module.DiffCoverage(
         total_num_lines=5,
@@ -288,6 +229,28 @@ def diff_coverage_obj():
                 percent_covered=decimal.Decimal("0.8"),
                 violation_lines=[7, 9],
             )
+        },
+    )
+
+
+@pytest.fixture
+def diff_coverage_obj_many_missing_lines():
+    return coverage_module.DiffCoverage(
+        total_num_lines=5,
+        total_num_violations=1,
+        total_percent_covered=decimal.Decimal("0.8"),
+        num_changed_lines=39,
+        files={
+            pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
+                path=pathlib.Path("codebase/code.py"),
+                percent_covered=decimal.Decimal("0.8"),
+                violation_lines=[7, 9],
+            ),
+            pathlib.Path("codebase/main.py"): coverage_module.FileDiffCoverage(
+                path=pathlib.Path("codebase/code.py"),
+                percent_covered=decimal.Decimal("0.8"),
+                violation_lines=[1, 2, 8, 17],
+            ),
         },
     )
 
