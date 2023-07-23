@@ -6,20 +6,20 @@ from coverage_comment import subprocess
 
 
 def test_run__ok():
-    assert subprocess.run("echo", "yay", path=".").strip() == "yay"
+    assert subprocess.run("echo", "yay", path=pathlib.Path(".")).strip() == "yay"
 
 
 def test_run__path():
-    assert subprocess.run("pwd", path="/").strip() == "/"
+    assert subprocess.run("pwd", path=pathlib.Path("/")).strip() == "/"
 
 
 def test_run__kwargs():
-    assert "A=B" in subprocess.run("env", env={"A": "B"}, path=".")
+    assert "A=B" in subprocess.run("env", env={"A": "B"}, path=pathlib.Path("."))
 
 
 def test_run__error():
     with pytest.raises(subprocess.SubProcessError):
-        subprocess.run("false", path=".")
+        subprocess.run("false", path=pathlib.Path("."))
 
 
 @pytest.fixture
@@ -84,5 +84,4 @@ def test_git__error(mocker):
     git = subprocess.Git()
 
     with pytest.raises(subprocess.GitError):
-        git.add("some_file")
         git.add("some_file")

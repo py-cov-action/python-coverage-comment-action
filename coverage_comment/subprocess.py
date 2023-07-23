@@ -65,4 +65,3 @@ class Git:
 
     def __getattr__(self, name: str) -> Any:
         return functools.partial(self._git, name.replace("_", "-"))
-        return functools.partial(self._git, name.replace("_", "-"))
