@@ -153,8 +153,8 @@ def coverage_obj():
             missing_branches=1,
         ),
         files={
-            "codebase/code.py": coverage_module.FileCoverage(
-                path="codebase/code.py",
+            pathlib.Path("codebase/code.py"): coverage_module.FileCoverage(
+                path=pathlib.Path("codebase/code.py"),
                 executed_lines=[1, 2, 5, 6, 9],
                 missing_lines=[7, 9],
                 excluded_lines=[],
@@ -195,8 +195,8 @@ def coverage_obj_no_branch():
             missing_branches=None,
         ),
         files={
-            "codebase/code.py": coverage_module.FileCoverage(
-                path="codebase/code.py",
+            pathlib.Path("codebase/code.py"): coverage_module.FileCoverage(
+                path=pathlib.Path("codebase/code.py"),
                 executed_lines=[1, 2, 5, 6, 9],
                 missing_lines=[7],
                 excluded_lines=[],
@@ -237,8 +237,8 @@ def coverage_obj_many_missing_lines():
             missing_branches=1,
         ),
         files={
-            "codebase/main.py": coverage_module.FileCoverage(
-                path="codebase/main.py",
+            pathlib.Path("codebase/main.py"): coverage_module.FileCoverage(
+                path=pathlib.Path("codebase/main.py"),
                 executed_lines=[1, 2, 5, 6, 9],
                 missing_lines=[3, 7, 13, 21, 123],
                 excluded_lines=[],
@@ -254,8 +254,8 @@ def coverage_obj_many_missing_lines():
                     missing_branches=1,
                 ),
             ),
-            "codebase/caller.py": coverage_module.FileCoverage(
-                path="codebase/caller.py",
+            pathlib.Path("codebase/caller.py"): coverage_module.FileCoverage(
+                path=pathlib.Path("codebase/caller.py"),
                 executed_lines=[1, 2, 5],
                 missing_lines=[13, 21, 212],
                 excluded_lines=[],
@@ -283,8 +283,8 @@ def diff_coverage_obj():
         total_percent_covered=decimal.Decimal("0.8"),
         num_changed_lines=39,
         files={
-            "codebase/code.py": coverage_module.FileDiffCoverage(
-                path="codebase/code.py",
+            pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
+                path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.8"),
                 violation_lines=[7, 9],
             )
