@@ -397,3 +397,5 @@ to use the svg badge directly, and not the `shields.io` URL.
 - When upgrading, we change the location and format where the coverage
   data is kept. Pull request that have not been rebased may be displaying
   slightly wrong information.
+
+Foo
