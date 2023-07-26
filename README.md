@@ -251,7 +251,7 @@ jobs:
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
 
     # Use this in case the folder to run coverage commands from is not the
-    # top level of you repository
+    # top level of your repository
     COVERAGE_PATH: my_project/
 
     # If the coverage percentage is above or equal to this value, the badge will be green.
