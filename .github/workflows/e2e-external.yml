@@ -1,0 +1,54 @@
+name: External PRs
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: ${{ github.event_name }}-${{ github.ref }}
+
+jobs:
+  test:
+    name: Run end to end tests
+    # If reviewed by a repo(/org) owner
+    if: |
+      github.event.pull_request.author_association != 'MEMBER'
+      && github.event.review.author_association == 'MEMBER'
+      && github.event.review.state == 'approved'
+      && contains(github.event.review.body, '/e2e')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Important: use the commit that was reviewed. GitHub is making sure
+          # that this is race-condition-proof
+          ref: ${{ github.event.review.commit_id }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        run: |
+          pipx install poetry --python=python3.10
+
+      - name: Poetry caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/
+          key: ${{ hashFiles('poetry.lock') }}
+
+      - name: Install deps
+        run: poetry install
+
+      - name: Run end-to-end tests
+        run: poetry run pytest tests/end_to_end
+        env:
+          COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
+          COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
+          COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.event.review.commit_id }}
+          COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ github.event.pull_request.number }}
+          COVERAGE_COMMENT_E2E_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
