@@ -41,7 +41,7 @@ def call():
 @contextlib.contextmanager
 def _cd(tmp_path: pathlib.Path, path: str):
     full_path = tmp_path / path
-    full_path.mkdir(exist_ok=True)
+    full_path.mkdir(exist_ok=True, parents=True)
     old_path = pathlib.Path.cwd()
     if old_path == full_path:
         yield full_path
@@ -191,18 +191,30 @@ def gh_other_username(gh_other):
 
 
 @pytest.fixture
-def git_repo(cd, git, action_ref):
+def git_repo(cd, git, action_ref, code_path):
     with cd("repo") as repo:
         git("init", "-b", "main")
+        # Copy .github
+        shutil.copytree(
+            pathlib.Path(__file__).parent / "repo" / ".github",
+            repo / ".github",
+            dirs_exist_ok=True,
+        )
+        # Copy everything else
         shutil.copytree(
             pathlib.Path(__file__).parent / "repo",
-            repo,
+            repo / code_path,
             dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns(".github"),
         )
         # Rewrite the specific version of the action we run in the workflow files.
         for file in (repo / ".github/workflows").iterdir():
-            file: pathlib.Path
-            file.write_text(file.read_text().replace("__ACTION_REF__", action_ref))
+            content = (
+                file.read_text()
+                .replace("__ACTION_REF__", action_ref)
+                .replace("__ACTION_COVERAGE_PATH__", str(code_path))
+            )
+            file.write_text(content)
 
         git("add", ".")
         git("commit", "-m", "initial commit")
@@ -219,6 +231,12 @@ def repo_name(request):
     if mark is not None:
         name = f"{name}-{'-'.join(mark.args)}"
     return name
+
+
+@pytest.fixture
+def code_path(request):
+    mark = request.node.get_closest_marker("code_path")
+    return pathlib.Path(*mark.args) if mark else pathlib.Path(".")
 
 
 @pytest.fixture
@@ -378,9 +396,9 @@ def wait_for_run_triggered_by_user_to_start():
 
 
 @pytest.fixture
-def add_coverage_line(git):
+def add_coverage_line(git, code_path):
     def f(line):
-        csv_file = pathlib.Path("tests/cases.csv")
+        csv_file = pathlib.Path(code_path / "tests/cases.csv")
         csv_file.write_text(csv_file.read_text() + line + "\n")
 
         git("add", str(csv_file))

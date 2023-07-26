@@ -5,6 +5,7 @@ import pytest
 
 
 @pytest.mark.repo_suffix("public")
+@pytest.mark.code_path("subdir")
 def test_public_repo(
     gh_create_repo,
     wait_for_run_to_start,
@@ -28,7 +29,7 @@ def test_public_repo(
     run_id = wait_for_run_to_start(sha1=get_sha1(), branch="main", gh=gh_me)
 
     # AAAaand it's started. Now let's wait for it to end.
-    # Also, raise if it doesn't end succefully. That half of the job.
+    # Also, raise if it doesn't end successfully. That half of the job.
     gh_me("run", "watch", run_id, "--exit-status")
 
     # Now to the other half: maybe it did nothing successfully, so let's check
