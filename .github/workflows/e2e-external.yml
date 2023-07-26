@@ -15,6 +15,7 @@ jobs:
       github.event.pull_request.author_association != 'MEMBER'
       && github.event.review.author_association == 'MEMBER'
       && github.event.review.state == 'approved'
+      && contains(github.event.review.body, '/e2e')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
