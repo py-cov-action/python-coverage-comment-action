@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 
 from coverage_comment import github
@@ -315,7 +317,7 @@ def test_send_workflow_command(capsys):
 
 def test_create_missing_coverage_annotation(capsys):
     github.create_missing_coverage_annotation(
-        annotation_type="warning", file="test.py", line=42
+        annotation_type="warning", file=pathlib.Path("test.py"), line=42
     )
     output = capsys.readouterr()
     assert (
@@ -326,7 +328,7 @@ def test_create_missing_coverage_annotation(capsys):
 
 def test_create_missing_coverage_annotation__annotation_type(capsys):
     github.create_missing_coverage_annotation(
-        annotation_type="error", file="test.py", line=42
+        annotation_type="error", file=pathlib.Path("test.py"), line=42
     )
     output = capsys.readouterr()
     assert (

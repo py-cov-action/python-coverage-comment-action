@@ -31,7 +31,7 @@ class CoverageInfo:
 
 @dataclasses.dataclass
 class FileCoverage:
-    path: str
+    path: pathlib.Path
     executed_lines: list[int]
     missing_lines: list[int]
     excluded_lines: list[int]
@@ -42,12 +42,12 @@ class FileCoverage:
 class Coverage:
     meta: CoverageMetadata
     info: CoverageInfo
-    files: dict[str, FileCoverage]
+    files: dict[pathlib.Path, FileCoverage]
 
 
 @dataclasses.dataclass
 class FileDiffCoverage:
-    path: str
+    path: pathlib.Path
     percent_covered: decimal.Decimal
     violation_lines: list[int]
 
@@ -146,8 +146,8 @@ def extract_info(data) -> Coverage:
             show_contexts=data["meta"]["show_contexts"],
         ),
         files={
-            path: FileCoverage(
-                path=path,
+            pathlib.Path(path): FileCoverage(
+                path=pathlib.Path(path),
                 excluded_lines=file_data["excluded_lines"],
                 executed_lines=file_data["executed_lines"],
                 missing_lines=file_data["missing_lines"],
@@ -235,8 +235,8 @@ def extract_diff_info(data) -> DiffCoverage:
         ),
         num_changed_lines=data["num_changed_lines"],
         files={
-            path: FileDiffCoverage(
-                path=path,
+            pathlib.Path(path): FileDiffCoverage(
+                path=pathlib.Path(path),
                 percent_covered=decimal.Decimal(str(file_data["percent_covered"]))
                 / decimal.Decimal("100"),
                 violation_lines=file_data["violation_lines"],
