@@ -89,7 +89,7 @@ def get_coverage_info(merge: bool, coverage_path: pathlib.Path) -> Coverage:
             )
         raise
 
-    return extract_info(json.loads(json_coverage))
+    return extract_info(data=json.loads(json_coverage), coverage_path=coverage_path)
 
 
 def generate_coverage_html_files(
@@ -115,7 +115,7 @@ def generate_coverage_markdown(coverage_path: pathlib.Path) -> str:
     )
 
 
-def extract_info(data) -> Coverage:
+def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
     """
     {
         "meta": {
@@ -163,8 +163,9 @@ def extract_info(data) -> Coverage:
             show_contexts=data["meta"]["show_contexts"],
         ),
         files={
-            pathlib.Path(path): FileCoverage(
-                path=pathlib.Path(path),
+            coverage_path
+            / path: FileCoverage(
+                path=coverage_path / path,
                 excluded_lines=file_data["excluded_lines"],
                 executed_lines=file_data["executed_lines"],
                 missing_lines=file_data["missing_lines"],
