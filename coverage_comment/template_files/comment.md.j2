@@ -1,4 +1,4 @@
-{% block title %}## Coverage report{% endblock title %}
+{% block title %}## Coverage report{% if subproject_id %} ({{ subproject_id  }}){% endif %}{% endblock title %}
 {% block coverage_evolution -%}
 {% if previous_coverage_rate -%}
 {% block coverage_evolution_wording -%}

@@ -135,6 +135,7 @@ def generate_comment(
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
             marker=marker,
+            subproject_id=config.SUBPROJECT_ID,
         )
     except template.MissingMarker:
         log.error(

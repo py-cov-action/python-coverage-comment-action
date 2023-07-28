@@ -47,11 +47,12 @@ def test_template(coverage_obj, diff_coverage_obj):
         previous_coverage_rate=decimal.Decimal("0.92"),
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
+        subproject_id="foo",
         custom_template="""{% extends "base" %}
         {% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
         """,
     )
-    expected = """## Coverage report
+    expected = """## Coverage report (foo)
 The coverage rate went from `92%` to `75%` :sob:
 The branch rate is `50%`.
 
@@ -230,7 +231,7 @@ Missing lines: `7`, `9`
 
 def test_read_template_file():
     assert template.read_template_file("comment.md.j2").startswith(
-        "{% block title %}## Coverage report{% endblock title %}"
+        "{% block title %}## Coverage report{% if subproject_id %}"
     )
 
 

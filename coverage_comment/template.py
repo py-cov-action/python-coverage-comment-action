@@ -51,6 +51,7 @@ def get_comment_markdown(
     previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
     marker: str,
+    subproject_id: str | None = None,
     custom_template: str | None = None,
 ):
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
@@ -62,6 +63,7 @@ def get_comment_markdown(
             previous_coverage_rate=previous_coverage_rate,
             coverage=coverage,
             diff_coverage=diff_coverage,
+            subproject_id=subproject_id,
             marker=marker,
         )
     except jinja2.exceptions.TemplateError as exc:
