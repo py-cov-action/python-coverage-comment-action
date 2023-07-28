@@ -148,6 +148,7 @@ def process_pr(
             custom_template=config.COMMENT_TEMPLATE,
             pr_targets_default_branch=pr_targets_default_branch,
             marker=marker,
+            subproject_id=config.SUBPROJECT_ID,
         )
     except template.MissingMarker:
         log.error(

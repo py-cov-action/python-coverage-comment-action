@@ -51,6 +51,7 @@ def get_comment_markdown(
     previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
     marker: str,
+    subproject_id: str | None = None,
     custom_template: str | None = None,
     pr_targets_default_branch: bool = True,
 ):
@@ -63,6 +64,7 @@ def get_comment_markdown(
             previous_coverage_rate=previous_coverage_rate,
             coverage=coverage,
             diff_coverage=diff_coverage,
+            subproject_id=subproject_id,
             marker=marker,
             pr_targets_default_branch=pr_targets_default_branch,
         )
