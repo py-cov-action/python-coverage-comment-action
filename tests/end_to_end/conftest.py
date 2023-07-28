@@ -294,19 +294,15 @@ def gh_create_repo(
 
     yield f
 
-    if not is_failed():
-        gh_delete_repo(gh_me)
-
-    else:
-        for username, permission in team_users_permissions.items():
-            gh_me(
-                "api",
-                "--method",
-                "PUT",
-                f"/repos/{{owner}}/{{repo}}/collaborators/{username}",
-                "-f",
-                f"permission={permission}",
-            )
+    for username, permission in team_users_permissions.items():
+        gh_me(
+            "api",
+            "--method",
+            "PUT",
+            f"/repos/{{owner}}/{{repo}}/collaborators/{username}",
+            "-f",
+            f"permission={permission}",
+        )
 
 
 @pytest.fixture
@@ -321,8 +317,6 @@ def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_nam
         gh_other("repo", "fork", "--clone", f"{gh_me_username}/{repo_name}", "--", ".")
 
     yield f
-    if not is_failed():
-        gh_delete_repo(gh_other)
 
 
 @pytest.fixture
