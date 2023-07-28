@@ -2,6 +2,7 @@ import dataclasses
 import decimal
 import inspect
 import pathlib
+from collections.abc import MutableMapping
 from typing import Any
 
 from coverage_comment import log
@@ -118,8 +119,11 @@ class Config:
             return int(self.GITHUB_REF.split("/")[2])
         return None
 
+    # We need to type environ as a MutableMapping because that's what
+    # os.environ is, and just saying `dict[str, str]` is not enough to make
+    # mypy happy
     @classmethod
-    def from_environ(cls, environ: dict[str, str]) -> "Config":
+    def from_environ(cls, environ: MutableMapping[str, str]) -> "Config":
         possible_variables = [e for e in inspect.signature(cls).parameters]
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables
