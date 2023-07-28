@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import pathlib
 
 import pytest
 
@@ -86,8 +87,8 @@ def test_template_full():
             missing_branches=0,
         ),
         files={
-            "codebase/code.py": coverage.FileCoverage(
-                path="codebase/code.py",
+            pathlib.Path("codebase/code.py"): coverage.FileCoverage(
+                path=pathlib.Path("codebase/code.py"),
                 executed_lines=[1, 2, 5, 6, 9],
                 missing_lines=[],
                 excluded_lines=[],
@@ -103,8 +104,8 @@ def test_template_full():
                     missing_branches=0,
                 ),
             ),
-            "codebase/other.py": coverage.FileCoverage(
-                path="codebase/other.py",
+            pathlib.Path("codebase/other.py"): coverage.FileCoverage(
+                path=pathlib.Path("codebase/other.py"),
                 executed_lines=[1, 2, 3],
                 missing_lines=[],
                 excluded_lines=[],
@@ -129,13 +130,13 @@ def test_template_full():
         total_percent_covered=decimal.Decimal("1"),
         num_changed_lines=39,
         files={
-            "codebase/code.py": coverage.FileDiffCoverage(
-                path="codebase/code.py",
+            pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
+                path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.5"),
                 violation_lines=[5],
             ),
-            "codebase/other.py": coverage.FileDiffCoverage(
-                path="codebase/other.py",
+            pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
+                path=pathlib.Path("codebase/other.py"),
                 percent_covered=decimal.Decimal("1"),
                 violation_lines=[],
             ),
