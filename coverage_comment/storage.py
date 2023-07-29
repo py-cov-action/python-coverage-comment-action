@@ -83,8 +83,6 @@ def commit_operations(
         Git actor
     branch : str
         branch on which to store the files
-    initial_file : files.Operation
-        In case the branch didn't exist, initialize it with this initial file.
     """
     with checked_out_branch(git=git, branch=branch):
         for op in operations:
