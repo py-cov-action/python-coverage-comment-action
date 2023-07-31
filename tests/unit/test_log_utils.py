@@ -45,6 +45,6 @@ def test__github_formatter():
 ::warning::a warning message
 ::error::an error message
 ::error::an error message
-::error::an exception%0ATraceback (most recent call last):%0A  File "foo.py", line 42, in test__github_formatter%0A    0 / 0%0AZeroDivisionError: division by zero""".strip()
+::error::an exception%0ATraceback (most recent call last):%0A  File "foo.py", line 42, in test__github_formatter%0A    0 / 0%0A    ~~^~~%0AZeroDivisionError: division by zero""".strip()
 
     assert logs == expected
