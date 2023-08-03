@@ -167,3 +167,19 @@ def test_config__invalid_annotation_type():
 )
 def test_str_to_bool(input, output):
     assert settings.str_to_bool(input) is output
+
+
+def test_final_comment_filename(config):
+    config_obj = config(
+        COMMENT_FILENAME=pathlib.Path("foo.txt"),
+        SUBPROJECT_ID="bar",
+    )
+    assert config_obj.FINAL_COMMENT_FILENAME == pathlib.Path("foo-bar.txt")
+
+
+def test_final_coverage_data_branch(config):
+    config_obj = config(
+        COVERAGE_DATA_BRANCH="foo",
+        SUBPROJECT_ID="bar",
+    )
+    assert config_obj.FINAL_COVERAGE_DATA_BRANCH == "foo-bar"

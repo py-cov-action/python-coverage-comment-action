@@ -327,14 +327,25 @@ jobs:
     COMMENT_ARTIFACT_NAME: python-coverage-comment-action
 
     # Name of the file in which the body of the comment to post on the PR is stored.
-    # You typically don't have to change this unless you're already using this name for something else.
+    # In monorepo setting, see SUBPROJECT_ID.
     COMMENT_FILENAME: python-coverage-comment-action.txt
+
+    # This setting is only necessary if you plan to run the action multiple times
+    # in the same repository. It will be appended to the value of all the
+    # settings that need to be unique, so as for the action to avoid mixing
+    # up results of multiple runs.
+    # Affects `COMMENT_FILENAME`, `COVERAGE_DATA_BRANCH`.
+    # Ideally, use dashes (`-`) rather than underscrores (`_`) to split words,
+    # for consistency
+    SUBPROJECT_ID: null / "lib-name"
 
     # An alternative template for the comment for pull requests. See details below.
     COMMENT_TEMPLATE: The coverage rate is `{{ coverage.info.percent_covered | pct }}`{{ marker }}
 
     # Name of the branch in which coverage data will be stored on the repository.
-    # Please make sure that this branch is not protected.
+    # Default is 'python-coverage-comment-action-data'. Please make sure that this
+    # branch is not protected.
+    # In monorepo setting, see SUBPROJECT_ID.
     COVERAGE_DATA_BRANCH: python-coverage-comment-action-data
 
     # Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
@@ -381,6 +392,103 @@ coverage (percentage) of the whole project from the PR build:
 
 ```jinja2
 "Coverage: {{ coverage.info.percent_covered | pct }}{{ marker }}"
+```
+
+## Monorepo setting
+
+In case you want to use the action multiple times with different parts of your
+source (so you have multiple codebases into a single repo), you'll
+need to use SUBPROJECT_ID with a different value for each launch. You may
+still use the same step for storing all files as artifacts. You'll end up with
+a different comment for each launch. Feel free to use the `COMMENT_TEMPLATE` if
+you want each comment to clearly state what it relates to.
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Test project 1
+        run: make -C project_1 test
+
+      - name: Test project 2
+        run: make -C project_2 test
+
+      - name: Coverage comment (project 1)
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          COVERAGE_PATH: project_1
+          SUBPROJECT_ID: project-1
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Coverage comment (project 2)
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          COVERAGE_PATH: project_2/src
+          SUBPROJECT_ID: project-2
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v3
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          # Note the star
+          path: python-coverage-comment-action*.txt
+```
+
+```yaml
+# .github/workflows/coverage.yml
+name: Post coverage comment
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    permissions:
+      pull-requests: write
+      contents: write
+      actions: read
+    steps:
+      - name: Post comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
+          SUBPROJECT_ID: project-1
+          COVERAGE_PATH: project_1
+
+      - name: Post comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
+          SUBPROJECT_ID: project-2
+          COVERAGE_PATH: project_2/src
 ```
 
 # Other topics
