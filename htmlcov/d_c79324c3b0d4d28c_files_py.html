@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_github_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.2.7">coverage.py v7.2.7</a>,
-            created at 2023-07-31 01:00 +0000
+            created at 2023-08-03 08:08 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -196,13 +196,17 @@
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">    <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="key">def</span> <span class="nam">get_coverage_html_files</span><span class="op">(</span><span class="nam">gen_dir</span><span class="op">:</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="str">"/tmp"</span><span class="op">)</span><span class="op">)</span> <span class="op">-></span> <span class="nam">ReplaceDir</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">    <span class="nam">source</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="nam">tempfile</span><span class="op">.</span><span class="nam">mkdtemp</span><span class="op">(</span><span class="nam">dir</span><span class="op">=</span><span class="nam">gen_dir</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t">    <span class="nam">coverage</span><span class="op">.</span><span class="nam">generate_coverage_html_files</span><span class="op">(</span><span class="nam">path</span><span class="op">=</span><span class="nam">source</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t">    <span class="nam">dest</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="str">"htmlcov"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">    <span class="com"># Coverage may or may not create a .gitignore.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">    <span class="op">(</span><span class="nam">source</span> <span class="op">/</span> <span class="str">".gitignore"</span><span class="op">)</span><span class="op">.</span><span class="nam">unlink</span><span class="op">(</span><span class="nam">missing_ok</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t">    <span class="key">return</span> <span class="nam">ReplaceDir</span><span class="op">(</span><span class="nam">source</span><span class="op">=</span><span class="nam">source</span><span class="op">,</span> <span class="nam">path</span><span class="op">=</span><span class="nam">dest</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="key">def</span> <span class="nam">get_coverage_html_files</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">    <span class="op">*</span><span class="op">,</span> <span class="nam">coverage_path</span><span class="op">:</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">,</span> <span class="nam">gen_dir</span><span class="op">:</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="str">"/tmp"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">ReplaceDir</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t">    <span class="nam">html_dir</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="nam">tempfile</span><span class="op">.</span><span class="nam">mkdtemp</span><span class="op">(</span><span class="nam">dir</span><span class="op">=</span><span class="nam">gen_dir</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">    <span class="nam">coverage</span><span class="op">.</span><span class="nam">generate_coverage_html_files</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">        <span class="nam">destination</span><span class="op">=</span><span class="nam">html_dir</span><span class="op">,</span> <span class="nam">coverage_path</span><span class="op">=</span><span class="nam">coverage_path</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">    <span class="nam">dest</span> <span class="op">=</span> <span class="nam">pathlib</span><span class="op">.</span><span class="nam">Path</span><span class="op">(</span><span class="str">"htmlcov"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t">    <span class="com"># Coverage may or may not create a .gitignore.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">    <span class="op">(</span><span class="nam">html_dir</span> <span class="op">/</span> <span class="str">".gitignore"</span><span class="op">)</span><span class="op">.</span><span class="nam">unlink</span><span class="op">(</span><span class="nam">missing_ok</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">    <span class="key">return</span> <span class="nam">ReplaceDir</span><span class="op">(</span><span class="nam">source</span><span class="op">=</span><span class="nam">html_dir</span><span class="op">,</span> <span class="nam">path</span><span class="op">=</span><span class="nam">dest</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -212,7 +216,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_github_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.2.7">coverage.py v7.2.7</a>,
-            created at 2023-07-31 01:00 +0000
+            created at 2023-08-03 08:08 +0000
         </p>
     </div>
 </footer>
