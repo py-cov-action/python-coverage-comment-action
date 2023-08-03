@@ -1,4 +1,4 @@
-name: Post links to end-to-end test repositories
+name: Post link to public end-to-end test repository
 
 on:
   pull_request_target:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   test:
-    name: Publish coverage comment
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -15,11 +14,8 @@ jobs:
       - run: |
           gh pr comment ${LINK} --body-file - <<EOF
             [End-to-end public repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public)
-            [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
-            If the tests fail, @${AUTHOR} will be added to the private repo
           EOF
         env:
           LINK: ${{ github.event.pull_request.html_url }}
           NUMBER: ${{ github.event.pull_request.number }}
-          AUTHOR: ${{ github.event.pull_request.user.login }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
