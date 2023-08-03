@@ -1,19 +1,25 @@
+import pathlib
+
 import pytest
 
 from coverage_comment import subprocess
 
 
 def test_run__ok():
-    subprocess.run("echo", "yay") == "yay"
+    assert subprocess.run("echo", "yay", path=pathlib.Path(".")).strip() == "yay"
+
+
+def test_run__path():
+    assert subprocess.run("pwd", path=pathlib.Path("/")).strip() == "/"
 
 
 def test_run__kwargs():
-    subprocess.run("pwd", cwd="/") == "/"
+    assert "A=B" in subprocess.run("env", env={"A": "B"}, path=pathlib.Path("."))
 
 
 def test_run__error():
     with pytest.raises(subprocess.SubProcessError):
-        subprocess.run("false")
+        subprocess.run("false", path=pathlib.Path("."))
 
 
 @pytest.fixture
@@ -24,7 +30,7 @@ def environ(mocker):
 def test_git(mocker, environ):
     run = mocker.patch("coverage_comment.subprocess.run")
     git = subprocess.Git()
-    git.cwd = "/tmp"
+    git.cwd = pathlib.Path("/tmp")
     environ["A"] = "B"
 
     git.clone("https://some_address.git", "--depth", "1", text=True)
@@ -38,11 +44,17 @@ def test_git(mocker, environ):
                 "https://some_address.git",
                 "--depth",
                 "1",
-                cwd="/tmp",
+                path=pathlib.Path("/tmp"),
                 text=True,
                 env=mocker.ANY,
             ),
-            mocker.call("git", "add", "some_file", cwd="/tmp", env=mocker.ANY),
+            mocker.call(
+                "git",
+                "add",
+                "some_file",
+                path=pathlib.Path("/tmp"),
+                env=mocker.ANY,
+            ),
         ]
     )
 

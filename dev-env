@@ -106,7 +106,7 @@ function ghenv(){
 function token-from-gh(){
     # gh-cli token has repo scope by default, but if we needed different scopes, it would be:
     # gh auth refresh --scopes=repo
-    export GITHUB_TOKEN=$(gh auth status --show-token 1>/dev/null 2>&1 |grep Token | cut -d ':' -f2 | xargs)
+    export GITHUB_TOKEN=$(gh auth token)
 }
 function create-token(){
     scopes="repo,delete_repo,read:org"

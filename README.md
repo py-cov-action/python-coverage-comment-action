@@ -33,7 +33,7 @@ See [an example](https://github.com/py-cov-action/python-coverage-comment-action
 ### Default branch mode
 
 On repository's default branch, it will extract the coverage rate and create
-files that will be stored on a dedicated independant branch in your repository.
+files that will be stored on a dedicated independent branch in your repository.
 
 These files include:
 
@@ -42,7 +42,7 @@ These files include:
   repository is public to customize the look of your badge
 - Another `json` file used internally by the action to report on coverage
   evolution (does a PR make the coverage go up or down?)
-- A short file-by-file coverage report embedded directy into the branch's README. An excerpt from this is also output directly as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
+- A short file-by-file coverage report embedded directly into the branch's README. An excerpt from this is also output directly as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
 - The full HTML coverage report and links to make this report browsable
 
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
@@ -56,7 +56,7 @@ Please ensure that your `.coverage` file(s) is created with the option
 
 Please ensure that the branch `python-coverage-comment-action-data` is not
 protected (there's no reason that it would be the case, except if you have very
-sprecific wildcard rules). If it is, either adjust your rules, or set the
+specific wildcard rules). If it is, either adjust your rules, or set the
 `COVERAGE_DATA_BRANCH` parameter as described below. GitHub Actions will create
 this branch with initial data at the first run if it doesn't exist, and will
 independently commit to that branch after each commit to your default branch.
@@ -70,6 +70,7 @@ badge to your Readme will be displayed in:
 - The text output of the workflow run
 
 ### Basic usage
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI
@@ -78,7 +79,7 @@ on:
   pull_request:
   push:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   test:
@@ -96,7 +97,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install everything, run the tests, produce the .coverage file
-        run: make test  # This is the part where you put your own test command
+        run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
         id: coverage_comment
@@ -166,9 +167,9 @@ on:
   pull_request:
   push:
     branches:
-      - 'master'
+      - "master"
     tags:
-      - '*'
+      - "*"
 
 jobs:
   build:
@@ -193,7 +194,7 @@ jobs:
           python-version: ${{ matrix.python_version }}
 
       - name: Install everything, run the tests, produce a .coverage.xxx file
-        run: make test  # This is the part where you put your own test command
+        run: make test # This is the part where you put your own test command
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
           # Alternatively you can run coverage with the --parallel flag or add
@@ -220,7 +221,7 @@ jobs:
       - uses: actions/download-artifact@v3
         id: download
         with:
-          name: 'coverage'
+          name: "coverage"
 
       - name: Coverage comment
         id: coverage_comment
@@ -235,10 +236,10 @@ jobs:
         with:
           name: python-coverage-comment-action
           path: python-coverage-comment-action.txt
-
 ```
 
 ### All options
+
 ```yaml
 - name: Display coverage
   id: coverage_comment
@@ -248,6 +249,10 @@ jobs:
 
     # Only necessary in the "workflow_run" workflow.
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
+
+    # Use this in case the folder to run coverage commands from is not the
+    # top level of your repository
+    COVERAGE_PATH: my_project/
 
     # If the coverage percentage is above or equal to this value, the badge will be green.
     MINIMUM_GREEN: 100
@@ -291,18 +296,18 @@ By default, comments are generated from a
 [Jinja](https://jinja.palletsprojects.com) template that you can read
 [here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v3/coverage_comment/template_files/comment.md.j2).
 
-If you want to change this template, you can set ``COMMENT_TEMPLATE``. This is
+If you want to change this template, you can set `COMMENT_TEMPLATE`. This is
 an advanced usage, so you're likely to run into more road bumps.
 
 You will need to follow some rules for your template to be valid:
 
 - Your template needs to be syntactically correct with Jinja2 rules
 - You may define a new template from scratch, but in this case you are required
-  to include ``{{ marker }}``, which includes an HTML comment (invisible on
+  to include `{{ marker }}`, which includes an HTML comment (invisible on
   GitHub) that the action uses to identify its own comments.
 - If you'd rather want to change parts of the default template, you can do so
-  by starting your comment with ``{% extends "base" %}``, and then override the
-  blocks (``{% block foo %}``) that you wish to change. If you're unsure how it
+  by starting your comment with `{% extends "base" %}`, and then override the
+  blocks (`{% block foo %}`) that you wish to change. If you're unsure how it
   works, see [the Jinja
   documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance)
 - In either case, you will most likely want to get yourself familiar with the
@@ -311,6 +316,7 @@ You will need to follow some rules for your template to be valid:
   Should those variables change, we'll do our best to bump the action's major version.
 
 ### Examples
+
 In the first example, we change the emoji that illustrates coverage going down from
 `:down_arrow:` to `:sob:`:
 
@@ -327,14 +333,16 @@ coverage (percentage) of the whole project from the PR build:
 ```
 
 # Other topics
+
 ## Pinning
+
 On the examples above, the version was set to `v3` (a branch). You can also pin
 a specific version such as `v3.0.0` (a tag). There are still things left to
 figure out in how to manage releases and version. If you're interested, please
 open an issue to discuss this.
 
-In terms of security/reproductibility, the best solution is probably to pin the
-version to an exact tag, and use dependabot to update it regularily.
+In terms of security/reproducibility, the best solution is probably to pin the
+version to an exact tag, and use dependabot to update it regularly.
 
 ## Note on the state of this action
 
@@ -358,7 +366,6 @@ a brand new action (this action) was created.
 You can find the (unmaintained) language-generic version
 [here](https://github.com/marketplace/actions/coverage-comment).
 
-
 ## Why do we need `relative_files = true` ?
 
 Yes, I agree, this is annoying! The reason is that by default, coverage writes
@@ -375,9 +382,11 @@ anymore.
 ## .coverage file generated on a Windows file system
 
 If your project's coverage was built on Windows, you may get an error like:
+
 ```
 CoverageWarning: Couldn't parse 'yourproject\__init__.py': No source for code: 'yourproject\__init__.py'. (couldnt-parse)
 ```
+
 This is likely due to coverage being confused with the coverage being computed with `\` but read with `/`. You can most probably fix it with the following in your [coverage configuration](https://coverage.readthedocs.io/en/latest/config.html):
 
 ```

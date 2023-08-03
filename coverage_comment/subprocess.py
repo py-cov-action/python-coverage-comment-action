@@ -1,5 +1,6 @@
 import functools
 import os
+import pathlib
 import subprocess
 from typing import Any
 
@@ -12,10 +13,11 @@ class GitError(SubProcessError):
     pass
 
 
-def run(*args, **kwargs) -> str:
+def run(*args, path: pathlib.Path, **kwargs) -> str:
     try:
         return subprocess.run(
             args,
+            cwd=path,
             text=True,
             check=True,
             capture_output=True,
@@ -40,7 +42,7 @@ class Git:
     >>> git.rev_parse("--short", "HEAD")
     """
 
-    cwd = "."
+    cwd = pathlib.Path(".")
 
     def _git(self, *args: str, env: dict[str, str] | None = None, **kwargs) -> str:
         # When setting the `env` argument to run, instead of inheriting env
@@ -54,7 +56,7 @@ class Git:
             return run(
                 "git",
                 *args,
-                cwd=self.cwd,
+                path=self.cwd,
                 env=os.environ | (env or {}),
                 **kwargs,
             )

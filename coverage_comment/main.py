@@ -72,11 +72,12 @@ def action(
         return 1
 
     if event_name in {"pull_request", "push"}:
-        coverage = coverage_module.get_coverage_info(merge=config.MERGE_COVERAGE_FILES)
-
+        coverage = coverage_module.get_coverage_info(
+            merge=config.MERGE_COVERAGE_FILES, coverage_path=config.COVERAGE_PATH
+        )
         if event_name == "pull_request":
             diff_coverage = coverage_module.get_diff_coverage_info(
-                base_ref=config.GITHUB_BASE_REF
+                base_ref=config.GITHUB_BASE_REF, coverage_path=config.COVERAGE_PATH
             )
             if config.ANNOTATE_MISSING_LINES:
                 annotations.create_pr_annotations(
@@ -276,9 +277,13 @@ def save_coverage_data_files(
     is_public = repo_info.is_public()
     if is_public:
         log.info("Generating HTML coverage report")
-        operations.append(files.get_coverage_html_files())
+        operations.append(
+            files.get_coverage_html_files(coverage_path=config.COVERAGE_PATH)
+        )
 
-    markdown_report = coverage_module.generate_coverage_markdown()
+    markdown_report = coverage_module.generate_coverage_markdown(
+        coverage_path=config.COVERAGE_PATH
+    )
 
     github.add_job_summary(
         content=f"## Coverage report\n\n{markdown_report}",

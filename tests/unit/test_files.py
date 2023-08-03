@@ -73,9 +73,9 @@ def test_get_urls():
 
 
 def test_get_coverage_html_files(mocker, in_tmp_path):
-    def gen_side_effect(path):
-        (path / ".gitignore").touch()
-        (path / "index.html").touch()
+    def gen_side_effect(destination, coverage_path):
+        (destination / ".gitignore").touch()
+        (destination / "index.html").touch()
 
     gen = mocker.patch(
         "coverage_comment.coverage.generate_coverage_html_files",
@@ -83,7 +83,7 @@ def test_get_coverage_html_files(mocker, in_tmp_path):
     )
     gen_dir = in_tmp_path / "gen"
     gen_dir.mkdir()
-    rep = files.get_coverage_html_files(gen_dir=gen_dir)
+    rep = files.get_coverage_html_files(gen_dir=gen_dir, coverage_path=".")
     (source_htmlcov,) = gen_dir.iterdir()
 
     assert rep == files.ReplaceDir(path=pathlib.Path("htmlcov"), source=source_htmlcov)

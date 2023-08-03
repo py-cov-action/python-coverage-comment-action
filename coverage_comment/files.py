@@ -112,10 +112,14 @@ def get_urls(url_getter: Callable) -> ImageURLs:
     }
 
 
-def get_coverage_html_files(gen_dir: pathlib.Path = pathlib.Path("/tmp")) -> ReplaceDir:
-    source = pathlib.Path(tempfile.mkdtemp(dir=gen_dir))
-    coverage.generate_coverage_html_files(path=source)
+def get_coverage_html_files(
+    *, coverage_path: pathlib.Path, gen_dir: pathlib.Path = pathlib.Path("/tmp")
+) -> ReplaceDir:
+    html_dir = pathlib.Path(tempfile.mkdtemp(dir=gen_dir))
+    coverage.generate_coverage_html_files(
+        destination=html_dir, coverage_path=coverage_path
+    )
     dest = pathlib.Path("htmlcov")
     # Coverage may or may not create a .gitignore.
-    (source / ".gitignore").unlink(missing_ok=True)
-    return ReplaceDir(source=source, path=dest)
+    (html_dir / ".gitignore").unlink(missing_ok=True)
+    return ReplaceDir(source=html_dir, path=dest)

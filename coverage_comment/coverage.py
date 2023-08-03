@@ -67,12 +67,14 @@ def compute_coverage(num_covered: int, num_total: int) -> decimal.Decimal:
     return decimal.Decimal(num_covered) / decimal.Decimal(num_total)
 
 
-def get_coverage_info(merge: bool) -> Coverage:
+def get_coverage_info(merge: bool, coverage_path: pathlib.Path) -> Coverage:
     try:
         if merge:
-            subprocess.run("coverage", "combine")
+            subprocess.run("coverage", "combine", path=coverage_path)
 
-        json_coverage = subprocess.run("coverage", "json", "-o", "-")
+        json_coverage = subprocess.run(
+            "coverage", "json", "-o", "-", path=coverage_path
+        )
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
             log.error(
@@ -87,18 +89,33 @@ def get_coverage_info(merge: bool) -> Coverage:
             )
         raise
 
-    return extract_info(json.loads(json_coverage))
+    return extract_info(data=json.loads(json_coverage), coverage_path=coverage_path)
 
 
-def generate_coverage_html_files(path: pathlib.Path) -> None:
-    subprocess.run("coverage", "html", "--skip-empty", "--directory", str(path))
+def generate_coverage_html_files(
+    destination: pathlib.Path, coverage_path: pathlib.Path
+) -> None:
+    subprocess.run(
+        "coverage",
+        "html",
+        "--skip-empty",
+        "--directory",
+        str(destination),
+        path=coverage_path,
+    )
 
 
-def generate_coverage_markdown() -> str:
-    return subprocess.run("coverage", "report", "--format=markdown", "--show-missing")
+def generate_coverage_markdown(coverage_path: pathlib.Path) -> str:
+    return subprocess.run(
+        "coverage",
+        "report",
+        "--format=markdown",
+        "--show-missing",
+        path=coverage_path,
+    )
 
 
-def extract_info(data) -> Coverage:
+def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
     """
     {
         "meta": {
@@ -146,8 +163,9 @@ def extract_info(data) -> Coverage:
             show_contexts=data["meta"]["show_contexts"],
         ),
         files={
-            pathlib.Path(path): FileCoverage(
-                path=pathlib.Path(path),
+            coverage_path
+            / path: FileCoverage(
+                path=coverage_path / path,
                 excluded_lines=file_data["excluded_lines"],
                 executed_lines=file_data["executed_lines"],
                 missing_lines=file_data["missing_lines"],
@@ -191,9 +209,9 @@ def extract_info(data) -> Coverage:
     )
 
 
-def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
-    subprocess.run("git", "fetch", "--depth=1000")
-    subprocess.run("coverage", "xml")
+def get_diff_coverage_info(base_ref: str, coverage_path: pathlib.Path) -> DiffCoverage:
+    subprocess.run("git", "fetch", "--depth=1000", path=pathlib.Path.cwd())
+    subprocess.run("coverage", "xml", path=coverage_path)
     with tempfile.NamedTemporaryFile("r") as f:
         subprocess.run(
             "diff-cover",
@@ -202,6 +220,7 @@ def get_diff_coverage_info(base_ref: str) -> DiffCoverage:
             f"--json-report={f.name}",
             "--diff-range-notation=..",
             "--quiet",
+            path=coverage_path,
         )
         diff_json = json.loads(pathlib.Path(f.name).read_text())
 

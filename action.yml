@@ -1,7 +1,7 @@
 name: Python Coverage Comment
 branding:
-  icon: 'umbrella'
-  color: 'purple'
+  icon: "umbrella"
+  color: "purple"
 description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
@@ -28,6 +28,12 @@ inputs:
       Default is 'python-coverage-comment-action-data'. Please make sure that this
       branch is not protected.
     default: python-coverage-comment-action-data
+    required: false
+  COVERAGE_PATH:
+    description: >
+      Path to the directory under the git root where the coverage data is
+      stored. Default is '.'.
+    default: "."
     required: false
   COMMENT_ARTIFACT_NAME:
     description: >
@@ -82,6 +88,7 @@ runs:
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
     COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
     COVERAGE_DATA_BRANCH: ${{ inputs.COVERAGE_DATA_BRANCH }}
+    COVERAGE_PATH: ${{ inputs.COVERAGE_PATH }}
     COMMENT_ARTIFACT_NAME: ${{ inputs.COMMENT_ARTIFACT_NAME }}
     COMMENT_FILENAME: ${{ inputs.COMMENT_FILENAME }}
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
