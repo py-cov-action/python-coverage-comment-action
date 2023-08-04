@@ -6,7 +6,7 @@ FROM python:3.11-slim
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y git; \
+    apt-get install -y git-lfs; \
     rm -rf /var/lib/apt/lists/*
 
 # https://github.com/actions/runner-images/issues/6775
