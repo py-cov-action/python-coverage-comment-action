@@ -13,8 +13,10 @@ jobs:
       - run: |
           gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public || true
         env:
+          NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
       - run: |
           gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private || true
         env:
+          NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
