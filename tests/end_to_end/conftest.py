@@ -257,18 +257,7 @@ def gh_delete_repo(repo_name):
 
 
 @pytest.fixture
-def team_users_permissions():
-    team = {"ewjoachim": "admin", "kieferro": "admin"}
-    if pr_author := os.environ.get("COVERAGE_COMMENT_E2E_PR_AUTHOR"):
-        if "[bot]" not in pr_author and pr_author not in team:
-            team[pr_author] = "push"
-    return team
-
-
-@pytest.fixture
-def gh_create_repo(
-    is_failed, gh_delete_repo, gh_me, git_repo, repo_name, team_users_permissions
-):
+def gh_create_repo(is_failed, gh_delete_repo, gh_me, git_repo, repo_name):
     gh_delete_repo(gh_me)
 
     def f(*args):
@@ -292,21 +281,7 @@ def gh_create_repo(
         )
         return git_repo
 
-    yield f
-
-    if not is_failed():
-        gh_delete_repo(gh_me)
-
-    else:
-        for username, permission in team_users_permissions.items():
-            gh_me(
-                "api",
-                "--method",
-                "PUT",
-                f"/repos/{{owner}}/{{repo}}/collaborators/{username}",
-                "-f",
-                f"permission={permission}",
-            )
+    return f
 
 
 @pytest.fixture
@@ -321,8 +296,6 @@ def gh_create_fork(is_failed, gh_delete_repo, gh_other, gh_me_username, repo_nam
         gh_other("repo", "fork", "--clone", f"{gh_me_username}/{repo_name}", "--", ".")
 
     yield f
-    if not is_failed():
-        gh_delete_repo(gh_other)
 
 
 @pytest.fixture

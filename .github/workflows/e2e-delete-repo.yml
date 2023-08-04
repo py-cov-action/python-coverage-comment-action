@@ -1,0 +1,20 @@
+name: Delete end-to-end test repos on PR close
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  test:
+    name: Publish coverage comment
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
+      - run: |
+          gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}

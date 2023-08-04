@@ -1,0 +1,58 @@
+name: Post link to private end-to-end test repository
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  invite:
+    name: Invite everyone to the e2e private repo
+    if: |
+      github.event.issue.pull_request
+      && contains(github.event.comment.body, '/invite')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        collaborator:
+          - LOGIN: kieferro
+            PERMISSION: admin
+            ENABLED: "true"
+
+          - LOGIN: ewjoachim
+            PERMISSION: admin
+            ENABLED: "true"
+
+          - LOGIN: ${{ github.event.issue.user.login }}
+            PERMISSION: push
+            ENABLED: ${{ !contains(fromJson('["kieferro", "ewjoachim"]'), github.event.issue.user.login) }}
+
+    steps:
+
+      - name: Invite @${{ matrix.collaborator.LOGIN }} to the e2e private repo
+        run: gh api --method PUT /repos/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private/collaborators/${LOGIN} -f permission=${PERMISSION}
+        if: ${{ matrix.collaborator.ENABLED == 'true' }}
+        env:
+          LOGIN: ${{ matrix.collaborator.LOGIN }}
+          NUMBER: ${{ github.event.issue.number }}
+          PERMISSION: ${{ matrix.collaborator.PERMISSION }}
+          GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
+
+  comment:
+    name: Add comment with link to e2e repos
+    if: |
+      github.event.issue.pull_request
+      && contains(github.event.comment.body, '/invite')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - run: |
+          gh pr comment ${LINK} --body-file - <<EOF
+            [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
+            In addition to repo admin, @${LOGIN} has been added to the private e2e repo
+          EOF
+        env:
+          LINK: ${{ github.event.issue.html_url }}
+          NUMBER: ${{ github.event.issue.number }}
+          LOGIN: ${{ github.event.issue.user.login }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
