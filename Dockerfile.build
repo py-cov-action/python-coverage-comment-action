@@ -2,7 +2,7 @@
 # - Dockerfile
 # - .github/workflows/docker.yml
 
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 RUN set -eux; \
     apt-get update; \
@@ -15,7 +15,6 @@ RUN git config --system --add safe.directory '*'
 WORKDIR /workdir
 
 COPY pyproject.toml ./
-COPY poetry.lock ./
 COPY coverage_comment ./coverage_comment
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_ROOT_USER_ACTION=ignore
