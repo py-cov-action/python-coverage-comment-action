@@ -7,9 +7,7 @@ version = "0.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
 authors = ["Joachim Jablon <ewjoachim@gmail.com>"]
 license = "MIT License"
-packages = [
-    { include = "coverage_comment" },
-]
+packages = [{ include = "coverage_comment" }]
 include = ["coverage_comment/default.md.j2"]
 
 [tool.poetry.scripts]
@@ -17,9 +15,9 @@ coverage_comment = 'coverage_comment.main:main'
 
 [tool.poetry.dependencies]
 python = "^3.11"
-coverage = {version = "*", extras = ["toml"]}
+coverage = { version = "*", extras = ["toml"] }
 diff-cover = "*"
-httpx = {version = "*", extras = ["http2"]}
+httpx = { version = "*", extras = ["http2"] }
 Jinja2 = "*"
 
 [tool.poetry.group.dev.dependencies]
@@ -36,3 +34,32 @@ tenacity = "^8.1.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = """
+    --cov-report term-missing --cov-branch --cov-report html --cov-report term
+    --cov=coverage_comment -vv --strict-markers -rfE
+    --ignore=tests/end_to_end/repo
+"""
+testpaths = ["tests/unit", "tests/integration", "tests/end_to_end"]
+
+filterwarnings = ["error"]
+markers = [
+    "repo_suffix: Allows to use an additional suffix for the e2e test repo.",
+    "code_path: Allows to place the code in a subdirectory for the e2e test repo.",
+    "subproject_id: Allows to use a different subproject id for the e2e test repo.",
+]
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.coverage.report]
+exclude_also = ["\\.\\.\\."]
+
+[tool.mypy]
+no_implicit_optional = true
+
+[tool.isort]
+profile = "black"
+skip = [".venv", ".tox"]
