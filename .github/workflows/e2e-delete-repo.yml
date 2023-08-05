@@ -7,7 +7,6 @@ on:
 
 jobs:
   test:
-    name: Publish coverage comment
     runs-on: ubuntu-latest
     steps:
       - run: |
