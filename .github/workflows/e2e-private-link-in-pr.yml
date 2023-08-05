@@ -49,7 +49,6 @@ jobs:
       - run: |
           gh pr comment ${LINK} --body-file - <<EOF
             [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
-            In addition to repo admin, @${LOGIN} has been added to the private e2e repo
           EOF
         env:
           LINK: ${{ github.event.issue.html_url }}
