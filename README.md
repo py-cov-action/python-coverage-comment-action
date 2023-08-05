@@ -166,7 +166,8 @@ jobs:
 ### Basic usage without external contributors
 
 If you don't expect external contributors, you don't need all the shenanigans
-with the artifacts and the 2nd workflow. It might look like this:
+with the artifacts and the 2nd workflow. This is likely to be the most straightfoward
+way to configure it for private repositories. It might look like this:
 
 ```yaml
 # .github/workflows/ci.yml
