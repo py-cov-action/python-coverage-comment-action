@@ -71,6 +71,15 @@ badge to your Readme will be displayed in:
 
 ### Basic usage
 
+The following snippet is targetted for cases where you expect PRs from
+users that don't have write access to the repository. Posting the comment
+is done in 2 steps:
+
+1. Checkout the repository and generate the comment to be posted. For security
+   reasons, we don't want to give permissions to a workflow that checks out
+   untrusted code
+2. From a trusted workflow, publish the comment on the PR
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI
@@ -153,6 +162,48 @@ jobs:
           # COMMENT_ARTIFACT_NAME: python-coverage-comment-action
           # COMMENT_FILENAME: python-coverage-comment-action.txt
 ```
+
+### Basic usage without external contributors
+
+If you don't expect external contributors, you don't need all the shenanigans
+with the artifacts and the 2nd workflow. This is likely to be the most straightfoward
+way to configure it for private repositories. It might look like this:
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install everything, run the tests, produce the .coverage file
+        run: make test # This is the part where you put your own test command
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
 
 ### Merging multiple coverage reports
 
