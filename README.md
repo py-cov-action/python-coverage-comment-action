@@ -71,7 +71,7 @@ badge to your Readme will be displayed in:
 
 ### Basic usage
 
-The following snippet is targetter for cases where you expect PRs from
+The following snippet is targetted for cases where you expect PRs from
 users that don't have write access to the repository. Posting the comment
 is done in 2 steps:
 
