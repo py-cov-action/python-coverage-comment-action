@@ -125,7 +125,7 @@ def test_public_repo(
     assert ":arrow_up:" in comment
     assert "## Coverage report (my-great-project)" in comment
     assert (
-        "This comment was produced by python-coverage-comment-action (my-great-project)"
+        "This comment was produced by python-coverage-comment-action (id: my-great-project)"
         in comment
     )
 
