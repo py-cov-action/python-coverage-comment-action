@@ -48,4 +48,4 @@ jobs:
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
-          path: python-coverage-comment-action.txt
+          path: python-coverage-comment-action*.txt
