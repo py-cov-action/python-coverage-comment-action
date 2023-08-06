@@ -243,7 +243,7 @@ def code_path(request):
 @pytest.fixture
 def subproject_id(request):
     mark = request.node.get_closest_marker("subproject_id")
-    return mark.args[0] if mark else None
+    return mark.args[0] if mark else "null"
 
 
 @pytest.fixture
