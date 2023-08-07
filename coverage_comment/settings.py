@@ -143,7 +143,9 @@ class Config:
 
     @property
     def FINAL_COVERAGE_DATA_BRANCH(self):
-        return self.COVERAGE_DATA_BRANCH + (f"-{self.SUBPROJECT_ID}" if self.SUBPROJECT_ID else "")
+        return self.COVERAGE_DATA_BRANCH + (
+            f"-{self.SUBPROJECT_ID}" if self.SUBPROJECT_ID else ""
+        )
 
     # We need to type environ as a MutableMapping because that's what
     # os.environ is, and just saying `dict[str, str]` is not enough to make
