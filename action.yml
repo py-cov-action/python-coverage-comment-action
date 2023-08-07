@@ -91,7 +91,7 @@ inputs:
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
-      This output is only set when running in PR mode.It's a boolean indicating
+      This output is only set when running in PR mode. It's a boolean indicating
       whether a comment file was written to COMMENT_FILENAME or not. If so,
       you'll need to run the action in workflow_run mode to post it. If
       "false", no comment file was written (likely because the comment was
