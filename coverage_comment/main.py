@@ -64,7 +64,7 @@ def action(
     if False:
         print("yay")
         print("foo")
-    
+
     event_name = config.GITHUB_EVENT_NAME
     if event_name not in {"pull_request", "push", "workflow_run"}:
         log.error(
@@ -76,9 +76,8 @@ def action(
         return 1
 
     if False:
-        
         print("yay")
-    
+
     if event_name in {"pull_request", "push"}:
         coverage = coverage_module.get_coverage_info(
             merge=config.MERGE_COVERAGE_FILES, coverage_path=config.COVERAGE_PATH
