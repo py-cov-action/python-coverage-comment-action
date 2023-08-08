@@ -68,6 +68,12 @@ def compute_files(
         minimum_green=minimum_green,
         minimum_orange=minimum_orange,
     )
+    print("foo")
+
+    if False:
+        print("bar")
+
+    print("yay")
     return [
         WriteFile(
             path=ENDPOINT_PATH,
