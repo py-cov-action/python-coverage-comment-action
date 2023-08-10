@@ -166,7 +166,7 @@ jobs:
 ### Basic usage without external contributors
 
 If you don't expect external contributors, you don't need all the shenanigans
-with the artifacts and the 2nd workflow. This is likely to be the most straightfoward
+with the artifacts and the 2nd workflow. This is likely to be the most straightforward
 way to configure it for private repositories. It might look like this:
 
 ```yaml
@@ -198,7 +198,6 @@ jobs:
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
-        id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
@@ -430,7 +429,7 @@ jobs:
         run: make -C project_2 test
 
       - name: Coverage comment (project 1)
-        id: coverage_comment
+        id: coverage_comment_1
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           COVERAGE_PATH: project_1
@@ -438,7 +437,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Coverage comment (project 2)
-        id: coverage_comment
+        id: coverage_comment_2
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           COVERAGE_PATH: project_2/src
@@ -447,7 +446,7 @@ jobs:
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v3
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        if: steps.coverage_comment_1.outputs.COMMENT_FILE_WRITTEN == 'true' || steps.coverage_comment_2.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
           # Note the star
