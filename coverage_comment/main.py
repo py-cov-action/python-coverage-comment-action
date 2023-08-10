@@ -346,6 +346,7 @@ def save_coverage_data_files(
         image_urls=files.get_urls(url_getter=url_getter),
         html_report_url=html_report_url,
         markdown_report=markdown_report,
+        subproject_id=config.SUBPROJECT_ID,
     )
     operations.append(readme_file)
     storage.commit_operations(
