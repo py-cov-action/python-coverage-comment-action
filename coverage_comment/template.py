@@ -83,6 +83,7 @@ def get_readme_markdown(
     html_report_url: str | None,
     dynamic_image_url: str | None,
     endpoint_image_url: str | None,
+    subproject_id: str | None = None,
 ):
     env = SandboxedEnvironment()
     template = jinja2.Template(read_template_file("readme.md.j2"))
@@ -94,6 +95,7 @@ def get_readme_markdown(
         html_report_url=html_report_url,
         dynamic_image_url=dynamic_image_url,
         endpoint_image_url=endpoint_image_url,
+        subproject_id=subproject_id,
     )
 
 
@@ -104,6 +106,7 @@ def get_log_message(
     html_report_url: str | None,
     dynamic_image_url: str | None,
     endpoint_image_url: str | None,
+    subproject_id: str | None = None,
 ):
     env = SandboxedEnvironment()
     template = jinja2.Template(read_template_file("log.txt.j2"))
@@ -114,6 +117,7 @@ def get_log_message(
         endpoint_image_url=endpoint_image_url,
         dynamic_image_url=dynamic_image_url,
         readme_url=readme_url,
+        subproject_id=subproject_id,
     )
 
 
