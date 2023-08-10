@@ -213,7 +213,7 @@ def git_repo(cd, git, action_ref, code_path, subproject_id):
                 file.read_text()
                 .replace("__ACTION_REF__", action_ref)
                 .replace("__ACTION_COVERAGE_PATH__", str(code_path))
-                .replace("__ACTION_SUBPROJECT_ID__", str(subproject_id))
+                .replace("__ACTION_SUBPROJECT_ID__", json_module.dumps(subproject_id))
             )
             file.write_text(content)
 
@@ -243,7 +243,7 @@ def code_path(request):
 @pytest.fixture
 def subproject_id(request):
     mark = request.node.get_closest_marker("subproject_id")
-    return mark.args[0] if mark else "null"
+    return mark.args[0] if mark else None
 
 
 @pytest.fixture
