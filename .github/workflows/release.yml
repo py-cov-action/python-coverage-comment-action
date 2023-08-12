@@ -11,8 +11,11 @@ on:
     types: [completed]
     branches: [v3]
 
+concurrency:
+  group: release
+
 jobs:
-  push_to_registry:
+  push-to-registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     # Check if the tests were successful and were launched by a push event
