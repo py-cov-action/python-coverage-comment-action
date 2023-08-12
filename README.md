@@ -387,13 +387,13 @@ coverage (percentage) of the whole project from the PR build:
 
 ## Pinning
 
-On the examples above, the version was set to `v3` (a branch). You can also pin
-a specific version such as `v3.0.0` (a tag). There are still things left to
-figure out in how to manage releases and version. If you're interested, please
-open an issue to discuss this.
-
-In terms of security/reproducibility, the best solution is probably to pin the
-version to an exact tag, and use dependabot to update it regularly.
+On the examples above, the version was set to the tag `v3`. Pinning to
+a specific version (`v3.1.0` for example) would make the action more
+reproducible, though you'd have to update it regularly (e.g. using Dependabot).
+You can also pin a commit hash if you want to be 100% sure of what you run,
+given that tags are mutable.
+You can also decide to pin to main, if you're ok with the action maybe breaking
+when (if) we release a v4.
 
 ## Note on the state of this action
 

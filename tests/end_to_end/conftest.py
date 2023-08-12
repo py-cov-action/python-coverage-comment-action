@@ -85,7 +85,7 @@ def token_other():
 
 @pytest.fixture
 def action_ref():
-    return os.environ.get("COVERAGE_COMMENT_E2E_ACTION_REF", "v3")
+    return os.environ.get("COVERAGE_COMMENT_E2E_ACTION_REF", "main")
 
 
 @pytest.fixture
