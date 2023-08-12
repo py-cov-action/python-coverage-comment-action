@@ -34,3 +34,33 @@ jobs:
           tags: ewjoachim/python-coverage-comment-action-base:v3
           push: true
           file: Dockerfile.build
+
+  compute-tags:
+    name: Re-tag action with new version
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Apply new tags
+        run: |
+          git fetch --tags origin
+          current="$(git describe --tags --abbrev=0 --match 'v*.*.*')"
+
+          tag_major="$(echo $current | cut -d. -f1)"
+          git tag -f ${tag_major}
+          git push -f origin ${tag_major}
+
+          tag_minor="$(echo $current | cut -d. -f1,2)"
+          git tag -f ${tag_minor}
+          git push -f origin ${tag_minor}
+
+          increment=$(echo $current | cut -d. -f3)
+          increment=$((increment + 1))
+          tag_incremental="${tag_minor}.${increment}"
+          git tag ${tag_incremental}
+          git push origin ${tag_incremental}
