@@ -41,10 +41,11 @@ jobs:
           ANNOTATE_MISSING_LINES: true
           ANNOTATION_TYPE: notice
           COVERAGE_PATH: __ACTION_COVERAGE_PATH__
+          SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__
 
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v3
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
-          path: python-coverage-comment-action.txt
+          path: python-coverage-comment-action*.txt

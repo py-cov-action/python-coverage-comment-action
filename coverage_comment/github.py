@@ -113,7 +113,7 @@ def get_pr_number_from_workflow_run(
         raise CannotDeterminePR(f"No open PR found for branch {full_branch}")
 
 
-def get_my_login(github: github_client.GitHub):
+def get_my_login(github: github_client.GitHub) -> str:
     try:
         response = github.user.get()
     except github_client.Forbidden:

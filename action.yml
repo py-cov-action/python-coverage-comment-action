@@ -27,6 +27,7 @@ inputs:
       Name of the branch in which coverage data will be stored on the repository.
       Default is 'python-coverage-comment-action-data'. Please make sure that this
       branch is not protected.
+      In monorepo setting, see SUBPROJECT_ID.
     default: python-coverage-comment-action-data
     required: false
   COVERAGE_PATH:
@@ -38,12 +39,24 @@ inputs:
   COMMENT_ARTIFACT_NAME:
     description: >
       Name of the artifact in which the body of the comment to post on the PR is stored.
+      You typically don't have to change this unless you're already using this name for something else.
     default: python-coverage-comment-action
     required: false
   COMMENT_FILENAME:
     description: >
       Name of the file in which the body of the comment to post on the PR is stored.
+      In monorepo setting, see SUBPROJECT_ID.
     default: python-coverage-comment-action.txt
+    required: false
+  SUBPROJECT_ID:
+    description: >
+      This setting is only necessary if you plan to run the action multiple
+      times in the same repository. It will be appended to the value of all the
+      settings that need to be unique, so as for the action to avoid mixing up
+      results of multiple runs. Ideally, use dashes (`-`) rather than
+      underscrores (`_`) to split words, for consistency.
+      Affects `COMMENT_FILENAME`, `COVERAGE_DATA_BRANCH`.
+    default: null
     required: false
   MINIMUM_GREEN:
     description: >
@@ -67,7 +80,7 @@ inputs:
     default: false
   ANNOTATION_TYPE:
     description: >
-      Only needed if ANNOTATE_MISSING_LINES is set to true. This parameter allows you to choose between
+      Only relevant if ANNOTATE_MISSING_LINES is set to true. This parameter allows you to choose between
       notice, warning and error as annotation type. For more information look here:
       https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
     default: warning
@@ -78,8 +91,11 @@ inputs:
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
-      If "true", a comment file was written to COMMENT_FILENAME. If "false",
-      no comment file was written (because the comment was already posted).
+      This output is only set when running in PR mode. It's a boolean indicating
+      whether a comment file was written to COMMENT_FILENAME or not. If so,
+      you'll need to run the action in workflow_run mode to post it. If
+      "false", no comment file was written (likely because the comment was
+      already posted to the PR).
 runs:
   using: docker
   image: Dockerfile
@@ -91,6 +107,7 @@ runs:
     COVERAGE_PATH: ${{ inputs.COVERAGE_PATH }}
     COMMENT_ARTIFACT_NAME: ${{ inputs.COMMENT_ARTIFACT_NAME }}
     COMMENT_FILENAME: ${{ inputs.COMMENT_FILENAME }}
+    SUBPROJECT_ID: ${{ inputs.SUBPROJECT_ID }}
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}

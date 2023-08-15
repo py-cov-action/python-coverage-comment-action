@@ -22,3 +22,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
           COVERAGE_PATH: __ACTION_COVERAGE_PATH__
+          SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__

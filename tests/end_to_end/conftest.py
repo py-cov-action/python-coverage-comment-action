@@ -191,7 +191,7 @@ def gh_other_username(gh_other):
 
 
 @pytest.fixture
-def git_repo(cd, git, action_ref, code_path):
+def git_repo(cd, git, action_ref, code_path, subproject_id):
     with cd("repo") as repo:
         git("init", "-b", "main")
         # Copy .github
@@ -213,6 +213,7 @@ def git_repo(cd, git, action_ref, code_path):
                 file.read_text()
                 .replace("__ACTION_REF__", action_ref)
                 .replace("__ACTION_COVERAGE_PATH__", str(code_path))
+                .replace("__ACTION_SUBPROJECT_ID__", json_module.dumps(subproject_id))
             )
             file.write_text(content)
 
@@ -237,6 +238,12 @@ def repo_name(request):
 def code_path(request):
     mark = request.node.get_closest_marker("code_path")
     return pathlib.Path(*mark.args) if mark else pathlib.Path(".")
+
+
+@pytest.fixture
+def subproject_id(request):
+    mark = request.node.get_closest_marker("subproject_id")
+    return mark.args[0] if mark else None
 
 
 @pytest.fixture

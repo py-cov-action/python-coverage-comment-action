@@ -35,6 +35,23 @@ def test_get_readme_and_log__public():
     assert "https://c" in log
 
 
+def test_get_readme_and_log__subproject():
+    readme_file, log = communication.get_readme_and_log(
+        is_public=True,
+        image_urls={
+            "direct": "https://a",
+            "endpoint": "https://b",
+            "dynamic": "https://c",
+        },
+        readme_url="https://readme",
+        html_report_url="https://html_report",
+        markdown_report="**Hello report!**",
+        subproject_id="my-subproject",
+    )
+    assert "Coverage info for my-subproject" in log
+    assert "# Repository Coverage (my-subproject)" in readme_file.contents
+
+
 def test_get_readme_and_log__private():
     readme_file, log = communication.get_readme_and_log(
         is_public=False,

@@ -45,6 +45,7 @@ class Config:
     COVERAGE_PATH: pathlib.Path = pathlib.Path(".")
     COMMENT_ARTIFACT_NAME: str = "python-coverage-comment-action"
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
+    SUBPROJECT_ID: str | None = None
     GITHUB_OUTPUT: pathlib.Path | None = None
     MINIMUM_GREEN: decimal.Decimal = decimal.Decimal("100")
     MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal("70")
@@ -118,6 +119,20 @@ class Config:
         if "pull" in self.GITHUB_REF:
             return int(self.GITHUB_REF.split("/")[2])
         return None
+
+    @property
+    def FINAL_COMMENT_FILENAME(self):
+        filename = self.COMMENT_FILENAME
+        if self.SUBPROJECT_ID:
+            new_name = f"{filename.stem}-{self.SUBPROJECT_ID}{filename.suffix}"
+            return filename.parent / new_name
+        return filename
+
+    @property
+    def FINAL_COVERAGE_DATA_BRANCH(self):
+        return self.COVERAGE_DATA_BRANCH + (
+            f"-{self.SUBPROJECT_ID}" if self.SUBPROJECT_ID else ""
+        )
 
     # We need to type environ as a MutableMapping because that's what
     # os.environ is, and just saying `dict[str, str]` is not enough to make
