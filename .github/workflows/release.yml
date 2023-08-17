@@ -44,23 +44,28 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Apply new tags
         run: |
           git fetch --tags origin
           current="$(git describe --tags --abbrev=0 --match 'v*.*.*')"
+          should_bump_minor=$(pipx run conventional list-commits --from-last-tag --parse | jq --slurp 'any(.[]; .data.subject.breaking == "!")')
 
-          tag_major="$(echo $current | cut -d. -f1)"
-          git tag -f ${tag_major}
-          git push -f origin ${tag_major}
+          major="$(echo $current | cut -d. -f1)"
+          minor="$(echo $current | cut -d. -f2)"
+          patch="$(echo $current | cut -d. -f3)"
 
-          tag_minor="$(echo $current | cut -d. -f1,2)"
-          git tag -f ${tag_minor}
-          git push -f origin ${tag_minor}
+          git tag -f ${major}
+          git push -f origin ${major}
 
-          increment=$(echo $current | cut -d. -f3)
-          increment=$((increment + 1))
-          tag_incremental="${tag_minor}.${increment}"
-          git tag ${tag_incremental}
-          git push origin ${tag_incremental}
+          # Major releases will be released manually.
+          if [ "${should_bump_minor}" = "true" ]; then
+            minor=$((minor + 1))
+            new_tag="${major}.${minor}.0"
+          else
+            patch=$((patch + 1))
+            new_tag="${major}.${minor}.${patch}"
+          fi
+
+          gh release create ${new_tag} --generate-notes
