@@ -49,23 +49,16 @@ jobs:
       - name: Apply new tags
         run: |
           git fetch --tags origin
-          current="$(git describe --tags --abbrev=0 --match 'v*.*.*')"
-          should_bump_minor=$(pipx run conventional list-commits --from-last-tag --parse | jq --slurp 'any(.[]; .data.subject.breaking == "!")')
+          current="$(git describe --tags --abbrev=0 --match 'v*.*')"
 
           major="$(echo $current | cut -d. -f1)"
           minor="$(echo $current | cut -d. -f2)"
-          patch="$(echo $current | cut -d. -f3)"
 
           git tag -f ${major}
           git push -f origin ${major}
 
           # Major releases will be released manually.
-          if [ "${should_bump_minor}" = "true" ]; then
-            minor=$((minor + 1))
-            new_tag="${major}.${minor}.0"
-          else
-            patch=$((patch + 1))
-            new_tag="${major}.${minor}.${patch}"
-          fi
+          patch=$((patch + 1))
+          new_tag="${major}.${minor}"
 
           gh release create ${new_tag} --generate-notes

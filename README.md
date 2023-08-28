@@ -387,13 +387,13 @@ coverage (percentage) of the whole project from the PR build:
 
 ## Pinning
 
-On the examples above, the version was set to the tag `v3`. Pinning to
-a specific version (`v3.1.0` for example) would make the action more
-reproducible, though you'd have to update it regularly (e.g. using Dependabot).
-You can also pin a commit hash if you want to be 100% sure of what you run,
-given that tags are mutable.
-You can also decide to pin to main, if you're ok with the action maybe breaking
-when (if) we release a v4.
+On the examples above, the version was set to the tag `v3`. Pinning to a major version
+will give you the latest release on this version. (Note that we release everytime after
+a PR is merged). Pinning to a specific version (`v3.1` for example) would make the
+action more reproducible, though you'd have to update it regularly (e.g. using
+Dependabot). You can also pin a commit hash if you want to be 100% sure of what you run,
+given that tags are mutable. Finally, You can also decide to pin to main, if you're ok
+with the action maybe breaking when (if) we release a v4.
 
 ## Note on the state of this action
 
