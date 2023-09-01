@@ -54,7 +54,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eux
-          git fetch --tags origin
           current="$(git describe --tags --abbrev=0 --match 'v*.*')"
 
           major="$(echo $current | cut -d. -f1)"
