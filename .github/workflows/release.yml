@@ -50,6 +50,8 @@ jobs:
           fetch-tags: true
 
       - name: Apply new tags
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git fetch --tags origin
           current="$(git describe --tags --abbrev=0 --match 'v*.*')"
