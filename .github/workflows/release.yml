@@ -9,10 +9,13 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [v3]
+    branches: [main]
+
+concurrency:
+  group: release
 
 jobs:
-  push_to_registry:
+  push-to-registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     # Check if the tests were successful and were launched by a push event
@@ -31,3 +34,31 @@ jobs:
           tags: ewjoachim/python-coverage-comment-action-base:v3
           push: true
           file: Dockerfile.build
+
+  compute-tags:
+    name: Re-tag action with new version
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Apply new tags
+        run: |
+          git fetch --tags origin
+          current="$(git describe --tags --abbrev=0 --match 'v*.*')"
+
+          major="$(echo $current | cut -d. -f1)"
+          minor="$(echo $current | cut -d. -f2)"
+
+          git tag -f ${major}
+          git push -f origin ${major}
+
+          # Major releases will be released manually.
+          patch=$((patch + 1))
+          new_tag="${major}.${minor}"
+
+          gh release create ${new_tag} --generate-notes

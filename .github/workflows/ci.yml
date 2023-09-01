@@ -3,8 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - 'v3'
+    branches: [main]
 
 concurrency:
   group: ${{ github.event_name }}-${{ github.ref }}

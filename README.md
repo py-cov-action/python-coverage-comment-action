@@ -345,7 +345,7 @@ jobs:
 
 By default, comments are generated from a
 [Jinja](https://jinja.palletsprojects.com) template that you can read
-[here](https://github.com/py-cov-action/python-coverage-comment-action/blob/v3/coverage_comment/template_files/comment.md.j2).
+[here](https://github.com/py-cov-action/python-coverage-comment-action/blob/main/coverage_comment/template_files/comment.md.j2).
 
 If you want to change this template, you can set `COMMENT_TEMPLATE`. This is
 an advanced usage, so you're likely to run into more road bumps.
@@ -387,13 +387,13 @@ coverage (percentage) of the whole project from the PR build:
 
 ## Pinning
 
-On the examples above, the version was set to `v3` (a branch). You can also pin
-a specific version such as `v3.0.0` (a tag). There are still things left to
-figure out in how to manage releases and version. If you're interested, please
-open an issue to discuss this.
-
-In terms of security/reproducibility, the best solution is probably to pin the
-version to an exact tag, and use dependabot to update it regularly.
+On the examples above, the version was set to the tag `v3`. Pinning to a major version
+will give you the latest release on this version. (Note that we release everytime after
+a PR is merged). Pinning to a specific version (`v3.1` for example) would make the
+action more reproducible, though you'd have to update it regularly (e.g. using
+Dependabot). You can also pin a commit hash if you want to be 100% sure of what you run,
+given that tags are mutable. Finally, You can also decide to pin to main, if you're ok
+with the action maybe breaking when (if) we release a v4.
 
 ## Note on the state of this action
 
