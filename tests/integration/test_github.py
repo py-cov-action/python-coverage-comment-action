@@ -107,14 +107,24 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
         )
 
 
-def test_get_pr_number_from_workflow_run(gh, session):
+def test_get_branch_from_workflow_run(gh, session):
     json = {
         "head_branch": "other",
-        "head_repository": {"full_name": "someone/repo-name"},
+        "head_repository": {"owner": {"login": "someone"}},
     }
     session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
+
+    owner, branch = github.get_branch_from_workflow_run(
+        github=gh, repository="foo/bar", run_id=123
+    )
+
+    assert owner == "someone"
+    assert branch == "other"
+
+
+def test_find_pr_for_branch(gh, session):
     params = {
-        "head": "someone/repo-name:other",
+        "head": "someone:other",
         "sort": "updated",
         "direction": "desc",
         "state": "open",
@@ -123,58 +133,56 @@ def test_get_pr_number_from_workflow_run(gh, session):
         json=[{"number": 456}]
     )
 
-    result = github.get_pr_number_from_workflow_run(
-        github=gh, repository="foo/bar", run_id=123
+    result = github.find_pr_for_branch(
+        github=gh, repository="foo/bar", owner="someone", branch="other"
     )
 
     assert result == 456
 
 
-def test_get_pr_number_from_workflow_run__no_open_pr(gh, session):
-    json = {
-        "head_branch": "other",
-        "head_repository": {"full_name": "someone/repo-name"},
-    }
-    session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
+def test_find_pr_for_branch__no_open_pr(gh, session):
     params = {
-        "head": "someone/repo-name:other",
+        "head": "someone:other",
         "sort": "updated",
         "direction": "desc",
     }
-    session.register("GET", "/repos/foo/bar/pulls", params=params | {"state": "open"})(
-        json=[]
-    )
-    session.register("GET", "/repos/foo/bar/pulls", params=params | {"state": "all"})(
-        json=[{"number": 456}]
-    )
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls",
+        params=params | {"state": "open"},
+    )(json=[])
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls",
+        params=params | {"state": "all"},
+    )(json=[{"number": 456}])
 
-    result = github.get_pr_number_from_workflow_run(
-        github=gh, repository="foo/bar", run_id=123
+    result = github.find_pr_for_branch(
+        github=gh, repository="foo/bar", owner="someone", branch="other"
     )
 
     assert result == 456
 
 
-def test_get_pr_number_from_workflow_run__no_pr(gh, session):
-    json = {
-        "head_branch": "other",
-        "head_repository": {"full_name": "someone/repo-name"},
-    }
-    session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
+def test_find_pr_for_branch__no_pr(gh, session):
     params = {
-        "head": "someone/repo-name:other",
+        "head": "someone:other",
         "sort": "updated",
         "direction": "desc",
     }
-    session.register("GET", "/repos/foo/bar/pulls", params=params | {"state": "open"})(
-        json=[]
-    )
-    session.register("GET", "/repos/foo/bar/pulls", params=params | {"state": "all"})(
-        json=[]
-    )
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls",
+        params=params | {"state": "open"},
+    )(json=[])
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls",
+        params=params | {"state": "all"},
+    )(json=[])
     with pytest.raises(github.CannotDeterminePR):
-        github.get_pr_number_from_workflow_run(
-            github=gh, repository="foo/bar", run_id=123
+        github.find_pr_for_branch(
+            github=gh, repository="foo/bar", owner="someone", branch="other"
         )
 
 
