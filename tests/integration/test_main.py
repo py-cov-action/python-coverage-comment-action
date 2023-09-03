@@ -96,9 +96,28 @@ def integration_env(integration_dir, write_file, run_coverage, commit):
     subprocess.check_call(["git", "fetch", "origin"], cwd=integration_dir)
 
 
+def test_action__invalid_event_name(session, push_config, in_integration_env, get_logs):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
+    result = main.action(
+        config=push_config(GITHUB_EVENT_NAME="pull_request_target"),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+
+    assert result == 1
+    assert get_logs("ERROR", "This action has only been designed to work for")
+
+
 def test_action__pull_request__store_comment(
     pull_request_config, session, in_integration_env, output_file, summary_file, capsys
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
     # No existing badge in this test
     session.register(
         "GET",
@@ -161,6 +180,10 @@ def test_action__pull_request__store_comment(
 def test_action__pull_request__post_comment(
     pull_request_config, session, in_integration_env, output_file, summary_file
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
@@ -210,9 +233,135 @@ def test_action__pull_request__post_comment(
     assert output_file.read_text() == expected_output
 
 
+def test_action__push__non_default_branch(
+    push_config, session, in_integration_env, output_file, summary_file
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
+    payload = json.dumps({"coverage": 30.00})
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+    )(json={"content": base64.b64encode(payload.encode()).decode()})
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/pulls",
+        params={
+            "state": "open",
+            "head": "py-cov-action:other",
+            "sort": "updated",
+            "direction": "desc",
+        },
+    )(json=[{"number": 2}])
+
+    # Who am I
+    session.register("GET", "/user")(json={"login": "foo"})
+    # Are there already comments
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+
+    comment = None
+
+    def checker(payload):
+        body = payload["body"]
+        assert "## Coverage report" in body
+        nonlocal comment
+        comment = body
+        return True
+
+    # Post a new comment
+    session.register(
+        "POST",
+        "/repos/py-cov-action/foobar/issues/2/comments",
+        json=checker,
+    )(
+        status_code=200,
+    )
+    result = main.action(
+        config=push_config(
+            GITHUB_REF="refs/heads/other",
+            GITHUB_STEP_SUMMARY=summary_file,
+            GITHUB_OUTPUT=output_file,
+        ),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 0
+
+    assert not pathlib.Path("python-coverage-comment-action.txt").exists()
+    assert "The coverage rate went from `30%` to `77.77%` :arrow_up:" in comment
+    assert comment == summary_file.read_text()
+
+    expected_output = "COMMENT_FILE_WRITTEN=false\n"
+
+    assert output_file.read_text() == expected_output
+
+
+def test_action__push__non_default_branch__no_pr(
+    push_config, session, in_integration_env, output_file, summary_file
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
+    payload = json.dumps({"coverage": 30.00})
+    # There is an existing badge in this test, allowing to test the coverage evolution
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+    )(json={"content": base64.b64encode(payload.encode()).decode()})
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/pulls",
+        params={
+            "state": "open",
+            "head": "py-cov-action:other",
+            "sort": "updated",
+            "direction": "desc",
+        },
+    )(json=[])
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/pulls",
+        params={
+            "state": "all",
+            "head": "py-cov-action:other",
+            "sort": "updated",
+            "direction": "desc",
+        },
+    )(json=[])
+
+    result = main.action(
+        config=push_config(
+            GITHUB_REF="refs/heads/other",
+            GITHUB_STEP_SUMMARY=summary_file,
+            GITHUB_OUTPUT=output_file,
+        ),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 0
+
+    assert pathlib.Path("python-coverage-comment-action.txt").exists()
+
+    expected_output = "COMMENT_FILE_WRITTEN=true\n"
+
+    assert output_file.read_text() == expected_output
+
+
 def test_action__pull_request__force_store_comment(
     pull_request_config, session, in_integration_env, output_file
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
@@ -238,6 +387,10 @@ def test_action__pull_request__force_store_comment(
 def test_action__pull_request__post_comment__no_marker(
     pull_request_config, session, in_integration_env, get_logs
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
     # No existing badge in this test
     session.register(
         "GET",
@@ -257,6 +410,9 @@ def test_action__pull_request__post_comment__no_marker(
 def test_action__pull_request__annotations(
     pull_request_config, session, in_integration_env, capsys
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
     # No existing badge in this test
     session.register(
         "GET",
@@ -292,6 +448,10 @@ def test_action__pull_request__annotations(
 def test_action__pull_request__post_comment__template_error(
     pull_request_config, session, in_integration_env, get_logs
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
     # No existing badge in this test
     session.register(
         "GET",
@@ -306,24 +466,6 @@ def test_action__pull_request__post_comment__template_error(
     )
     assert result == 1
     assert get_logs("ERROR", "There was a rendering error")
-
-
-def test_action__push__non_default_branch(
-    push_config, session, in_integration_env, get_logs
-):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
-    )
-
-    result = main.action(
-        config=push_config(GITHUB_REF="refs/heads/master"),
-        github_session=session,
-        http_session=session,
-        git=None,
-    )
-    assert result == 0
-
-    assert get_logs("INFO", "Skipping badge")
 
 
 def test_action__push__default_branch(
@@ -435,14 +577,35 @@ See more details and ready-to-copy-paste-markdown at:
     assert log == expected
 
 
+def test_action__workflow_run__no_pr_number(
+    workflow_run_config, session, in_integration_env, get_logs
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
+    result = main.action(
+        config=workflow_run_config(GITHUB_PR_RUN_ID=None),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+
+    assert result == 1
+    assert get_logs("ERROR", "Missing input GITHUB_PR_RUN_ID")
+
+
 def test_action__workflow_run__no_pr(
     workflow_run_config, session, in_integration_env, get_logs
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
-            "head_repository": {"full_name": "bar/repo-name"},
+            "head_repository": {"owner": {"login": "bar/repo-name"}},
         }
     )
 
@@ -481,11 +644,14 @@ def test_action__workflow_run__no_pr(
 def test_action__workflow_run__no_artifact(
     workflow_run_config, session, in_integration_env, get_logs
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
-            "head_repository": {"full_name": "bar/repo-name"},
+            "head_repository": {"owner": {"login": "bar/repo-name"}},
         }
     )
 
@@ -519,11 +685,14 @@ def test_action__workflow_run__no_artifact(
 def test_action__workflow_run__post_comment(
     workflow_run_config, session, in_integration_env, get_logs, zip_bytes, summary_file
 ):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
     session.register("GET", "/user")(json={"login": "foo"})
     session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
         json={
             "head_branch": "branch",
-            "head_repository": {"full_name": "bar/repo-name"},
+            "head_repository": {"owner": {"login": "bar/repo-name"}},
         }
     )
 

@@ -5,6 +5,7 @@ import sys
 
 import httpx
 
+from coverage_comment import activity as activity_module
 from coverage_comment import annotations, comment_file, communication
 from coverage_comment import coverage as coverage_module
 from coverage_comment import (
@@ -60,9 +61,17 @@ def action(
     git: subprocess.Git,
 ) -> int:
     log.debug(f"Operating on {config.GITHUB_REF}")
-
+    gh = github_client.GitHub(session=github_session)
     event_name = config.GITHUB_EVENT_NAME
-    if event_name not in {"pull_request", "push", "workflow_run"}:
+    repo_info = github.get_repository_info(
+        github=gh, repository=config.GITHUB_REPOSITORY
+    )
+    try:
+        activity = activity_module.find_activity(
+            event_name=event_name,
+            is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
+        )
+    except activity_module.ActivityNotFound:
         log.error(
             'This action has only been designed to work for "pull_request", "push" '
             f'or "workflow_run" actions, not "{event_name}". Because there are security '
@@ -71,52 +80,49 @@ def action(
         )
         return 1
 
-    if event_name in {"pull_request", "push"}:
-        raw_coverage, coverage = coverage_module.get_coverage_info(
-            merge=config.MERGE_COVERAGE_FILES, coverage_path=config.COVERAGE_PATH
+    if activity == "save_coverage_data_files":
+        return save_coverage_data_files(
+            config=config,
+            git=git,
+            http_session=http_session,
+            repo_info=repo_info,
         )
-        if event_name == "pull_request":
-            diff_coverage = coverage_module.get_diff_coverage_info(
-                base_ref=config.GITHUB_BASE_REF, coverage_path=config.COVERAGE_PATH
-            )
-            if config.ANNOTATE_MISSING_LINES:
-                annotations.create_pr_annotations(
-                    annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
-                )
-            return generate_comment(
-                config=config,
-                coverage=coverage,
-                diff_coverage=diff_coverage,
-                github_session=github_session,
-            )
-        else:
-            # event_name == "push"
-            return save_coverage_data_files(
-                config=config,
-                coverage=coverage,
-                raw_coverage_data=raw_coverage,
-                github_session=github_session,
-                git=git,
-                http_session=http_session,
-            )
+
+    elif activity == "process_pr":
+        return process_pr(
+            config=config,
+            gh=gh,
+            repo_info=repo_info,
+        )
 
     else:
-        # event_name == "workflow_run"
+        # activity == "post_comment":
         return post_comment(
             config=config,
-            github_session=github_session,
+            gh=gh,
         )
 
 
-def generate_comment(
+def process_pr(
     config: settings.Config,
-    coverage: coverage_module.Coverage,
-    diff_coverage: coverage_module.DiffCoverage,
-    github_session: httpx.Client,
+    gh: github_client.GitHub,
+    repo_info: github.RepositoryInfo,
 ) -> int:
     log.info("Generating comment for PR")
 
-    gh = github_client.GitHub(session=github_session)
+    _, coverage = coverage_module.get_coverage_info(
+        merge=config.MERGE_COVERAGE_FILES,
+        coverage_path=config.COVERAGE_PATH,
+    )
+    base_ref = config.GITHUB_BASE_REF or repo_info.default_branch
+    diff_coverage = coverage_module.get_diff_coverage_info(
+        base_ref=base_ref, coverage_path=config.COVERAGE_PATH
+    )
+
+    if config.ANNOTATE_MISSING_LINES:
+        annotations.create_pr_annotations(
+            annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
+        )
 
     previous_coverage_data_file = storage.get_datafile_contents(
         github=gh,
@@ -152,21 +158,35 @@ def generate_comment(
         )
         return 1
 
-    assert config.GITHUB_PR_NUMBER
-
     github.add_job_summary(
         content=comment, github_step_summary=config.GITHUB_STEP_SUMMARY
     )
 
+    pr_number: int | None = config.GITHUB_PR_NUMBER
+    if not pr_number:
+        # If we don't have a PR number, we're launched from a push event,
+        # so we need to find the PR number from the branch name
+        assert config.GITHUB_BRANCH_NAME
+        try:
+            pr_number = github.find_pr_for_branch(
+                github=gh,
+                # A push event cannot be initiated from a forked repository
+                repository=config.GITHUB_REPOSITORY,
+                owner=config.GITHUB_REPOSITORY.split("/")[0],
+                branch=config.GITHUB_BRANCH_NAME,
+            )
+        except github.CannotDeterminePR:
+            pr_number = None
+
     try:
-        if config.FORCE_WORKFLOW_RUN:
+        if config.FORCE_WORKFLOW_RUN or not pr_number:
             raise github.CannotPostComment
 
         github.post_comment(
             github=gh,
             me=github.get_my_login(github=gh),
             repository=config.GITHUB_REPOSITORY,
-            pr_number=config.GITHUB_PR_NUMBER,
+            pr_number=pr_number,
             contents=comment,
             marker=template.MARKER,
         )
@@ -193,21 +213,29 @@ def generate_comment(
     return 0
 
 
-def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
+def post_comment(
+    config: settings.Config,
+    gh: github_client.GitHub,
+) -> int:
     log.info("Posting comment to PR")
 
     if not config.GITHUB_PR_RUN_ID:
         log.error("Missing input GITHUB_PR_RUN_ID. Please consult the documentation.")
         return 1
 
-    gh = github_client.GitHub(session=github_session)
     me = github.get_my_login(github=gh)
     log.info(f"Search for PR associated with run id {config.GITHUB_PR_RUN_ID}")
+    owner, branch = github.get_branch_from_workflow_run(
+        github=gh,
+        run_id=config.GITHUB_PR_RUN_ID,
+        repository=config.GITHUB_REPOSITORY,
+    )
     try:
-        pr_number = github.get_pr_number_from_workflow_run(
+        pr_number = github.find_pr_for_branch(
             github=gh,
-            run_id=config.GITHUB_PR_RUN_ID,
             repository=config.GITHUB_REPOSITORY,
+            owner=owner,
+            branch=branch,
         )
     except github.CannotDeterminePR:
         log.error(
@@ -250,25 +278,17 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
 
 def save_coverage_data_files(
     config: settings.Config,
-    coverage: coverage_module.Coverage,
-    raw_coverage_data: dict,
-    github_session: httpx.Client,
     git: subprocess.Git,
     http_session: httpx.Client,
+    repo_info: github.RepositoryInfo,
 ) -> int:
-    gh = github_client.GitHub(session=github_session)
-    repo_info = github.get_repository_info(
-        github=gh,
-        repository=config.GITHUB_REPOSITORY,
-    )
-    is_default_branch = repo_info.is_default_branch(ref=config.GITHUB_REF)
-    log.debug(f"On default branch: {is_default_branch}")
-
-    if not is_default_branch:
-        log.info("Skipping badge save as we're not on the default branch")
-        return 0
-
     log.info("Computing coverage files & badge")
+
+    raw_coverage_data, coverage = coverage_module.get_coverage_info(
+        merge=config.MERGE_COVERAGE_FILES,
+        coverage_path=config.COVERAGE_PATH,
+    )
+
     operations: list[files.Operation] = files.compute_files(
         line_rate=coverage.info.percent_covered,
         raw_coverage_data=raw_coverage_data,
