@@ -125,6 +125,13 @@ class Config:
             return int(self.GITHUB_REF.split("/")[2])
         return None
 
+    @property
+    def GITHUB_BRANCH_NAME(self) -> str | None:
+        # "refs/head/my_branch_name"
+        if "heads" in self.GITHUB_REF:
+            return self.GITHUB_REF.split("/", 2)[2]
+        return None
+
     # We need to type environ as a MutableMapping because that's what
     # os.environ is, and just saying `dict[str, str]` is not enough to make
     # mypy happy
