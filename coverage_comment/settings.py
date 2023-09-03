@@ -33,9 +33,15 @@ def str_to_bool(value: str) -> bool:
 class Config:
     """This object defines the environment variables"""
 
+    # A branch name, not a fully-formed ref. For example, `main`.
     GITHUB_BASE_REF: str
     GITHUB_TOKEN: str = dataclasses.field(repr=False)
     GITHUB_REPOSITORY: str
+    # > The ref given is fully-formed, meaning that for branches the format is
+    # > `refs/heads/<branch_name>`, for pull requests it is
+    # > `refs/pull/<pr_number>/merge`, and for tags it is `refs/tags/<tag_name>`.
+    # > For example, `refs/heads/feature-branch-1`.
+    # (from https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables )
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_PR_RUN_ID: int | None
