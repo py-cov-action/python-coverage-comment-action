@@ -1,9 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Release Action
+name: Release Action (automated)
 
 on:
   workflow_run:
@@ -61,9 +56,3 @@ jobs:
 
           git tag -f ${major}
           git push -f origin ${major}
-
-          # Major releases will be released manually.
-          minor=$((minor + 1))
-          new_tag="${major}.${minor}"
-
-          gh release create ${new_tag} --generate-notes

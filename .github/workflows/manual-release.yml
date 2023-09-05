@@ -1,0 +1,35 @@
+name: Release Action (manual)
+
+on: workflow_dispatch
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    name: Create new release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eux
+          current="$(git describe --tags --abbrev=0 --match 'v*.*')"
+
+          major="$(echo $current | cut -d. -f1)"
+          minor="$(echo $current | cut -d. -f2)"
+
+          # Major releases will be released manually.
+          minor=$((minor + 1))
+          new_tag="${major}.${minor}"
+
+          gh release create ${new_tag} --generate-notes
