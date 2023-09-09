@@ -72,7 +72,7 @@ def action(
         return 1
 
     if event_name in {"pull_request", "push"}:
-        coverage = coverage_module.get_coverage_info(
+        raw_coverage, coverage = coverage_module.get_coverage_info(
             merge=config.MERGE_COVERAGE_FILES, coverage_path=config.COVERAGE_PATH
         )
         if event_name == "pull_request":
@@ -94,6 +94,7 @@ def action(
             return save_coverage_data_files(
                 config=config,
                 coverage=coverage,
+                raw_coverage_data=raw_coverage,
                 github_session=github_session,
                 git=git,
                 http_session=http_session,
@@ -250,6 +251,7 @@ def post_comment(config: settings.Config, github_session: httpx.Client) -> int:
 def save_coverage_data_files(
     config: settings.Config,
     coverage: coverage_module.Coverage,
+    raw_coverage_data: dict,
     github_session: httpx.Client,
     git: subprocess.Git,
     http_session: httpx.Client,
@@ -269,6 +271,7 @@ def save_coverage_data_files(
     log.info("Computing coverage files & badge")
     operations: list[files.Operation] = files.compute_files(
         line_rate=coverage.info.percent_covered,
+        raw_coverage_data=raw_coverage_data,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
         http_session=http_session,

@@ -94,6 +94,8 @@ def test_public_repo(
     # unit tests are for.
     data = client.get(f"{raw_url_prefix}/data.json", follow_redirects=True).json()
     assert "coverage" in data
+    assert "raw_data" in data
+    assert "meta" in data["raw_data"]
 
     endpoint = client.get(
         f"{raw_url_prefix}/endpoint.json", follow_redirects=True

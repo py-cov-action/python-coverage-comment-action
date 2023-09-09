@@ -31,6 +31,7 @@ def test_compute_files(session):
 
     result = files.compute_files(
         line_rate=decimal.Decimal("0.1234"),
+        raw_coverage_data={"foo": ["bar", "bar2"]},
         minimum_green=decimal.Decimal("25"),
         minimum_orange=decimal.Decimal("70"),
         http_session=session,
@@ -40,7 +41,10 @@ def test_compute_files(session):
             path=pathlib.Path("endpoint.json"),
             contents='{"schemaVersion": 1, "label": "Coverage", "message": "12%", "color": "red"}',
         ),
-        files.WriteFile(path=pathlib.Path("data.json"), contents='{"coverage": 12.34}'),
+        files.WriteFile(
+            path=pathlib.Path("data.json"),
+            contents='{"coverage": 12.34, "raw_data": {"foo": ["bar", "bar2"]}}',
+        ),
         files.WriteFile(path=pathlib.Path("badge.svg"), contents="foo"),
     ]
     assert result == expected
@@ -48,8 +52,11 @@ def test_compute_files(session):
 
 def test_compute_datafile():
     assert (
-        files.compute_datafile(line_rate=decimal.Decimal("12.34"))
-        == """{"coverage": 12.34}"""
+        files.compute_datafile(
+            line_rate=decimal.Decimal("12.34"),
+            raw_coverage_data={"meta": {"version": "5.5"}},
+        )
+        == """{"coverage": 12.34, "raw_data": {"meta": {"version": "5.5"}}}"""
     )
 
 

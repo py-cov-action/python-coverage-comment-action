@@ -28,7 +28,9 @@ def test_get_coverage_info(mocker, coverage_json, coverage_obj):
         "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
     )
 
-    result = coverage.get_coverage_info(merge=True, coverage_path=pathlib.Path("."))
+    raw_coverage_information, result = coverage.get_coverage_info(
+        merge=True, coverage_path=pathlib.Path(".")
+    )
 
     assert run.call_args_list == [
         mocker.call("coverage", "combine", path=pathlib.Path(".")),
@@ -36,6 +38,7 @@ def test_get_coverage_info(mocker, coverage_json, coverage_obj):
     ]
 
     assert result == coverage_obj
+    assert raw_coverage_information == coverage_json
 
 
 def test_get_coverage_info__no_merge(mocker, coverage_json):
