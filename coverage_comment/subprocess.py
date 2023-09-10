@@ -48,7 +48,7 @@ class Git:
         # When setting the `env` argument to run, instead of inheriting env
         # vars from the current process, the whole environment of the
         # subprocess is whatever we pass. In other words, we can either
-        # conditionnaly pass an `env` parameter, but it's less readable,
+        # conditionally pass an `env` parameter, but it's less readable,
         # or we can always pass an `env` parameter, but in this case, we
         # need to always merge `os.environ` to it (and ensure our variables
         # have precedence)

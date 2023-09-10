@@ -371,7 +371,7 @@ def git(is_failed):
     You get a git object. Register calls on it:
         git.register("git checkout master")(exit_code=1)
     or
-        session.register("git commit", env={"A": "B"})(stdout="Changed branch")
+        git.register("git commit", env={"A": "B"})(stdout="Changed branch")
 
     If the command was not received by the end of the test, it will raise.
     """
