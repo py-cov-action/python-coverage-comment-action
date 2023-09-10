@@ -3,7 +3,6 @@ import datetime
 import decimal
 import json
 import pathlib
-import tempfile
 
 from coverage_comment import log, subprocess
 
@@ -208,60 +207,4 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
             covered_branches=data["totals"].get("covered_branches"),
             missing_branches=data["totals"].get("missing_branches"),
         ),
-    )
-
-
-def get_diff_coverage_info(base_ref: str, coverage_path: pathlib.Path) -> DiffCoverage:
-    subprocess.run("git", "fetch", "--depth=1000", path=pathlib.Path.cwd())
-    subprocess.run("coverage", "xml", path=coverage_path)
-    with tempfile.NamedTemporaryFile("r") as f:
-        subprocess.run(
-            "diff-cover",
-            "coverage.xml",
-            f"--compare-branch=origin/{base_ref}",
-            f"--json-report={f.name}",
-            "--diff-range-notation=..",
-            "--quiet",
-            path=coverage_path,
-        )
-        diff_json = json.loads(pathlib.Path(f.name).read_text())
-
-    return extract_diff_info(diff_json)
-
-
-def extract_diff_info(data) -> DiffCoverage:
-    """
-    {
-        "report_name": "XML",
-        "diff_name": "master...HEAD, staged and unstaged changes",
-        "src_stats": {
-            "codebase/code.py": {
-                "percent_covered": 80.0,
-                "violation_lines": [9],
-                "violations": [[9, null]],
-            }
-        },
-        "total_num_lines": 5,
-        "total_num_violations": 1,
-        "total_percent_covered": 80,
-        "num_changed_lines": 39,
-    }
-    """
-    return DiffCoverage(
-        total_num_lines=data["total_num_lines"],
-        total_num_violations=data["total_num_violations"],
-        total_percent_covered=compute_coverage(
-            data["total_num_lines"] - data["total_num_violations"],
-            data["total_num_lines"],
-        ),
-        num_changed_lines=data["num_changed_lines"],
-        files={
-            pathlib.Path(path): FileDiffCoverage(
-                path=pathlib.Path(path),
-                percent_covered=decimal.Decimal(str(file_data["percent_covered"]))
-                / decimal.Decimal("100"),
-                violation_lines=file_data["violation_lines"],
-            )
-            for path, file_data in data["src_stats"].items()
-        },
     )
