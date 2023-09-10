@@ -32,4 +32,4 @@ jobs:
           minor=$((minor + 1))
           new_tag="${major}.${minor}"
 
-          gh release create ${new_tag} --generate-notes
+          gh release create ${new_tag} --generate-notes --notes-start-tag ${current}
