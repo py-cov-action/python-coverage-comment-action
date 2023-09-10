@@ -67,13 +67,15 @@ def compute_coverage(num_covered: int, num_total: int) -> decimal.Decimal:
     return decimal.Decimal(num_covered) / decimal.Decimal(num_total)
 
 
-def get_coverage_info(merge: bool, coverage_path: pathlib.Path) -> Coverage:
+def get_coverage_info(
+    merge: bool, coverage_path: pathlib.Path
+) -> tuple[dict, Coverage]:
     try:
         if merge:
             subprocess.run("coverage", "combine", path=coverage_path)
 
-        json_coverage = subprocess.run(
-            "coverage", "json", "-o", "-", path=coverage_path
+        json_coverage = json.loads(
+            subprocess.run("coverage", "json", "-o", "-", path=coverage_path)
         )
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
@@ -89,7 +91,7 @@ def get_coverage_info(merge: bool, coverage_path: pathlib.Path) -> Coverage:
             )
         raise
 
-    return extract_info(data=json.loads(json_coverage), coverage_path=coverage_path)
+    return json_coverage, extract_info(data=json_coverage, coverage_path=coverage_path)
 
 
 def generate_coverage_html_files(
