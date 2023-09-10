@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           # See Dockerfile.build for instructions on bumping this.
-          tags: ewjoachim/python-coverage-comment-action-base:v3
+          tags: ewjoachim/python-coverage-comment-action-base:v4
           push: true
           file: Dockerfile.build
 

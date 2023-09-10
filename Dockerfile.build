@@ -1,6 +1,6 @@
 # If you change anything here, bump the version in:
 # - Dockerfile
-# - .github/workflows/docker.yml
+# - .github/workflows/release.yml
 
 FROM python:3.11-slim
 
