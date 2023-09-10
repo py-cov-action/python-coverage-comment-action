@@ -93,6 +93,7 @@ def action(
             config=config,
             gh=gh,
             repo_info=repo_info,
+            git=git,
         )
 
     else:
@@ -107,6 +108,7 @@ def process_pr(
     config: settings.Config,
     gh: github_client.GitHub,
     repo_info: github.RepositoryInfo,
+    git: subprocess.Git,
 ) -> int:
     log.info("Generating comment for PR")
 
@@ -115,10 +117,11 @@ def process_pr(
         coverage_path=config.COVERAGE_PATH,
     )
     base_ref = config.GITHUB_BASE_REF or repo_info.default_branch
-    diff_coverage = coverage_module.get_diff_coverage_info(
-        base_ref=base_ref, coverage_path=config.COVERAGE_PATH
-    )
 
+    added_lines = coverage_module.get_added_lines(git=git, base_ref=base_ref)
+    diff_coverage = coverage_module.get_diff_coverage_info(
+        coverage=coverage, added_lines=added_lines
+    )
     # It only really makes sense to display a comparison with the previous
     # coverage if the PR target is the branch in which the coverage data is
     # stored, e.g. the default branch.

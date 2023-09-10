@@ -53,6 +53,20 @@ def run_coverage(file_path, integration_dir):
     return _
 
 
+DIFF_STDOUT = """diff --git a/foo.py b/foo.py
+index 6c08c94..b65c612 100644
+--- a/foo.py
++++ b/foo.py
+@@ -6,0 +7,6 @@ if os.environ.get("B"):
++
++if os.environ.get("C"):
++    2
++
++if os.environ.get("D"):
++    3
+"""
+
+
 @pytest.fixture
 def commit(integration_dir):
     def _():
@@ -120,7 +134,13 @@ def test_action__invalid_event_name(session, push_config, in_integration_env, ge
 
 
 def test_action__pull_request__store_comment(
-    pull_request_config, session, in_integration_env, output_file, summary_file, capsys
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    capsys,
+    git,
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -150,13 +170,15 @@ def test_action__pull_request__store_comment(
         "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
     )(status_code=403)
 
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
+
     result = main.action(
         config=pull_request_config(
             GITHUB_OUTPUT=output_file, GITHUB_STEP_SUMMARY=summary_file
         ),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -186,7 +208,13 @@ def test_action__pull_request__store_comment(
 
 @pytest.mark.add_branches("foo")
 def test_action__pull_request__store_comment_not_targeting_default(
-    pull_request_config, session, in_integration_env, output_file, summary_file, capsys
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    capsys,
+    git,
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -217,6 +245,8 @@ def test_action__pull_request__store_comment_not_targeting_default(
         "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
     )(status_code=403)
 
+    git.register("git diff --unified=0 origin/foo -- .")(stdout=DIFF_STDOUT)
+
     result = main.action(
         config=pull_request_config(
             GITHUB_OUTPUT=output_file,
@@ -225,7 +255,7 @@ def test_action__pull_request__store_comment_not_targeting_default(
         ),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -240,7 +270,7 @@ def test_action__pull_request__store_comment_not_targeting_default(
 
 
 def test_action__pull_request__post_comment(
-    pull_request_config, session, in_integration_env, output_file, summary_file
+    pull_request_config, session, in_integration_env, output_file, summary_file, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -257,6 +287,8 @@ def test_action__pull_request__post_comment(
     session.register("GET", "/user")(json={"login": "foo"})
     # Are there already comments
     session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
 
     comment = None
 
@@ -282,7 +314,7 @@ def test_action__pull_request__post_comment(
         ),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -296,11 +328,12 @@ def test_action__pull_request__post_comment(
 
 
 def test_action__push__non_default_branch(
-    push_config, session, in_integration_env, output_file, summary_file
+    push_config, session, in_integration_env, output_file, summary_file, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
 
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -350,7 +383,7 @@ def test_action__push__non_default_branch(
         ),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -364,11 +397,12 @@ def test_action__push__non_default_branch(
 
 
 def test_action__push__non_default_branch__no_pr(
-    push_config, session, in_integration_env, output_file, summary_file
+    push_config, session, in_integration_env, output_file, summary_file, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
 
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -406,7 +440,7 @@ def test_action__push__non_default_branch__no_pr(
         ),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -418,7 +452,7 @@ def test_action__push__non_default_branch__no_pr(
 
 
 def test_action__pull_request__force_store_comment(
-    pull_request_config, session, in_integration_env, output_file
+    pull_request_config, session, in_integration_env, output_file, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -431,11 +465,13 @@ def test_action__pull_request__force_store_comment(
         "/repos/py-cov-action/foobar/contents/data.json",
     )(json={"content": base64.b64encode(payload.encode()).decode()})
 
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
+
     result = main.action(
         config=pull_request_config(FORCE_WORKFLOW_RUN=True, GITHUB_OUTPUT=output_file),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 0
 
@@ -447,7 +483,7 @@ def test_action__pull_request__force_store_comment(
 
 
 def test_action__pull_request__post_comment__no_marker(
-    pull_request_config, session, in_integration_env, get_logs
+    pull_request_config, session, in_integration_env, get_logs, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -459,18 +495,20 @@ def test_action__pull_request__post_comment__no_marker(
         "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
 
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
+
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""foo"""),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 1
     assert get_logs("ERROR", "Marker not found")
 
 
 def test_action__pull_request__annotations(
-    pull_request_config, session, in_integration_env, capsys
+    pull_request_config, session, in_integration_env, capsys, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -480,6 +518,8 @@ def test_action__pull_request__annotations(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
+
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
@@ -496,7 +536,7 @@ def test_action__pull_request__annotations(
         config=pull_request_config(ANNOTATE_MISSING_LINES=True),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     expected = """::group::Annotations of lines with missing coverage
 ::warning file=foo.py,line=12::This line has no coverage
@@ -508,7 +548,7 @@ def test_action__pull_request__annotations(
 
 
 def test_action__pull_request__post_comment__template_error(
-    pull_request_config, session, in_integration_env, get_logs
+    pull_request_config, session, in_integration_env, get_logs, git
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -520,11 +560,13 @@ def test_action__pull_request__post_comment__template_error(
         "/repos/py-cov-action/foobar/contents/data.json",
     )(status_code=404)
 
+    git.register("git diff --unified=0 origin/main -- .")(stdout=DIFF_STDOUT)
+
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""{%"""),
         github_session=session,
         http_session=session,
-        git=None,
+        git=git,
     )
     assert result == 1
     assert get_logs("ERROR", "There was a rendering error")
