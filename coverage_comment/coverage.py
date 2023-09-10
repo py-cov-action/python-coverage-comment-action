@@ -3,6 +3,7 @@ import datetime
 import decimal
 import json
 import pathlib
+from collections.abc import Iterable
 
 from coverage_comment import log, subprocess
 
@@ -42,6 +43,12 @@ class Coverage:
     meta: CoverageMetadata
     info: CoverageInfo
     files: dict[pathlib.Path, FileCoverage]
+
+
+# The format for Diff Coverage objects may seem a little weird, because it
+# was originally copied from diff-cover schema. In order to keep the
+# compatibility for existing custom template, we kept the same format.
+# Maybe in v4, we can change it to a simpler format.
 
 
 @dataclasses.dataclass
@@ -208,3 +215,91 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
             missing_branches=data["totals"].get("missing_branches"),
         ),
     )
+
+
+def get_diff_coverage_info(
+    added_lines: dict[pathlib.Path, list[int]], coverage: Coverage
+) -> DiffCoverage:
+    files = {}
+    total_num_lines = 0
+    total_num_violations = 0
+    num_changed_lines = 0
+
+    for path, added_lines_for_file in added_lines.items():
+        try:
+            file = coverage.files[path]
+        except KeyError:
+            continue
+
+        count_executed = len(set(file.executed_lines) & set(added_lines_for_file))
+
+        missing = sorted(set(file.missing_lines) & set(added_lines.get(path, [])))
+        count_missing = len(missing)
+        count_total = count_executed + count_missing
+
+        total_num_lines += count_executed + count_missing
+        total_num_violations += count_missing
+        num_changed_lines += len(added_lines_for_file)
+
+        percent_covered = decimal.Decimal("1")
+        if count_total != 0:
+            # You can't multiply a decimal by a float but you can divide it
+            # by an int, that's why we split the following into 2 lines
+            percent_covered *= count_executed
+            percent_covered /= count_total
+
+        files[path] = FileDiffCoverage(
+            path=path,
+            percent_covered=percent_covered,
+            violation_lines=missing,
+        )
+    final_percentage = decimal.Decimal("1")
+
+    if total_num_lines + total_num_violations != 0:
+        final_percentage *= total_num_lines - total_num_violations
+        final_percentage /= total_num_lines
+
+    return DiffCoverage(
+        total_num_lines=total_num_lines,
+        total_num_violations=total_num_violations,
+        total_percent_covered=final_percentage,
+        num_changed_lines=num_changed_lines,
+        files=files,
+    )
+
+
+def get_added_lines(
+    git: subprocess.Git, base_ref: str
+) -> dict[pathlib.Path, list[int]]:
+    # --unified=0 means we don't get any context lines for chunk, and we
+    # don't merge chunks. This means the headers that describe line number
+    # are always enough to derive what line numbers were added.
+    diff = git.diff("--unified=0", f"origin/{base_ref}", "--", ".")
+    return parse_diff_output(diff)
+
+
+def parse_diff_output(diff: str) -> dict[pathlib.Path, list[int]]:
+    current_file: pathlib.Path | None = None
+    added_filename_prefix = "+++ b/"
+    result: dict[pathlib.Path, list[int]] = {}
+    for line in diff.splitlines():
+        if line.startswith(added_filename_prefix):
+            current_file = pathlib.Path(line.removeprefix(added_filename_prefix))
+            continue
+        if line.startswith("@@"):
+            assert current_file
+            lines = parse_line_number_diff_line(line)
+            result.setdefault(current_file, []).extend(lines)
+            continue
+
+    return result
+
+
+def parse_line_number_diff_line(line: str) -> Iterable[int]:
+    """
+    Parse the "added" part of the line number diff text:
+        @@ -60,0 +61 @@ def compute_files(  -> [61]
+        @@ -60,0 +61,3 @@ def compute_files(  -> [61, 62, 63]
+    """
+    start, length = (int(i) for i in (line.split()[2][1:] + ",1").split(",")[:2])
+    return range(start, start + length)
