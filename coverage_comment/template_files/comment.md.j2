@@ -15,8 +15,20 @@ The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage
 {%- endblock emoji_coverage -%}
 {%- else -%}
 {% block no_comparison_info -%}
-> **Note**
-> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
+{%- if pr_targets_default_branch -%}
+{% block no_comparison_info_data_not_found_message -%}
+> [!NOTE]
+> Coverage data for the default branch was not found.
+> This usually happens when the action has not run on the default
+> branch yet, for example right after deploying it into the workflows.
+{%- endblock no_comparison_info_data_not_found_message -%}
+{% else %}
+{% block no_comparison_info_non_default_target -%}
+> [!NOTE]
+> Coverage evolution disabled because this PR targets a different branch
+> than the default branch, for which coverage data is not available.
+{%- endblock no_comparison_info_non_default_target -%}
+{% endif %}
 {%- endblock no_comparison_info %}
 
 {% block coverage_value_wording -%}

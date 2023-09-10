@@ -119,11 +119,21 @@ def process_pr(
         base_ref=base_ref, coverage_path=config.COVERAGE_PATH
     )
 
-    previous_coverage_data_file = storage.get_datafile_contents(
-        github=gh,
-        repository=config.GITHUB_REPOSITORY,
-        branch=config.COVERAGE_DATA_BRANCH,
-    )
+    # It only really makes sense to display a comparison with the previous
+    # coverage if the PR target is the branch in which the coverage data is
+    # stored, e.g. the default branch.
+    # In the case we're running on a branch without a PR yet, we can't know
+    # if it's going to target the default branch, so we display it.
+    previous_coverage_data_file = None
+    pr_targets_default_branch = base_ref == repo_info.default_branch
+
+    if pr_targets_default_branch:
+        previous_coverage_data_file = storage.get_datafile_contents(
+            github=gh,
+            repository=config.GITHUB_REPOSITORY,
+            branch=config.COVERAGE_DATA_BRANCH,
+        )
+
     previous_coverage = None
     if previous_coverage_data_file:
         previous_coverage = files.parse_datafile(contents=previous_coverage_data_file)
@@ -135,6 +145,7 @@ def process_pr(
             previous_coverage_rate=previous_coverage,
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
+            pr_targets_default_branch=pr_targets_default_branch,
         )
     except template.MissingMarker:
         log.error(

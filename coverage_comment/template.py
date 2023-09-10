@@ -45,6 +45,7 @@ def get_comment_markdown(
     previous_coverage_rate: decimal.Decimal | None,
     base_template: str,
     custom_template: str | None = None,
+    pr_targets_default_branch: bool = True,
 ):
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
@@ -56,6 +57,7 @@ def get_comment_markdown(
             coverage=coverage,
             diff_coverage=diff_coverage,
             marker=MARKER,
+            pr_targets_default_branch=pr_targets_default_branch,
         )
     except jinja2.exceptions.TemplateError as exc:
         raise TemplateError from exc
