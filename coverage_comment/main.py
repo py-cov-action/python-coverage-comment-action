@@ -167,7 +167,6 @@ def process_pr(
     github.add_job_summary(
         content=comment, github_step_summary=config.GITHUB_STEP_SUMMARY
     )
-
     pr_number: int | None = config.GITHUB_PR_NUMBER
     if pr_number is None:
         # If we don't have a PR number, we're launched from a push event,
@@ -183,11 +182,11 @@ def process_pr(
             )
         except github.CannotDeterminePR:
             pr_number = None
-        else:
-            if config.ANNOTATE_MISSING_LINES:
-                annotations.create_pr_annotations(
-                    annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
-                )
+
+    if pr_number is not None and config.ANNOTATE_MISSING_LINES:
+        annotations.create_pr_annotations(
+            annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
+        )
 
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:

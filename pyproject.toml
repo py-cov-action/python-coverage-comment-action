@@ -49,6 +49,7 @@ markers = [
     "repo_suffix: Allows to use an additional suffix for the e2e test repo.",
     "code_path: Allows to place the code in a subdirectory for the e2e test repo.",
     "subproject_id: Allows to use a different subproject id for the e2e test repo.",
+    "add_branches: Adds branches besides 'main' and 'branch' to integration tests setup.",
 ]
 
 [tool.coverage.run]

@@ -77,13 +77,20 @@ def commit(integration_dir):
 
 
 @pytest.fixture
-def integration_env(integration_dir, write_file, run_coverage, commit):
+def integration_env(integration_dir, write_file, run_coverage, commit, request):
     subprocess.check_call(["git", "init", "-b", "main"], cwd=integration_dir)
     # diff coverage reads the "origin/{...}" branch so we simulate an origin remote
     subprocess.check_call(["git", "remote", "add", "origin", "."], cwd=integration_dir)
     write_file("A", "B")
-
     commit()
+
+    add_branch_mark = request.node.get_closest_marker("add_branches")
+    for additional_branch in add_branch_mark.args if add_branch_mark else []:
+        subprocess.check_call(
+            ["git", "switch", "-c", additional_branch],
+            cwd=integration_dir,
+        )
+
     subprocess.check_call(
         ["git", "switch", "-c", "branch"],
         cwd=integration_dir,
@@ -160,7 +167,7 @@ def test_action__pull_request__store_comment(
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
     assert comment == summary_file.read_text()
-    assert "No coverage data of the default branch was found for comparison" in comment
+    assert "Coverage data for the default branch was not found." in comment
     assert "The coverage rate is `77.77%`" in comment
     assert "`75%` of new lines are covered." in comment
     assert (
@@ -175,6 +182,61 @@ def test_action__pull_request__store_comment(
     expected_output = "COMMENT_FILE_WRITTEN=true\n"
 
     assert output_file.read_text() == expected_output
+
+
+@pytest.mark.add_branches("foo")
+def test_action__pull_request__store_comment_not_targeting_default(
+    pull_request_config, session, in_integration_env, output_file, summary_file, capsys
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+    payload = json.dumps({"coverage": 30.00})
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+    )(json={"content": base64.b64encode(payload.encode()).decode()})
+
+    # Who am I
+    session.register("GET", "/user")(json={"login": "foo"})
+    # Are there already comments
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+
+    comment = None
+
+    def checker(payload):
+        body = payload["body"]
+        assert "## Coverage report" in body
+        nonlocal comment
+        comment = body
+        return True
+
+    # Post a new comment
+    session.register(
+        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
+    )(status_code=403)
+
+    result = main.action(
+        config=pull_request_config(
+            GITHUB_OUTPUT=output_file,
+            GITHUB_STEP_SUMMARY=summary_file,
+            GITHUB_BASE_REF="foo",
+        ),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+    assert result == 0
+
+    # Check that no annotations were made
+    output = capsys.readouterr()
+    assert output.err.strip() == ""
+
+    comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
+    assert comment == comment_file
+    assert comment == summary_file.read_text()
+    assert "Coverage evolution disabled because this PR targets" in comment
 
 
 def test_action__pull_request__post_comment(
