@@ -114,25 +114,6 @@ def coverage_json():
 
 
 @pytest.fixture
-def diff_coverage_json():
-    return {
-        "report_name": "XML",
-        "diff_name": "master...HEAD, staged and unstaged changes",
-        "src_stats": {
-            "codebase/code.py": {
-                "percent_covered": 80.0,
-                "violation_lines": [9],
-                "violations": [[9, None]],
-            }
-        },
-        "total_num_lines": 5,
-        "total_num_violations": 1,
-        "total_percent_covered": 80,
-        "num_changed_lines": 39,
-    }
-
-
-@pytest.fixture
 def coverage_obj():
     return coverage_module.Coverage(
         meta=coverage_module.CoverageMetadata(
