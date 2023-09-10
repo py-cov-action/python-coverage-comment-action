@@ -119,11 +119,6 @@ def process_pr(
         base_ref=base_ref, coverage_path=config.COVERAGE_PATH
     )
 
-    if config.ANNOTATE_MISSING_LINES:
-        annotations.create_pr_annotations(
-            annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
-        )
-
     previous_coverage_data_file = storage.get_datafile_contents(
         github=gh,
         repository=config.GITHUB_REPOSITORY,
@@ -163,7 +158,7 @@ def process_pr(
     )
 
     pr_number: int | None = config.GITHUB_PR_NUMBER
-    if not pr_number:
+    if pr_number is None:
         # If we don't have a PR number, we're launched from a push event,
         # so we need to find the PR number from the branch name
         assert config.GITHUB_BRANCH_NAME
@@ -177,6 +172,11 @@ def process_pr(
             )
         except github.CannotDeterminePR:
             pr_number = None
+        else:
+            if config.ANNOTATE_MISSING_LINES:
+                annotations.create_pr_annotations(
+                    annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
+                )
 
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:
