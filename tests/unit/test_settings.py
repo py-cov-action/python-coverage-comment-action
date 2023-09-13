@@ -130,6 +130,17 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
     assert config(GITHUB_REF=github_ref).GITHUB_PR_NUMBER == github_pr_number
 
 
+@pytest.mark.parametrize(
+    "github_ref, github_branch_name",
+    [
+        ("refs/pull/2/merge", None),
+        ("refs/heads/a/b", "a/b"),
+    ],
+)
+def test_config__GITHUB_BRANCH_NAME(config, github_ref, github_branch_name):
+    assert config(GITHUB_REF=github_ref).GITHUB_BRANCH_NAME == github_branch_name
+
+
 def test_config__from_environ__error():
     with pytest.raises(ValueError):
         settings.Config.from_environ({"COMMENT_FILENAME": "/a"})

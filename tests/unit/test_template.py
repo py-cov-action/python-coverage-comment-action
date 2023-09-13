@@ -204,8 +204,10 @@ def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_o
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
-> **Note**
-> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
+> [!NOTE]
+> Coverage data for the default branch was not found.
+> This usually happens when the action has not run on the default
+> branch yet, for example right after deploying it into the workflows.
 
 The coverage rate is `75%`.
 

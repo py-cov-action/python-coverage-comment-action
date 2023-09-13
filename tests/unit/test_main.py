@@ -5,28 +5,6 @@ import httpx
 from coverage_comment import main, settings, subprocess
 
 
-def test_action__invalid_event_name(push_config, get_logs):
-    result = main.action(
-        config=push_config(GITHUB_EVENT_NAME="pull_request_target"),
-        github_session=None,
-        http_session=None,
-        git=None,
-    )
-
-    assert result == 1
-    assert get_logs("ERROR", "This action has only been designed to work for")
-
-
-def test_post_comment__no_run_id(workflow_run_config, get_logs):
-    result = main.post_comment(
-        config=workflow_run_config(GITHUB_PR_RUN_ID=""),
-        github_session=None,
-    )
-
-    assert result == 1
-    assert get_logs("ERROR", "Missing input GITHUB_PR_RUN_ID")
-
-
 def test_main(mocker, get_logs):
     # This test is a mock festival. The idea is that all the things that are hard
     # to simulate without mocks have been pushed up the stack up to this function
