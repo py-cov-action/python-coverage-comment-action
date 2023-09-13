@@ -6,6 +6,7 @@ import pytest
 
 @pytest.mark.repo_suffix("public")
 @pytest.mark.code_path("subdir")
+@pytest.mark.subproject_id("my-great-project")
 def test_public_repo(
     gh_create_repo,
     wait_for_run_to_start,
@@ -71,15 +72,11 @@ def test_public_repo(
     assert number_of_svgs == 3
 
     # Check that logs point to the branch that has the readme file.
-    data_branch_url = (
-        f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data"
-    )
+    data_branch_url = f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project"
     assert data_branch_url in links
 
     # Time to check the Readme contents
-    raw_url_prefix = (
-        f"https://github.com/{repo_full_name}/raw/python-coverage-comment-action-data"
-    )
+    raw_url_prefix = f"https://github.com/{repo_full_name}/raw/python-coverage-comment-action-data-my-great-project"
 
     readme_url = f"{raw_url_prefix}/README.md"
     response = client.get(readme_url, follow_redirects=True)
@@ -126,6 +123,11 @@ def test_public_repo(
         fail_value="\n",
     )
     assert ":arrow_up:" in comment
+    assert "## Coverage report (my-great-project)" in comment
+    assert (
+        "This comment was produced by python-coverage-comment-action (id: my-great-project)"
+        in comment
+    )
 
     # Let's merge the PR and see if everything works fine
     gh_me("pr", "merge", "1", "--merge")

@@ -131,13 +131,14 @@ def process_pr(
         previous_coverage_data_file = storage.get_datafile_contents(
             github=gh,
             repository=config.GITHUB_REPOSITORY,
-            branch=config.COVERAGE_DATA_BRANCH,
+            branch=config.FINAL_COVERAGE_DATA_BRANCH,
         )
 
     previous_coverage = None
     if previous_coverage_data_file:
         previous_coverage = files.parse_datafile(contents=previous_coverage_data_file)
 
+    marker = template.get_marker(marker_id=config.SUBPROJECT_ID)
     try:
         comment = template.get_comment_markdown(
             coverage=coverage,
@@ -146,6 +147,8 @@ def process_pr(
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
             pr_targets_default_branch=pr_targets_default_branch,
+            marker=marker,
+            subproject_id=config.SUBPROJECT_ID,
         )
     except template.MissingMarker:
         log.error(
@@ -198,7 +201,7 @@ def process_pr(
             repository=config.GITHUB_REPOSITORY,
             pr_number=pr_number,
             contents=comment,
-            marker=template.MARKER,
+            marker=marker,
         )
     except github.CannotPostComment:
         log.debug("Exception when posting comment", exc_info=True)
@@ -209,7 +212,7 @@ def process_pr(
             "on PR comments for external PRs)."
         )
         comment_file.store_file(
-            filename=config.COMMENT_FILENAME,
+            filename=config.FINAL_COMMENT_FILENAME,
             content=comment,
         )
         github.set_output(github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=True)
@@ -263,7 +266,7 @@ def post_comment(
             repository=config.GITHUB_REPOSITORY,
             artifact_name=config.COMMENT_ARTIFACT_NAME,
             run_id=config.GITHUB_PR_RUN_ID,
-            filename=config.COMMENT_FILENAME,
+            filename=config.FINAL_COMMENT_FILENAME,
         )
     except github.NoArtifact:
         log.info(
@@ -279,7 +282,7 @@ def post_comment(
         repository=config.GITHUB_REPOSITORY,
         pr_number=pr_number,
         contents=comment,
-        marker=template.MARKER,
+        marker=template.get_marker(marker_id=config.SUBPROJECT_ID),
     )
     log.info("Comment posted in PR")
 
@@ -327,14 +330,14 @@ def save_coverage_data_files(
         storage.get_raw_file_url,
         is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
-        branch=config.COVERAGE_DATA_BRANCH,
+        branch=config.FINAL_COVERAGE_DATA_BRANCH,
     )
     readme_url = storage.get_repo_file_url(
-        branch=config.COVERAGE_DATA_BRANCH,
+        branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )
     html_report_url = storage.get_html_report_url(
-        branch=config.COVERAGE_DATA_BRANCH,
+        branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )
     readme_file, log_message = communication.get_readme_and_log(
@@ -343,12 +346,13 @@ def save_coverage_data_files(
         image_urls=files.get_urls(url_getter=url_getter),
         html_report_url=html_report_url,
         markdown_report=markdown_report,
+        subproject_id=config.SUBPROJECT_ID,
     )
     operations.append(readme_file)
     storage.commit_operations(
         operations=operations,
         git=git,
-        branch=config.COVERAGE_DATA_BRANCH,
+        branch=config.FINAL_COVERAGE_DATA_BRANCH,
     )
 
     log.info(log_message)

@@ -35,6 +35,7 @@ def test_config__from_environ__ok():
             "GITHUB_STEP_SUMMARY": "step_summary",
             "COMMENT_ARTIFACT_NAME": "baz",
             "COMMENT_FILENAME": "qux",
+            "SUBPROJECT_ID": "subproject",
             "COMMENT_TEMPLATE": "footemplate",
             "COVERAGE_DATA_BRANCH": "branchname",
             "COVERAGE_PATH": "source_folder/",
@@ -57,6 +58,7 @@ def test_config__from_environ__ok():
         GITHUB_STEP_SUMMARY=pathlib.Path("step_summary"),
         COMMENT_ARTIFACT_NAME="baz",
         COMMENT_FILENAME=pathlib.Path("qux"),
+        SUBPROJECT_ID="subproject",
         COMMENT_TEMPLATE="footemplate",
         COVERAGE_DATA_BRANCH="branchname",
         COVERAGE_PATH=pathlib.Path("source_folder/"),
@@ -167,3 +169,19 @@ def test_config__invalid_annotation_type():
 )
 def test_str_to_bool(input, output):
     assert settings.str_to_bool(input) is output
+
+
+def test_final_comment_filename(config):
+    config_obj = config(
+        COMMENT_FILENAME=pathlib.Path("foo.txt"),
+        SUBPROJECT_ID="bar",
+    )
+    assert config_obj.FINAL_COMMENT_FILENAME == pathlib.Path("foo-bar.txt")
+
+
+def test_final_coverage_data_branch(config):
+    config_obj = config(
+        COVERAGE_DATA_BRANCH="foo",
+        SUBPROJECT_ID="bar",
+    )
+    assert config_obj.FINAL_COVERAGE_DATA_BRANCH == "foo-bar"

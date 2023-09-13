@@ -13,6 +13,7 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            marker="<!-- foo -->",
             base_template="""
         {{ previous_coverage_rate | pct }}
         {{ coverage.info.percent_covered | pct }}
@@ -33,7 +34,7 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
         "75%",
         "80%",
         "bar",
-        "<!-- This comment was produced by python-coverage-comment-action -->",
+        "<!-- foo -->",
     ]
 
     assert result == expected
@@ -45,11 +46,13 @@ def test_template(coverage_obj, diff_coverage_obj):
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=decimal.Decimal("0.92"),
         base_template=template.read_template_file("comment.md.j2"),
+        marker="<!-- foo -->",
+        subproject_id="foo",
         custom_template="""{% extends "base" %}
         {% block emoji_coverage_down %}:sob:{% endblock emoji_coverage_down %}
         """,
     )
-    expected = """## Coverage report
+    expected = """## Coverage report (foo)
 The coverage rate went from `92%` to `75%` :sob:
 The branch rate is `50%`.
 
@@ -63,7 +66,7 @@ The branch rate is `50%`.
 Missing lines: `7`, `9`
 
 </details>
-<!-- This comment was produced by python-coverage-comment-action -->"""
+<!-- foo -->"""
     assert result == expected
 
 
@@ -147,6 +150,7 @@ def test_template_full():
         coverage=cov,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
+        marker="<!-- foo -->",
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -166,7 +170,7 @@ Missing lines: `5`
 `100%` of new lines are covered (`100%` of the complete file).
 
 </details>
-<!-- This comment was produced by python-coverage-comment-action -->"""
+<!-- foo -->"""
     assert result == expected
 
 
@@ -183,6 +187,7 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
         coverage=coverage_obj,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
+        marker="<!-- foo -->",
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -192,7 +197,7 @@ The branch rate is `50%`.
 _None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
 
 
-<!-- This comment was produced by python-coverage-comment-action -->"""
+<!-- foo -->"""
     assert result == expected
 
 
@@ -201,6 +206,7 @@ def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_o
         coverage=coverage_obj_no_branch,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=None,
+        marker="<!-- foo -->",
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -221,13 +227,13 @@ The coverage rate is `75%`.
 Missing lines: `7`, `9`
 
 </details>
-<!-- This comment was produced by python-coverage-comment-action -->"""
+<!-- foo -->"""
     assert result == expected
 
 
 def test_read_template_file():
     assert template.read_template_file("comment.md.j2").startswith(
-        "{% block title %}## Coverage report{% endblock title %}"
+        "{% block title %}## Coverage report{% if subproject_id %}"
     )
 
 
@@ -238,6 +244,7 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file("comment.md.j2"),
+            marker="<!-- foo -->",
             custom_template="""foo bar""",
         )
 
@@ -249,6 +256,7 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
             base_template=template.read_template_file("comment.md.j2"),
+            marker="<!-- foo -->",
             custom_template="""{% extends "foo" %}""",
         )
 
@@ -270,3 +278,17 @@ def test_pct(value, displayed_coverage):
 
 def test_uptodate():
     assert template.uptodate() is True
+
+
+@pytest.mark.parametrize(
+    "marker_id, result",
+    [
+        (None, "<!-- This comment was produced by python-coverage-comment-action -->"),
+        (
+            "foo",
+            "<!-- This comment was produced by python-coverage-comment-action (id: foo) -->",
+        ),
+    ],
+)
+def test_get_marker(marker_id, result):
+    assert template.get_marker(marker_id=marker_id) == result
