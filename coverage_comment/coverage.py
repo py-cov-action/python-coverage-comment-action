@@ -226,20 +226,24 @@ def get_diff_coverage_info(
     num_changed_lines = 0
 
     for path, added_lines_for_file in added_lines.items():
+        num_changed_lines += len(added_lines_for_file)
+
         try:
             file = coverage.files[path]
         except KeyError:
             continue
 
-        count_executed = len(set(file.executed_lines) & set(added_lines_for_file))
+        executed = set(file.executed_lines) & set(added_lines_for_file)
+        count_executed = len(executed)
 
-        missing = sorted(set(file.missing_lines) & set(added_lines.get(path, [])))
+        missing = set(file.missing_lines) & set(added_lines_for_file)
         count_missing = len(missing)
-        count_total = count_executed + count_missing
+        # We don't want to count twice the lines that are both executed and
+        # missing (e.g. the branch lines partially executed)
+        count_total = len(executed | missing)
 
-        total_num_lines += count_executed + count_missing
+        total_num_lines += count_total
         total_num_violations += count_missing
-        num_changed_lines += len(added_lines_for_file)
 
         percent_covered = decimal.Decimal("1")
         if count_total != 0:
@@ -251,7 +255,7 @@ def get_diff_coverage_info(
         files[path] = FileDiffCoverage(
             path=path,
             percent_covered=percent_covered,
-            violation_lines=missing,
+            violation_lines=sorted(missing),
         )
     final_percentage = decimal.Decimal("1")
 
@@ -274,7 +278,8 @@ def get_added_lines(
     # --unified=0 means we don't get any context lines for chunk, and we
     # don't merge chunks. This means the headers that describe line number
     # are always enough to derive what line numbers were added.
-    diff = git.diff("--unified=0", f"origin/{base_ref}", "--", ".")
+    git.fetch("origin", base_ref, "--depth=1000")
+    diff = git.diff("--unified=0", "FETCH_HEAD", "--", ".")
     return parse_diff_output(diff)
 
 
