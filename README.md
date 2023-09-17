@@ -203,7 +203,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 ```
 
-
 ### Merging multiple coverage reports
 
 In case you have a job matrix and you want the report to be on the global
@@ -350,6 +349,16 @@ jobs:
     # Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     VERBOSE: false
 ```
+
+### Commenting on the PR on the `push` event
+
+This action's PR comments with coverage reports is designed to work when
+running on the `pull_request` events. That being said, if your CI is running on
+feature branches on the `push` events and not on the `pull_request` events, we
+partly support a mode where the action can comment on the PR when running on
+the `push` events instead. This is most likely only useful for setups not
+accepting external PRs and you will not have the best user experience.
+If that's something you need to do, please have a look at [this issue](https://github.com/py-cov-action/python-coverage-comment-action/issues/234).
 
 ## Overriding the template
 
