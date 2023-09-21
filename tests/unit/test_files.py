@@ -32,6 +32,7 @@ def test_compute_files(session):
     result = files.compute_files(
         line_rate=decimal.Decimal("0.1234"),
         raw_coverage_data={"foo": ["bar", "bar2"]},
+        coverage_path=pathlib.Path("."),
         minimum_green=decimal.Decimal("25"),
         minimum_orange=decimal.Decimal("70"),
         http_session=session,
@@ -43,7 +44,7 @@ def test_compute_files(session):
         ),
         files.WriteFile(
             path=pathlib.Path("data.json"),
-            contents='{"coverage": 12.34, "raw_data": {"foo": ["bar", "bar2"]}}',
+            contents='{"coverage": 12.34, "raw_data": {"foo": ["bar", "bar2"]}, "coverage_path": "."}',
         ),
         files.WriteFile(path=pathlib.Path("badge.svg"), contents="foo"),
     ]
@@ -55,8 +56,9 @@ def test_compute_datafile():
         files.compute_datafile(
             line_rate=decimal.Decimal("12.34"),
             raw_coverage_data={"meta": {"version": "5.5"}},
+            coverage_path=pathlib.Path("./src/code"),
         )
-        == """{"coverage": 12.34, "raw_data": {"meta": {"version": "5.5"}}}"""
+        == """{"coverage": 12.34, "raw_data": {"meta": {"version": "5.5"}}, "coverage_path": "src/code"}"""
     )
 
 

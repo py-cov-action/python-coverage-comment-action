@@ -59,6 +59,7 @@ class ReplaceDir:
 def compute_files(
     line_rate: decimal.Decimal,
     raw_coverage_data: dict,
+    coverage_path: pathlib.Path,
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
     http_session: httpx.Client,
@@ -81,6 +82,7 @@ def compute_files(
             contents=compute_datafile(
                 raw_coverage_data=raw_coverage_data,
                 line_rate=line_rate,
+                coverage_path=coverage_path,
             ),
         ),
         WriteFile(
@@ -92,8 +94,16 @@ def compute_files(
     ]
 
 
-def compute_datafile(raw_coverage_data: dict, line_rate: decimal.Decimal) -> str:
-    return json.dumps({"coverage": float(line_rate), "raw_data": raw_coverage_data})
+def compute_datafile(
+    raw_coverage_data: dict, line_rate: decimal.Decimal, coverage_path: pathlib.Path
+) -> str:
+    return json.dumps(
+        {
+            "coverage": float(line_rate),
+            "raw_data": raw_coverage_data,
+            "coverage_path": str(coverage_path),
+        }
+    )
 
 
 def parse_datafile(contents) -> decimal.Decimal:
