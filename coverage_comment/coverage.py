@@ -3,7 +3,7 @@ import datetime
 import decimal
 import json
 import pathlib
-import tempfile
+from collections.abc import Iterable
 
 from coverage_comment import log, subprocess
 
@@ -43,6 +43,12 @@ class Coverage:
     meta: CoverageMetadata
     info: CoverageInfo
     files: dict[pathlib.Path, FileCoverage]
+
+
+# The format for Diff Coverage objects may seem a little weird, because it
+# was originally copied from diff-cover schema. In order to keep the
+# compatibility for existing custom template, we kept the same format.
+# Maybe in v4, we can change it to a simpler format.
 
 
 @dataclasses.dataclass
@@ -211,57 +217,90 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
     )
 
 
-def get_diff_coverage_info(base_ref: str, coverage_path: pathlib.Path) -> DiffCoverage:
-    subprocess.run("git", "fetch", "--depth=1000", path=pathlib.Path.cwd())
-    subprocess.run("coverage", "xml", path=coverage_path)
-    with tempfile.NamedTemporaryFile("r") as f:
-        subprocess.run(
-            "diff-cover",
-            "coverage.xml",
-            f"--compare-branch=origin/{base_ref}",
-            f"--json-report={f.name}",
-            "--diff-range-notation=..",
-            "--quiet",
-            path=coverage_path,
+def get_diff_coverage_info(
+    added_lines: dict[pathlib.Path, list[int]], coverage: Coverage
+) -> DiffCoverage:
+    files = {}
+    total_num_lines = 0
+    total_num_violations = 0
+    num_changed_lines = 0
+
+    for path, added_lines_for_file in added_lines.items():
+        num_changed_lines += len(added_lines_for_file)
+
+        try:
+            file = coverage.files[path]
+        except KeyError:
+            continue
+
+        executed = set(file.executed_lines) & set(added_lines_for_file)
+        count_executed = len(executed)
+
+        missing = set(file.missing_lines) & set(added_lines_for_file)
+        count_missing = len(missing)
+        # Even partially covered lines are considered as covered, no line
+        # appears in both counts
+        count_total = count_executed + count_missing
+
+        total_num_lines += count_total
+        total_num_violations += count_missing
+
+        percent_covered = compute_coverage(
+            num_covered=count_executed, num_total=count_total
         )
-        diff_json = json.loads(pathlib.Path(f.name).read_text())
 
-    return extract_diff_info(diff_json)
-
-
-def extract_diff_info(data) -> DiffCoverage:
-    """
-    {
-        "report_name": "XML",
-        "diff_name": "master...HEAD, staged and unstaged changes",
-        "src_stats": {
-            "codebase/code.py": {
-                "percent_covered": 80.0,
-                "violation_lines": [9],
-                "violations": [[9, null]],
-            }
-        },
-        "total_num_lines": 5,
-        "total_num_violations": 1,
-        "total_percent_covered": 80,
-        "num_changed_lines": 39,
-    }
-    """
-    return DiffCoverage(
-        total_num_lines=data["total_num_lines"],
-        total_num_violations=data["total_num_violations"],
-        total_percent_covered=compute_coverage(
-            data["total_num_lines"] - data["total_num_violations"],
-            data["total_num_lines"],
-        ),
-        num_changed_lines=data["num_changed_lines"],
-        files={
-            pathlib.Path(path): FileDiffCoverage(
-                path=pathlib.Path(path),
-                percent_covered=decimal.Decimal(str(file_data["percent_covered"]))
-                / decimal.Decimal("100"),
-                violation_lines=file_data["violation_lines"],
-            )
-            for path, file_data in data["src_stats"].items()
-        },
+        files[path] = FileDiffCoverage(
+            path=path,
+            percent_covered=percent_covered,
+            violation_lines=sorted(missing),
+        )
+    final_percentage = compute_coverage(
+        num_covered=total_num_lines - total_num_violations,
+        num_total=total_num_lines,
     )
+
+    return DiffCoverage(
+        total_num_lines=total_num_lines,
+        total_num_violations=total_num_violations,
+        total_percent_covered=final_percentage,
+        num_changed_lines=num_changed_lines,
+        files=files,
+    )
+
+
+def get_added_lines(
+    git: subprocess.Git, base_ref: str
+) -> dict[pathlib.Path, list[int]]:
+    # --unified=0 means we don't get any context lines for chunk, and we
+    # don't merge chunks. This means the headers that describe line number
+    # are always enough to derive what line numbers were added.
+    git.fetch("origin", base_ref, "--depth=1000")
+    diff = git.diff("--unified=0", "FETCH_HEAD", "--", ".")
+    return parse_diff_output(diff)
+
+
+def parse_diff_output(diff: str) -> dict[pathlib.Path, list[int]]:
+    current_file: pathlib.Path | None = None
+    added_filename_prefix = "+++ b/"
+    result: dict[pathlib.Path, list[int]] = {}
+    for line in diff.splitlines():
+        if line.startswith(added_filename_prefix):
+            current_file = pathlib.Path(line.removeprefix(added_filename_prefix))
+            continue
+        if line.startswith("@@"):
+            assert current_file
+            lines = parse_line_number_diff_line(line)
+            result.setdefault(current_file, []).extend(lines)
+            continue
+
+    return result
+
+
+def parse_line_number_diff_line(line: str) -> Iterable[int]:
+    """
+    Parse the "added" part of the line number diff text:
+        @@ -60,0 +61 @@ def compute_files(  -> [61]
+        @@ -60,0 +61,3 @@ def compute_files(  -> [61, 62, 63]
+    """
+    start, length = (int(i) for i in (line.split()[2][1:] + ",1").split(",")[:2])
+    return range(start, start + length)

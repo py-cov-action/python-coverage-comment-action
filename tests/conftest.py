@@ -114,25 +114,6 @@ def coverage_json():
 
 
 @pytest.fixture
-def diff_coverage_json():
-    return {
-        "report_name": "XML",
-        "diff_name": "master...HEAD, staged and unstaged changes",
-        "src_stats": {
-            "codebase/code.py": {
-                "percent_covered": 80.0,
-                "violation_lines": [9],
-                "violations": [[9, None]],
-            }
-        },
-        "total_num_lines": 5,
-        "total_num_violations": 1,
-        "total_percent_covered": 80,
-        "num_changed_lines": 39,
-    }
-
-
-@pytest.fixture
 def coverage_obj():
     return coverage_module.Coverage(
         meta=coverage_module.CoverageMetadata(
@@ -203,7 +184,7 @@ def coverage_obj_no_branch():
                 info=coverage_module.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=decimal.Decimal("0.75"),
+                    percent_covered=decimal.Decimal("0.8333"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=None,
@@ -214,6 +195,41 @@ def coverage_obj_no_branch():
             )
         },
     )
+
+
+@pytest.fixture
+def coverage_obj_more_files(coverage_obj_no_branch):
+    coverage_obj_no_branch.files[
+        pathlib.Path("codebase/other.py")
+    ] = coverage_module.FileCoverage(
+        path=pathlib.Path("codebase/other.py"),
+        executed_lines=[10, 11, 12],
+        missing_lines=[13],
+        excluded_lines=[],
+        info=coverage_module.CoverageInfo(
+            covered_lines=3,
+            num_statements=4,
+            percent_covered=decimal.Decimal("0.75"),
+            missing_lines=1,
+            excluded_lines=0,
+            num_branches=None,
+            num_partial_branches=None,
+            covered_branches=None,
+            missing_branches=None,
+        ),
+    )
+    return coverage_obj_no_branch
+
+
+@pytest.fixture
+def make_coverage_obj(coverage_obj_more_files):
+    def f(**kwargs):
+        obj = coverage_obj_more_files
+        for key, value in kwargs.items():
+            vars(obj.files[pathlib.Path(key)]).update(value)
+        return obj
+
+    return f
 
 
 @pytest.fixture
@@ -371,7 +387,7 @@ def git(is_failed):
     You get a git object. Register calls on it:
         git.register("git checkout master")(exit_code=1)
     or
-        session.register("git commit", env={"A": "B"})(stdout="Changed branch")
+        git.register("git commit", env={"A": "B"})(stdout="Changed branch")
 
     If the command was not received by the end of the test, it will raise.
     """
