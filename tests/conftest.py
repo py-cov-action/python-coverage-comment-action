@@ -198,6 +198,41 @@ def coverage_obj_no_branch():
 
 
 @pytest.fixture
+def coverage_obj_more_files(coverage_obj_no_branch):
+    coverage_obj_no_branch.files[
+        pathlib.Path("codebase/other.py")
+    ] = coverage_module.FileCoverage(
+        path=pathlib.Path("codebase/other.py"),
+        executed_lines=[10, 11, 12],
+        missing_lines=[13],
+        excluded_lines=[],
+        info=coverage_module.CoverageInfo(
+            covered_lines=3,
+            num_statements=4,
+            percent_covered=decimal.Decimal("0.75"),
+            missing_lines=1,
+            excluded_lines=0,
+            num_branches=None,
+            num_partial_branches=None,
+            covered_branches=None,
+            missing_branches=None,
+        ),
+    )
+    return coverage_obj_no_branch
+
+
+@pytest.fixture
+def make_coverage_obj(coverage_obj_more_files):
+    def f(**kwargs):
+        obj = coverage_obj_more_files
+        for key, value in kwargs.items():
+            vars(obj.files[pathlib.Path(key)]).update(value)
+        return obj
+
+    return f
+
+
+@pytest.fixture
 def diff_coverage_obj():
     return coverage_module.DiffCoverage(
         total_num_lines=5,

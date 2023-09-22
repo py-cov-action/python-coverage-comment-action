@@ -117,12 +117,15 @@ def test_generate_coverage_markdown(mocker):
 
 
 @pytest.mark.parametrize(
-    "added_lines, executed_lines, missing_lines, expected",
+    "added_lines, update_obj, expected",
     [
+        # A first simple example. We added lines 1 and 3 to a file. Coverage
+        # info says that lines 1 and 2 were executed and line 3 was not.
+        # Diff coverage should report that the violation is line 3 and
+        # that the total coverage is 50%.
         (
             {pathlib.Path("codebase/code.py"): [1, 3]},
-            [1, 2],
-            [3],
+            {"codebase/code.py": {"executed_lines": [1, 2], "missing_lines": [3]}},
             coverage.DiffCoverage(
                 total_num_lines=2,
                 total_num_violations=1,
@@ -137,10 +140,14 @@ def test_generate_coverage_markdown(mocker):
                 },
             ),
         ),
+        # A second simple example. This time, the only modified file (code2.py)
+        # is not the same as the files that received coverage info (code.py).
+        # Consequently, no line should be reported as a violation (we could
+        # imagine that the file code2.py only contains comments and is not
+        # covered, nor imported.)
         (
             {pathlib.Path("codebase/code2.py"): [1, 3]},
-            [1, 2],
-            [3],
+            {"codebase/code.py": {"executed_lines": [1, 2], "missing_lines": [3]}},
             coverage.DiffCoverage(
                 total_num_lines=0,
                 total_num_violations=0,
@@ -149,10 +156,12 @@ def test_generate_coverage_markdown(mocker):
                 files={},
             ),
         ),
+        # A third simple example. This time, there's no intersection between
+        # the modified files and the files that received coverage info. We
+        # should not report any violation (and 100% coverage)
         (
             {pathlib.Path("codebase/code.py"): [4, 5, 6]},
-            [1, 2, 3],
-            [7],
+            {"codebase/code.py": {"executed_lines": [1, 2, 3], "missing_lines": [7]}},
             coverage.DiffCoverage(
                 total_num_lines=0,
                 total_num_violations=0,
@@ -167,16 +176,48 @@ def test_generate_coverage_markdown(mocker):
                 },
             ),
         ),
+        # A more complex example with 2 distinct files. We want to check both
+        # that they are individually handled correctly and that the general
+        # stats are correct.
+        (
+            {
+                pathlib.Path("codebase/code.py"): [4, 5, 6],
+                pathlib.Path("codebase/other.py"): [10, 13],
+            },
+            {
+                "codebase/code.py": {
+                    "executed_lines": [1, 2, 3, 5, 6],
+                    "missing_lines": [7],
+                },
+                "codebase/other.py": {
+                    "executed_lines": [10, 11, 12],
+                    "missing_lines": [13],
+                },
+            },
+            coverage.DiffCoverage(
+                total_num_lines=4,  # 2 lines in code.py + 2 lines in other.py
+                total_num_violations=1,  # 1 line in other.py
+                total_percent_covered=decimal.Decimal("0.75"),  # 3/4 lines covered
+                num_changed_lines=5,  # 3 lines in code.py + 2 lines in other.py
+                files={
+                    pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
+                        path=pathlib.Path("codebase/code.py"),
+                        percent_covered=decimal.Decimal("1"),
+                        violation_lines=[],
+                    ),
+                    pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
+                        path=pathlib.Path("codebase/other.py"),
+                        percent_covered=decimal.Decimal("0.5"),
+                        violation_lines=[13],
+                    ),
+                },
+            ),
+        ),
     ],
 )
-def test_get_diff_coverage_info(
-    coverage_obj_no_branch, added_lines, executed_lines, missing_lines, expected
-):
-    cov_file = coverage_obj_no_branch.files[pathlib.Path("codebase/code.py")]
-    cov_file.executed_lines = executed_lines
-    cov_file.missing_lines = missing_lines
+def test_get_diff_coverage_info(make_coverage_obj, added_lines, update_obj, expected):
     result = coverage.get_diff_coverage_info(
-        added_lines=added_lines, coverage=coverage_obj_no_branch
+        added_lines=added_lines, coverage=make_coverage_obj(**update_obj)
     )
     assert result == expected
 
@@ -223,10 +264,15 @@ index 1f1d9a4..e69de29 100644
 +++ b/foo.txt
 @@ -0,0 +1 @@
 +bar
+--- a/bar.txt
++++ b/bar.txt
+@@ -8 +7,0 @@
+-foo
 """
     git.register("git fetch origin main --depth=1000")()
     git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
     assert coverage.parse_diff_output(diff=diff) == {
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
+        pathlib.Path("bar.txt"): [],
     }

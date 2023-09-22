@@ -238,30 +238,26 @@ def get_diff_coverage_info(
 
         missing = set(file.missing_lines) & set(added_lines_for_file)
         count_missing = len(missing)
-        # We don't want to count twice the lines that are both executed and
-        # missing (e.g. the branch lines partially executed)
-        count_total = len(executed | missing)
+        # Even partially covered lines are considered as covered, no line
+        # appears in both counts
+        count_total = count_executed + count_missing
 
         total_num_lines += count_total
         total_num_violations += count_missing
 
-        percent_covered = decimal.Decimal("1")
-        if count_total != 0:
-            # You can't multiply a decimal by a float but you can divide it
-            # by an int, that's why we split the following into 2 lines
-            percent_covered *= count_executed
-            percent_covered /= count_total
+        percent_covered = compute_coverage(
+            num_covered=count_executed, num_total=count_total
+        )
 
         files[path] = FileDiffCoverage(
             path=path,
             percent_covered=percent_covered,
             violation_lines=sorted(missing),
         )
-    final_percentage = decimal.Decimal("1")
-
-    if total_num_lines + total_num_violations != 0:
-        final_percentage *= total_num_lines - total_num_violations
-        final_percentage /= total_num_lines
+    final_percentage = compute_coverage(
+        num_covered=total_num_lines - total_num_violations,
+        num_total=total_num_lines,
+    )
 
     return DiffCoverage(
         total_num_lines=total_num_lines,
