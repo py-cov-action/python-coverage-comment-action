@@ -184,7 +184,7 @@ def coverage_obj_no_branch():
                 info=coverage_module.CoverageInfo(
                     covered_lines=5,
                     num_statements=6,
-                    percent_covered=decimal.Decimal("0.75"),
+                    percent_covered=decimal.Decimal("0.8333"),
                     missing_lines=1,
                     excluded_lines=0,
                     num_branches=None,

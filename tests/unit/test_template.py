@@ -223,7 +223,7 @@ The coverage rate is `75%`.
 <summary>Diff Coverage details (click to unfold)</summary>
 
 ### codebase/code.py
-`80%` of new lines are covered (`75%` of the complete file).
+`80%` of new lines are covered (`83.33%` of the complete file).
 Missing lines: `7`, `9`
 
 </details>
