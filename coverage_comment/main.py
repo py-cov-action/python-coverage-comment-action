@@ -308,6 +308,7 @@ def save_coverage_data_files(
     operations: list[files.Operation] = files.compute_files(
         line_rate=coverage.info.percent_covered,
         raw_coverage_data=raw_coverage_data,
+        coverage_path=config.COVERAGE_PATH,
         minimum_green=config.MINIMUM_GREEN,
         minimum_orange=config.MINIMUM_ORANGE,
         http_session=http_session,

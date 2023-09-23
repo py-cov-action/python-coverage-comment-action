@@ -93,6 +93,7 @@ def test_public_repo(
     assert "coverage" in data
     assert "raw_data" in data
     assert "meta" in data["raw_data"]
+    assert "coverage_path" in data
 
     endpoint = client.get(
         f"{raw_url_prefix}/endpoint.json", follow_redirects=True
