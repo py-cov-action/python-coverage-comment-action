@@ -1,11 +1,4 @@
 changelog:
-  categories:
-    - title: Features, Bugfixes, etc.
-      labels:
-        - '*'
-      exclude:
-        labels:
-          - dependencies
-    - title: Dependencies
-      labels:
-        - dependencies
+  exclude:
+    labels:
+      - dependencies
