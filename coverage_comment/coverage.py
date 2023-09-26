@@ -288,7 +288,8 @@ def parse_diff_output(diff: str) -> dict[pathlib.Path, list[int]]:
             current_file = pathlib.Path(line.removeprefix(added_filename_prefix))
             continue
         if line.startswith("@@"):
-            assert current_file
+            if current_file is None:
+                raise ValueError(f"Unexpected diff output format: \n{diff}")
             lines = parse_line_number_diff_line(line)
             result.setdefault(current_file, []).extend(lines)
             continue
