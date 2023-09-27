@@ -11,7 +11,7 @@
 | coverage\_comment/badge.py          |       19 |        0 |        4 |        0 |    100% |           |
 | coverage\_comment/comment\_file.py  |        3 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/communication.py  |        7 |        0 |        0 |        0 |    100% |           |
-| coverage\_comment/coverage.py       |      112 |        1 |       32 |        1 |     99% |       292 |
+| coverage\_comment/coverage.py       |      112 |        1 |       34 |        1 |     99% |       294 |
 | coverage\_comment/files.py          |       54 |        0 |        6 |        0 |    100% |           |
 | coverage\_comment/github.py         |      101 |        0 |       22 |        0 |    100% |           |
 | coverage\_comment/github\_client.py |       64 |        0 |       14 |        0 |    100% |           |
@@ -22,7 +22,7 @@
 | coverage\_comment/storage.py        |       68 |        0 |        8 |        0 |    100% |           |
 | coverage\_comment/subprocess.py     |       23 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/template.py       |       45 |        0 |        4 |        0 |    100% |           |
-|                           **TOTAL** |  **775** |    **1** |  **178** |    **1** | **99%** |           |
+|                           **TOTAL** |  **775** |    **1** |  **180** |    **1** | **99%** |           |
 
 
 ## Setup coverage badge
