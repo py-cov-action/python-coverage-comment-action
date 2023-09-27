@@ -246,7 +246,15 @@ def test_parse_line_number_diff_line(git, line_number_diff_line, expected):
 
 
 def test_parse_diff_output(git):
-    diff = """diff --git a/README.md b/README.md
+    diff = """diff --git a/action.yml b/action.yml
+deleted file mode 100644
+index 42249d1..0000000
+--- a/action.yml
++++ /dev/null
+@@ -1,2 +0,0 @@
+-name: Python Coverage Comment
+-branding:
+diff --git a/README.md b/README.md
 index 1f1d9a4..e69de29 100644
 --- a/README.md
 +++ b/README.md
@@ -268,11 +276,14 @@ index 1f1d9a4..e69de29 100644
 +++ b/bar.txt
 @@ -8 +7,0 @@
 -foo
+diff --git a/coverage_comment/annotations.py b/coverage_comment/annotations2.py
+similarity index 100%
+rename from coverage_comment/annotations.py
+rename to coverage_comment/annotations2.py
 """
     git.register("git fetch origin main --depth=1000")()
     git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
     assert coverage.parse_diff_output(diff=diff) == {
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
-        pathlib.Path("bar.txt"): [],
     }
