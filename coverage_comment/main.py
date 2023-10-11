@@ -112,6 +112,14 @@ def process_pr(
 ) -> int:
     log.info("Generating comment for PR")
 
+    if not config.GITHUB_PR_NUMBER and not config.GITHUB_BRANCH_NAME:
+        log.info(
+            "This worflow is not triggered on a pull_request event, "
+            "nor on a push event on a branch. Consequently, there's nothing to do. "
+            "Exiting."
+        )
+        return 0
+
     _, coverage = coverage_module.get_coverage_info(
         merge=config.MERGE_COVERAGE_FILES,
         coverage_path=config.COVERAGE_PATH,
@@ -177,7 +185,6 @@ def process_pr(
     if pr_number is None:
         # If we don't have a PR number, we're launched from a push event,
         # so we need to find the PR number from the branch name
-        assert config.GITHUB_BRANCH_NAME
         try:
             pr_number = github.find_pr_for_branch(
                 github=gh,
