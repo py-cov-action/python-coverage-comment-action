@@ -400,6 +400,25 @@ def test_action__push__non_default_branch(
     assert output_file.read_text() == expected_output
 
 
+def test_action__push__no_branch(
+    push_config, session, in_integration_env, git, get_logs
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+
+    result = main.action(
+        config=push_config(
+            GITHUB_REF="refs/tags/v1.0.0",
+        ),
+        github_session=session,
+        http_session=session,
+        git=git,
+    )
+    assert result == 0
+    assert get_logs("INFO", "This worflow is not triggered on a pull_request event")
+
+
 def test_action__push__non_default_branch__no_pr(
     push_config, session, in_integration_env, output_file, summary_file, git
 ):
