@@ -287,3 +287,16 @@ rename to coverage_comment/annotations2.py
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
     }
+
+
+def test_parse_diff_output__error(git):
+    diff = """
+@@ -0,0 +1,1 @@
++name: Python Coverage Comment
+diff --git a/README.md b/README.md
+index 1f1d9a4..e69de29 100644
+"""
+    git.register("git fetch origin main --depth=1000")()
+    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
+    with pytest.raises(ValueError):
+        coverage.parse_diff_output(diff=diff)
