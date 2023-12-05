@@ -4,6 +4,8 @@ import pathlib
 import subprocess
 from typing import Any
 
+from coverage_comment import log
+
 
 class SubProcessError(Exception):
     pass
@@ -24,7 +26,8 @@ def run(*args, path: pathlib.Path, **kwargs) -> str:
             **kwargs,
         ).stdout
     except subprocess.CalledProcessError as exc:
-        raise SubProcessError("\n".join([exc.stdout, exc.stderr])) from exc
+        log.debug(f"Command failed: {args=} {path=} {kwargs=} {exc.stderr=}")
+        raise SubProcessError("\n".join([exc.stderr, exc.stdout])) from exc
 
 
 class Git:
