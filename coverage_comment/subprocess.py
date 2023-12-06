@@ -26,7 +26,9 @@ def run(*args, path: pathlib.Path, **kwargs) -> str:
             **kwargs,
         ).stdout
     except subprocess.CalledProcessError as exc:
-        log.debug(f"Command failed: {args=} {path=} {kwargs=} {exc.stderr=} {exc.returncode=}")
+        log.debug(
+            f"Command failed: {args=} {path=} {kwargs=} {exc.stderr=} {exc.returncode=}"
+        )
         raise SubProcessError("\n".join([exc.stderr, exc.stdout])) from exc
 
 
