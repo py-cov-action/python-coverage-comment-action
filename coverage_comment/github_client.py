@@ -7,6 +7,7 @@ Apache License
 Michael Liao (askxuefeng@gmail.com)
 License: https://github.com/michaelliao/githubpy/blob/96d0c3e729c0b3e3c043a604547ccff17782ac2b/LICENSE.txt
 """
+from __future__ import annotations
 
 __version__ = "1.1.1"
 
@@ -92,7 +93,7 @@ class GitHub:
 
 def response_contents(
     response: httpx.Response,
-) -> "JsonObject | bytes":
+) -> JsonObject | bytes:
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
     return response.content

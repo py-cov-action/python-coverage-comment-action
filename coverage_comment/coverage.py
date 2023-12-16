@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import datetime
 import decimal
@@ -171,8 +173,7 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
             show_contexts=data["meta"]["show_contexts"],
         ),
         files={
-            coverage_path
-            / path: FileCoverage(
+            coverage_path / path: FileCoverage(
                 path=coverage_path / path,
                 excluded_lines=file_data["excluded_lines"],
                 executed_lines=file_data["executed_lines"],

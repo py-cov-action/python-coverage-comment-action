@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextlib
 import functools
 import json as json_module
@@ -23,7 +25,7 @@ def call():
     def _(command, *args, env, **kwargs):
         try:
             call = subprocess.run(
-                [command] + list(args),
+                [command, *list(args)],
                 text=True,
                 check=True,
                 capture_output=True,

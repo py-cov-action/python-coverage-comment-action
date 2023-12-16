@@ -2,6 +2,8 @@
 This module contains info pertaining to the files we intend to save,
 independently from storage specifics (storage.py)
 """
+from __future__ import annotations
+
 import dataclasses
 import decimal
 import json

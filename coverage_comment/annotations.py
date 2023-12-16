@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from coverage_comment import coverage as coverage_module
 from coverage_comment import github
 

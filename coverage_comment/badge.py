@@ -2,6 +2,7 @@
 This module should contain only the things relevant to the badge being computed
 by shields.io
 """
+from __future__ import annotations
 
 import decimal
 import json

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import decimal
 import inspect
@@ -151,7 +153,7 @@ class Config:
     # os.environ is, and just saying `dict[str, str]` is not enough to make
     # mypy happy
     @classmethod
-    def from_environ(cls, environ: MutableMapping[str, str]) -> "Config":
+    def from_environ(cls, environ: MutableMapping[str, str]) -> Config:
         possible_variables = [e for e in inspect.signature(cls).parameters]
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables
@@ -161,7 +163,7 @@ class Config:
                 try:
                     config[key] = func(value)
                 except ValueError as exc:
-                    raise ValueError(f"{key}: {str(exc)}") from exc
+                    raise ValueError(f"{key}: {exc!s}") from exc
 
         try:
             config_obj = cls(**config)

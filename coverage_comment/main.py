@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import logging
 import os
@@ -6,9 +8,10 @@ import sys
 import httpx
 
 from coverage_comment import activity as activity_module
-from coverage_comment import annotations, comment_file, communication
-from coverage_comment import coverage as coverage_module
 from coverage_comment import (
+    annotations,
+    comment_file,
+    communication,
     files,
     github,
     github_client,
@@ -19,6 +22,7 @@ from coverage_comment import (
     subprocess,
     template,
 )
+from coverage_comment import coverage as coverage_module
 
 
 def main():
