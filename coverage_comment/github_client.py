@@ -93,7 +93,7 @@ class GitHub:
 
 def response_contents(
     response: httpx.Response,
-) -> "JsonObject | bytes":
+) -> JsonObject | bytes:
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
     return response.content

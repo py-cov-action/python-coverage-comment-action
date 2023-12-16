@@ -7,7 +7,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 - Python3.11
 - Use [Poetry](https://python-poetry.org/)
 - Launch tests with `pytest`, config is in setup.cfg
-- `black`, `isort`, `flake8` and once mypy will work with 3.10, we'll use it. There's `pre-commit`, so you can install hooks with `pre-commit install`.
+- `ruff` runs through `pre-commit`, so you can install hooks with `pre-commit install`.
 - `docker`. Classic stuff.
 
 ### Launching locally
