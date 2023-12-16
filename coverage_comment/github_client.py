@@ -7,6 +7,7 @@ Apache License
 Michael Liao (askxuefeng@gmail.com)
 License: https://github.com/michaelliao/githubpy/blob/96d0c3e729c0b3e3c043a604547ccff17782ac2b/LICENSE.txt
 """
+from __future__ import annotations
 
 __version__ = "1.1.1"
 

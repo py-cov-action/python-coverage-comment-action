@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from coverage_comment import github

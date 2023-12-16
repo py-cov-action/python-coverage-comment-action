@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import decimal
 from collections.abc import Callable
 from importlib import resources
