@@ -43,7 +43,7 @@ function clone-repo(){
 }
 
 function create-repo(){
-    gh repo create "${GITHUB_REPOSITORY}" --clone --public --description 'Personnal development environment for python-comment-coverage-action' --template "${GITHUB_REPOSITORY_TEMPLATE}"
+    gh repo create "${GITHUB_REPOSITORY}" --clone --public --description 'Personal development environment for python-comment-coverage-action' --template "${GITHUB_REPOSITORY_TEMPLATE}"
     repo_dirname=$(basename ${GITHUB_REPOSITORY})
     mv "${repo_dirname}/"{*,.*} .
     rmdir "${repo_dirname}"
