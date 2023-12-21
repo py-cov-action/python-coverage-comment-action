@@ -71,7 +71,7 @@ badge to your Readme will be displayed in:
 
 ### Basic usage
 
-The following snippet is targetted for cases where you expect PRs from
+The following snippet is targeted for cases where you expect PRs from
 users that don't have write access to the repository. Posting the comment
 is done in 2 steps:
 
@@ -504,11 +504,11 @@ jobs:
 ## Pinning
 
 On the examples above, the version was set to the tag `v3`. Pinning to a major version
-will give you the latest release on this version. (Note that we release everytime after
+will give you the latest release on this version. (Note that we release every time after
 a PR is merged). Pinning to a specific version (`v3.1` for example) would make the
 action more reproducible, though you'd have to update it regularly (e.g. using
 Dependabot). You can also pin a commit hash if you want to be 100% sure of what you run,
-given that tags are mutable. Finally, You can also decide to pin to main, if you're ok
+given that tags are mutable. Finally, You can also decide to pin to main, if you're OK
 with the action maybe breaking when (if) we release a v4.
 
 ## Note on the state of this action
@@ -571,5 +571,5 @@ to use the svg badge directly, and not the `shields.io` URL.
 ## Upgrading from v2 to v3
 
 - When upgrading, we change the location and format where the coverage
-  data is kept. Pull request that have not been rebased may be displaying
+  data is kept. Pull request that have not been re-based may be displaying
   slightly wrong information.

@@ -27,7 +27,7 @@ You'll need a GitHub token to test the action locally. You have 3 choices:
   for the action (you may need to define additional scopes with
   `gh auth refresh --scope=...`)
 - After launching `dev-env`, run `create-token` to interactively create a
-  personnal access token (feel free to then save it to `dev-env-vars`)
+  personal access token (feel free to then save it to `dev-env-vars`)
 
 #### Manually
 ```console
@@ -52,7 +52,7 @@ To run the end-to-end tests, you'll need:
 
 - `gh` [installed](https://cli.github.com/)
 - 2 envvars `COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1` and `COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2` containing
-  personnal access tokens for 2 distinct users. You may omit the 2nd user but
+  personal access tokens for 2 distinct users. You may omit the 2nd user but
   some tests won't run. Use [this
   link](https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo&description=Python%20Coverage%20Comment%20Action%20CI%20-%20User%201)
   to generate tokens with the proper configuration.
