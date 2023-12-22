@@ -9,7 +9,9 @@ import httpx
 
 from coverage_comment import activity as activity_module
 from coverage_comment import (
-    annotations,
+    annotations as annotations_module,
+)
+from coverage_comment import (
     comment_file,
     communication,
     files,
@@ -201,8 +203,15 @@ def process_pr(
             pr_number = None
 
     if pr_number is not None and config.ANNOTATE_MISSING_LINES:
-        annotations.create_pr_annotations(
-            annotation_type=config.ANNOTATION_TYPE, diff_coverage=diff_coverage
+        annotations = annotations_module.group_annotations(
+            coverage=coverage, diff_coverage=diff_coverage
+        )
+        github.create_missing_coverage_annotations(
+            annotation_type=config.ANNOTATION_TYPE,
+            annotations=[
+                (annotation.file, annotation.line_start, annotation.line_end)
+                for annotation in annotations
+            ],
         )
 
     try:
