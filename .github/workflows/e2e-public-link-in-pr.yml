@@ -13,7 +13,12 @@ jobs:
     steps:
       - run: |
           gh pr comment ${LINK} --body-file - <<EOF
-            [End-to-end public repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public)
+          [End-to-end public repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public)
+
+          Other commands:
+
+          - Have an admin approve a review with /e2e to trigger end-to-end tests on external contributions
+          - Comment with /invite to invite the author & admins to the end-to-end private repo
           EOF
         env:
           LINK: ${{ github.event.pull_request.html_url }}
