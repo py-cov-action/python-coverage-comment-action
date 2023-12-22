@@ -1,8 +1,8 @@
-name: Running end-to-end tests on external PR approval
+name: Run end-to-end tests on external PR approval
 
 on:
   workflow_run:
-    workflows: ["Scheduling end-to-end tests on external PR approval"]
+    workflows: ["Trigger end-to-end tests on external PR approval"]
     types:
       - completed
 
@@ -34,7 +34,7 @@ jobs:
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
           GH_TOKEN: ${{ github.token }}
-    
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
