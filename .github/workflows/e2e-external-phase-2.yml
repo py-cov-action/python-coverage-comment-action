@@ -19,12 +19,12 @@ jobs:
       - name: Extract the approved commit
         id: extract
         run: |
-          PR_NUMBER=$(gh api "repos/:owner/:repo/actions/runs/${RUN_ID}" --jq '.pull_requests | first | .number')
+          PR_NUMBER=$(gh api "repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}" --jq '.pull_requests | first | .number')
           if [ -z "${PR_NUMBER}" ]; then
             echo "No PR number found"
             exit 1
           fi
-          COMMIT_ID=$(gh pr view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER") | .commit.oid] | last')
+          COMMIT_ID=$(gh pr --repo py-cov-action/python-coverage-comment-action view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER") | .commit.oid] | last')
           if [ -z "${COMMIT_ID}" ]; then
           echo "No approved commit found"
           exit 1
