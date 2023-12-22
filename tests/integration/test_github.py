@@ -63,8 +63,8 @@ def test_download_artifact(gh, session, zip_bytes):
         github=gh,
         repository="foo/bar",
         artifact_name="foo",
-        run_id="123",
-        filename="foo.txt",
+        run_id=123,
+        filename=pathlib.Path("foo.txt"),
     )
 
     assert result == "bar"
@@ -83,8 +83,8 @@ def test_download_artifact__no_artifact(gh, session):
             github=gh,
             repository="foo/bar",
             artifact_name="foo",
-            run_id="123",
-            filename="foo.txt",
+            run_id=123,
+            filename=pathlib.Path("foo.txt"),
         )
 
 
@@ -104,8 +104,8 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
             github=gh,
             repository="foo/bar",
             artifact_name="foo",
-            run_id="123",
-            filename="bar.txt",
+            run_id=123,
+            filename=pathlib.Path("bar.txt"),
         )
 
 
@@ -301,6 +301,10 @@ def test_set_output(output_file):
     github.set_output(github_output=output_file, foo=True)
 
     assert output_file.read_text() == "foo=true\n"
+
+
+def test_set_output__empty():
+    assert github.set_output(github_output=None, foo=True) is None
 
 
 def test_get_workflow_command():
