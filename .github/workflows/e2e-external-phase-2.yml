@@ -33,7 +33,8 @@ jobs:
           echo "COMMIT_ID=${COMMIT_ID}" > "${GITHUB_OUTPUT}"
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
-
+          GH_TOKEN: ${{ github.token }}
+    
       - name: Checkout
         uses: actions/checkout@v4
         with:
