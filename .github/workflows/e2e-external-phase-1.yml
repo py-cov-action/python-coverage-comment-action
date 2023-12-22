@@ -1,0 +1,21 @@
+name: Scheduling end-to-end tests on external PR approval
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: ${{ github.event_name }}-${{ github.ref }}
+
+jobs:
+  test:
+    name: Run end to end tests
+    # If reviewed by a repo(/org) owner
+    if: |
+      github.event.pull_request.author_association != 'MEMBER'
+      && github.event.review.author_association == 'MEMBER'
+      && github.event.review.state == 'approved'
+      && contains(github.event.review.body, '/e2e')
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
