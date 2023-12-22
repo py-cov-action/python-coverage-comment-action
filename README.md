@@ -254,7 +254,7 @@ jobs:
       - name: Store coverage file
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
 
   coverage:
@@ -270,7 +270,8 @@ jobs:
       - uses: actions/download-artifact@v4
         id: download
         with:
-          name: "coverage"
+          pattern: coverage-*
+          merge-multiple: true
 
       - name: Coverage comment
         id: coverage_comment
