@@ -19,23 +19,26 @@ class Annotation:
 
 
 def compute_contiguous_groups(
-    violations: list[int], separators: set[int]
+    values: list[int], separators: set[int], joiners: set[int]
 ) -> list[tuple[int, int]]:
     """
-    Given a list of violations and a list of separators, return a list of
-    ranges (start, included end) describing groups of violations. A group of
-    violations is considered contiguous if there are no more than
-    MAX_ANNOTATION_GAP lines between each subsequent pair of violations in the
-    group, and if none of the lines in the gap are separators.
+    Given a list of (sorted) values, a list of separators and a list of
+    joiners, return a list of ranges (start, included end) describing groups of
+    values.
+
+    Groups are created by joining contiguous values together, and in some cases
+    by merging groups, enclosing a gap of values between them. Gaps that may be
+    enclosed are small gaps (<= MAX_ANNOTATION_GAP values after removing all
+    joiners) where no line is a "separator"
     """
     contiguous_groups: list[tuple[int, int]] = []
     for _, contiguous_group in itertools.groupby(
-        zip(violations, itertools.count(1)), lambda x: x[1] - x[0]
+        zip(values, itertools.count(1)), lambda x: x[1] - x[0]
     ):
-        grouped_violations = (e[0] for e in contiguous_group)
-        first = next(grouped_violations)
+        grouped_values = (e[0] for e in contiguous_group)
+        first = next(grouped_values)
         try:
-            *_, last = grouped_violations
+            *_, last = grouped_values
         except ValueError:
             last = first
         contiguous_groups.append((first, last))
@@ -50,8 +53,10 @@ def compute_contiguous_groups(
         last_start, last_end = last_group
         next_start, next_end = group
 
-        gap_is_small = next_start - last_end - 1 <= MAX_ANNOTATION_GAP
-        gap_contains_separators = set(range(last_end + 1, next_start)) & separators
+        gap = set(range(last_end + 1, next_start)) - joiners
+
+        gap_is_small = len(gap) <= MAX_ANNOTATION_GAP
+        gap_contains_separators = gap & separators
 
         if gap_is_small and not gap_contains_separators:
             acc[-1] = (last_start, next_end)
@@ -70,7 +75,6 @@ def group_annotations(
     for path, diff_file in diff_coverage.files.items():
         coverage_file = coverage.files[path]
 
-        violations = diff_file.violation_lines
         # Lines that are covered or excluded should not be considered for
         # filling a gap between violation groups.
         # (so, lines that can appear in a gap are lines that are missing, or
@@ -79,9 +83,14 @@ def group_annotations(
             *coverage_file.executed_lines,
             *coverage_file.excluded_lines,
         }
+        # Lines that are added should be considered for filling a gap, unless
+        # they are separators.
+        joiners = set(diff_file.added_lines) - separators
 
         for start, end in compute_contiguous_groups(
-            violations=violations, separators=separators
+            values=diff_file.missing_lines,
+            separators=separators,
+            joiners=joiners,
         ):
             yield Annotation(
                 file=path,

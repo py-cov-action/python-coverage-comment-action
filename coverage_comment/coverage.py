@@ -5,7 +5,7 @@ import datetime
 import decimal
 import json
 import pathlib
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 from coverage_comment import log, subprocess
 
@@ -57,7 +57,13 @@ class Coverage:
 class FileDiffCoverage:
     path: pathlib.Path
     percent_covered: decimal.Decimal
-    violation_lines: list[int]
+    missing_lines: list[int]
+    added_lines: list[int]
+
+    # for backward compatibility
+    @property
+    def violation_lines(self) -> list[int]:
+        return self.missing_lines
 
 
 @dataclasses.dataclass
@@ -253,7 +259,8 @@ def get_diff_coverage_info(
         files[path] = FileDiffCoverage(
             path=path,
             percent_covered=percent_covered,
-            violation_lines=sorted(missing),
+            missing_lines=sorted(missing),
+            added_lines=added_lines_for_file,
         )
     final_percentage = compute_coverage(
         num_covered=total_num_lines - total_num_violations,
@@ -298,7 +305,7 @@ def parse_diff_output(diff: str) -> dict[pathlib.Path, list[int]]:
     return result
 
 
-def parse_line_number_diff_line(line: str) -> Iterable[int]:
+def parse_line_number_diff_line(line: str) -> Sequence[int]:
     """
     Parse the "added" part of the line number diff text:
         @@ -60,0 +61 @@ def compute_files(  -> [61]
