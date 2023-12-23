@@ -115,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
@@ -252,9 +252,9 @@ jobs:
           # directly or through PYTEST_ADD_OPTS.
 
       - name: Store coverage file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
 
   coverage:
@@ -267,10 +267,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         id: download
         with:
-          name: "coverage"
+          pattern: coverage-*
+          merge-multiple: true
 
       - name: Coverage comment
         id: coverage_comment
@@ -280,7 +281,7 @@ jobs:
           MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -454,7 +455,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment_1.outputs.COMMENT_FILE_WRITTEN == 'true' || steps.coverage_comment_2.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action

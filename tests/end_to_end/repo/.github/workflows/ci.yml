@@ -44,7 +44,7 @@ jobs:
           SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
