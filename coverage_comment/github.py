@@ -10,8 +10,6 @@ import zipfile
 from coverage_comment import github_client, log
 
 GITHUB_ACTIONS_LOGIN = "github-actions[bot]"
-MISSING_COVERAGE_MESSAGE = "Missing coverage"
-MISSING_LINES_GROUP_TITLE = "Annotations of lines with missing coverage"
 
 
 class CannotDeterminePR(Exception):
@@ -209,16 +207,24 @@ def create_missing_coverage_annotations(
     annotation_type: The type of annotation to create. Can be either "error" or "warning".
     annotations: A list of tuples of the form (file, line_start, line_end)
     """
-    send_workflow_command(command="group", command_value=MISSING_LINES_GROUP_TITLE)
+    send_workflow_command(
+        command="group", command_value="Annotations of lines with missing coverage"
+    )
     for file, line_start, line_end in annotations:
+        if line_start == line_end:
+            message = f"Missing coverage on line {line_start}"
+        else:
+            message = f"Missing coverage on lines {line_start}-{line_end}"
+
         send_workflow_command(
             command=annotation_type,
-            command_value=MISSING_COVERAGE_MESSAGE,
+            command_value=message,
             # This will produce \ paths when running on windows.
             # GHA doc is unclear whether this is right or not.
             file=str(file),
             line=str(line_start),
             endLine=str(line_end),
+            title="Missing coverage",
         )
     send_workflow_command(command="endgroup", command_value="")
 
