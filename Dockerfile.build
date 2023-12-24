@@ -15,11 +15,13 @@ RUN git config --system --add safe.directory '*'
 WORKDIR /workdir
 
 COPY pyproject.toml ./
+RUN md5sum pyproject.toml > pyproject.toml.md5
+
 COPY coverage_comment ./coverage_comment
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PIP_NO_CACHE_DIR=off
 
-RUN pip install .
+RUN pip install -e .
 
 CMD [ "coverage_comment" ]
