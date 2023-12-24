@@ -137,7 +137,8 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("0.5"),
-                        violation_lines=[3],
+                        missing_lines=[3],
+                        added_lines=[1, 3],
                     )
                 },
             ),
@@ -173,7 +174,8 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("1"),
-                        violation_lines=[],
+                        missing_lines=[],
+                        added_lines=[4, 5, 6],
                     )
                 },
             ),
@@ -205,12 +207,14 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("1"),
-                        violation_lines=[],
+                        missing_lines=[],
+                        added_lines=[4, 5, 6],
                     ),
                     pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/other.py"),
                         percent_covered=decimal.Decimal("0.5"),
-                        violation_lines=[13],
+                        missing_lines=[13],
+                        added_lines=[10, 13],
                     ),
                 },
             ),

@@ -138,12 +138,14 @@ def test_template_full():
             pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.5"),
-                violation_lines=[5],
+                missing_lines=[5],
+                added_lines=[5],
             ),
             pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
                 path=pathlib.Path("codebase/other.py"),
                 percent_covered=decimal.Decimal("1"),
-                violation_lines=[],
+                missing_lines=[],
+                added_lines=[4, 5, 6],
             ),
         },
     )
