@@ -63,8 +63,8 @@ def test_download_artifact(gh, session, zip_bytes):
         github=gh,
         repository="foo/bar",
         artifact_name="foo",
-        run_id="123",
-        filename="foo.txt",
+        run_id=123,
+        filename=pathlib.Path("foo.txt"),
     )
 
     assert result == "bar"
@@ -83,8 +83,8 @@ def test_download_artifact__no_artifact(gh, session):
             github=gh,
             repository="foo/bar",
             artifact_name="foo",
-            run_id="123",
-            filename="foo.txt",
+            run_id=123,
+            filename=pathlib.Path("foo.txt"),
         )
 
 
@@ -104,8 +104,8 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
             github=gh,
             repository="foo/bar",
             artifact_name="foo",
-            run_id="123",
-            filename="bar.txt",
+            run_id=123,
+            filename=pathlib.Path("bar.txt"),
         )
 
 
@@ -303,6 +303,10 @@ def test_set_output(output_file):
     assert output_file.read_text() == "foo=true\n"
 
 
+def test_set_output__empty():
+    assert github.set_output(github_output=None, foo=True) is None
+
+
 def test_get_workflow_command():
     output = github.get_workflow_command(
         command="foo", command_value="bar", file="main.py", line="1", title="someTitle"
@@ -325,27 +329,6 @@ def test_send_workflow_command(capsys):
     assert output.err.strip() == "::foo file=main.py,line=1,title=someTitle::bar"
 
 
-def test_create_missing_coverage_annotation(capsys):
-    github.create_missing_coverage_annotation(
-        annotation_type="warning", file=pathlib.Path("test.py"), line=42
-    )
-    output = capsys.readouterr()
-    assert (
-        output.err.strip()
-        == "::warning file=test.py,line=42::This line has no coverage"
-    )
-
-
-def test_create_missing_coverage_annotation__annotation_type(capsys):
-    github.create_missing_coverage_annotation(
-        annotation_type="error", file=pathlib.Path("test.py"), line=42
-    )
-    output = capsys.readouterr()
-    assert (
-        output.err.strip() == "::error file=test.py,line=42::This line has no coverage"
-    )
-
-
 def test_add_job_summary(summary_file):
     github.add_job_summary(
         content="[job summary part 1]\n", github_step_summary=summary_file
@@ -356,3 +339,20 @@ def test_add_job_summary(summary_file):
         content="[job summary part 2]", github_step_summary=summary_file
     )
     assert summary_file.read_text() == "[job summary part 1]\n[job summary part 2]"
+
+
+def test_annotations(capsys):
+    github.create_missing_coverage_annotations(
+        annotation_type="warning",
+        annotations=[
+            (pathlib.Path("codebase/code.py"), 1, 3),
+            (pathlib.Path("codebase/main.py"), 5, 5),
+        ],
+    )
+
+    expected = """::group::Annotations of lines with missing coverage
+::warning file=codebase/code.py,line=1,endLine=3,title=Missing coverage::Missing coverage on lines 1-3
+::warning file=codebase/main.py,line=5,endLine=5,title=Missing coverage::Missing coverage on line 5
+::endgroup::"""
+    output = capsys.readouterr()
+    assert output.err.strip() == expected

@@ -130,7 +130,7 @@ class Config:
 
     @property
     def GITHUB_BRANCH_NAME(self) -> str | None:
-        # "refs/head/my_branch_name"
+        # "refs/heads/my_branch_name"
         if "heads" in self.GITHUB_REF:
             return self.GITHUB_REF.split("/", 2)[2]
         return None

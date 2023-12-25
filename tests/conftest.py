@@ -245,7 +245,8 @@ def diff_coverage_obj():
             pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.8"),
-                violation_lines=[7, 9],
+                missing_lines=[7, 9],
+                added_lines=[7, 8, 9],
             )
         },
     )
@@ -262,12 +263,14 @@ def diff_coverage_obj_many_missing_lines():
             pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.8"),
-                violation_lines=[7, 9],
+                missing_lines=[7, 9],
+                added_lines=[7, 8, 9],
             ),
             pathlib.Path("codebase/main.py"): coverage_module.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.8"),
-                violation_lines=[1, 2, 8, 17],
+                missing_lines=[1, 2, 8, 17],
+                added_lines=[1, 2, 3, 4, 5, 6, 7, 8, 17],
             ),
         },
     )
