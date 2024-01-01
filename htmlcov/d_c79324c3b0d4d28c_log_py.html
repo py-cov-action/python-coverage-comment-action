@@ -5,6 +5,49 @@
     <title>Coverage for coverage_comment/log.py: 100%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/integration/test_github.py::test_find_pr_for_branch__no_open_pr|run",
+  "c": "tests/integration/test_github.py::test_find_pr_for_branch__no_pr|run",
+  "d": "tests/integration/test_github.py::test_post_comment__create[existing_comments0]|run",
+  "e": "tests/integration/test_github.py::test_post_comment__create[existing_comments1]|run",
+  "f": "tests/integration/test_github.py::test_post_comment__create[existing_comments2]|run",
+  "g": "tests/integration/test_github.py::test_post_comment__create_error|run",
+  "h": "tests/integration/test_github.py::test_post_comment__update_error|run",
+  "i": "tests/integration/test_github.py::test_post_comment__update|run",
+  "j": "tests/integration/test_main.py::test_action__invalid_event_name|run",
+  "k": "tests/integration/test_main.py::test_action__pull_request__annotations|run",
+  "l": "tests/integration/test_main.py::test_action__pull_request__force_store_comment|run",
+  "m": "tests/integration/test_main.py::test_action__pull_request__post_comment__no_marker|run",
+  "n": "tests/integration/test_main.py::test_action__pull_request__post_comment__template_error|run",
+  "o": "tests/integration/test_main.py::test_action__pull_request__post_comment|run",
+  "p": "tests/integration/test_main.py::test_action__pull_request__store_comment_not_targeting_default|run",
+  "q": "tests/integration/test_main.py::test_action__pull_request__store_comment|run",
+  "r": "tests/integration/test_main.py::test_action__push__default_branch__private|run",
+  "s": "tests/integration/test_main.py::test_action__push__default_branch|run",
+  "t": "tests/integration/test_main.py::test_action__push__no_branch|run",
+  "u": "tests/integration/test_main.py::test_action__push__non_default_branch__no_pr|run",
+  "v": "tests/integration/test_main.py::test_action__push__non_default_branch|run",
+  "w": "tests/integration/test_main.py::test_action__workflow_run__no_artifact|run",
+  "x": "tests/integration/test_main.py::test_action__workflow_run__no_pr_number|run",
+  "y": "tests/integration/test_main.py::test_action__workflow_run__no_pr|run",
+  "z": "tests/integration/test_main.py::test_action__workflow_run__post_comment|run",
+  "A": "tests/unit/test_coverage.py::test_get_coverage_info__error_no_source|run",
+  "B": "tests/unit/test_files.py::test_replace_dir|run",
+  "C": "tests/unit/test_files.py::test_write_file|run",
+  "D": "tests/unit/test_main.py::test_main__exception|run",
+  "E": "tests/unit/test_main.py::test_main|run",
+  "F": "tests/unit/test_settings.py::test_config__verbose_deprecated|run",
+  "G": "tests/unit/test_storage.py::test_checked_out_branch__branch_does_not_exist|run",
+  "H": "tests/unit/test_storage.py::test_checked_out_branch__detached_head|run",
+  "I": "tests/unit/test_storage.py::test_checked_out_branch__fetch_fails|run",
+  "J": "tests/unit/test_storage.py::test_checked_out_branch|run",
+  "K": "tests/unit/test_storage.py::test_commit_operations__no_diff|run",
+  "L": "tests/unit/test_storage.py::test_commit_operations|run",
+  "M": "tests/unit/test_subprocess.py::test_run__error|run"
+}
+    </script>
     <script type="text/javascript" src="coverage_html.js" defer></script>
 </head>
 <body class="pyfile">
@@ -62,12 +105,12 @@
             <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">0<span class="text"> partial</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="d_c79324c3b0d4d28c_github_client_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="d_c79324c3b0d4d28c_groups_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_log_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.0">coverage.py v7.4.0</a>,
-            created at 2024-01-01 21:32 +0000
+            created at 2024-01-01 23:02 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -82,25 +125,25 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">import</span> <span class="nam">logging</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">import</span> <span class="nam">logging</span>&nbsp;</span><span class="r"><label for="ctxs3" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="str">"coverage_comment"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="str">"coverage_comment"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs5" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">__getattr__</span><span class="op">(</span><span class="nam">name</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="key">return</span> <span class="nam">getattr</span><span class="op">(</span><span class="nam">logger</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">__getattr__</span><span class="op">(</span><span class="nam">name</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="key">return</span> <span class="nam">getattr</span><span class="op">(</span><span class="nam">logger</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs9" /><span class="r"><label for="ctxs9" class="ctx">38 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a id="prevFileLink" class="nav" href="d_c79324c3b0d4d28c_github_client_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="d_c79324c3b0d4d28c_groups_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_log_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.0">coverage.py v7.4.0</a>,
-            created at 2024-01-01 21:32 +0000
+            created at 2024-01-01 23:02 +0000
         </p>
     </div>
 </footer>
