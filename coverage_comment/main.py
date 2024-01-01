@@ -9,11 +9,9 @@ import httpx
 
 from coverage_comment import activity as activity_module
 from coverage_comment import (
-    annotations as annotations_module,
-)
-from coverage_comment import (
     comment_file,
     communication,
+    diff_grouper,
     files,
     github,
     github_client,
@@ -151,16 +149,33 @@ def process_pr(
             branch=config.FINAL_COVERAGE_DATA_BRANCH,
         )
 
-    previous_coverage = None
+    previous_coverage, previous_coverage_rate = None, None
     if previous_coverage_data_file:
-        previous_coverage = files.parse_datafile(contents=previous_coverage_data_file)
+        previous_coverage, previous_coverage_rate = files.parse_datafile(
+            contents=previous_coverage_data_file
+        )
 
     marker = template.get_marker(marker_id=config.SUBPROJECT_ID)
+
+    files_info, count_files = template.select_files(
+        coverage=coverage,
+        diff_coverage=diff_coverage,
+        previous_coverage=previous_coverage,
+        max_files=config.MAX_FILES_IN_COMMENT,
+    )
     try:
         comment = template.get_comment_markdown(
             coverage=coverage,
             diff_coverage=diff_coverage,
-            previous_coverage_rate=previous_coverage,
+            previous_coverage=previous_coverage,
+            previous_coverage_rate=previous_coverage_rate,
+            files=files_info,
+            count_files=count_files,
+            max_files=config.MAX_FILES_IN_COMMENT,
+            minimum_green=config.MINIMUM_GREEN,
+            minimum_orange=config.MINIMUM_ORANGE,
+            repo_name=config.GITHUB_REPOSITORY,
+            pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
             pr_targets_default_branch=pr_targets_default_branch,
@@ -203,7 +218,7 @@ def process_pr(
             pr_number = None
 
     if pr_number is not None and config.ANNOTATE_MISSING_LINES:
-        annotations = annotations_module.group_annotations(
+        annotations = diff_grouper.get_diff_missing_groups(
             coverage=coverage, diff_coverage=diff_coverage
         )
         github.create_missing_coverage_annotations(
