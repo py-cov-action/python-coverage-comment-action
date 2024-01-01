@@ -4,16 +4,28 @@
 
 ## Presentation
 
-Publish diff coverage report as PR comment, create a coverage badge to
-display on the readme, and a browsable HTML coverage report (hosted in a dedicated
-branch of the repository)
+This action analyses the coverage data produced by the Python 
+[coverage](https://coverage.readthedocs.io) library and produces:
+
+- A badge to display on your README
+- A comment in the pull requests detailing how the PR impacts the coverage:
+  - Old and new coverage rates per file and total
+  - Coverage of new lines per file and total
+- (optional) Annotations on lines missing coverage displayed in the PR directly
+- A [Job Summary](https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/)
+- A browsable folder containing:
+  - The coverage summary
+  - The full HTML coverage in a browsable format (not available for private repos)
+ 
+All of this is free of charge and runs on the GitHub infrastructure: your code isn't sent
+anywhere out of GitHub.
 
 [See this action in action](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
 ## What does it do?
 
 This action operates on an already generated `.coverage` file from
-[coverage](https://coverage.readthedocs.io/en/6.2/).
+[coverage](https://coverage.readthedocs.io).
 
 It has two main modes of operation:
 
