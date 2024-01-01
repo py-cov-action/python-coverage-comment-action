@@ -4,7 +4,7 @@
 
 ## Presentation
 
-This action analyses the coverage data produced by the Python 
+This action analyses the coverage data produced by the Python
 [coverage](https://coverage.readthedocs.io) library and produces:
 
 - A badge to display on your README
@@ -16,7 +16,7 @@ This action analyses the coverage data produced by the Python
 - A browsable folder containing:
   - The coverage summary
   - The full HTML coverage in a browsable format (not available for private repos)
- 
+
 All of this is free of charge and runs on the GitHub infrastructure: your code isn't sent
 anywhere out of GitHub.
 
