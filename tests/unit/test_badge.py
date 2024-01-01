@@ -24,6 +24,27 @@ def test_get_badge_color(rate, expected):
     assert color == expected
 
 
+@pytest.mark.parametrize(
+    "delta, up_is_good, neutral_color, expected",
+    [
+        (decimal.Decimal("-5"), True, "lightgrey", "red"),
+        (decimal.Decimal("5"), True, "lightgrey", "brightgreen"),
+        (decimal.Decimal("-5"), False, "lightgrey", "brightgreen"),
+        (decimal.Decimal("5"), False, "lightgrey", "red"),
+        (decimal.Decimal("0"), False, "blue", "blue"),
+        (decimal.Decimal("0"), False, "lightgrey", "lightgrey"),
+        (decimal.Decimal("0"), True, "lightgrey", "lightgrey"),
+    ],
+)
+def test_get_evolution_badge_color(delta, up_is_good, neutral_color, expected):
+    color = badge.get_evolution_badge_color(
+        delta=delta,
+        up_is_good=up_is_good,
+        neutral_color=neutral_color,
+    )
+    assert color == expected
+
+
 def test_compute_badge_endpoint_data():
     badge_data = badge.compute_badge_endpoint_data(
         line_rate=decimal.Decimal("27.42"), color="red"

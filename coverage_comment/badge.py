@@ -24,6 +24,19 @@ def get_badge_color(
         return "red"
 
 
+def get_evolution_badge_color(
+    delta: decimal.Decimal | int,
+    up_is_good: bool = True,
+    neutral_color: str = "lightgrey",
+) -> str:
+    if delta == 0:
+        return neutral_color
+    elif (delta > 0) is up_is_good:
+        return "brightgreen"
+    else:
+        return "red"
+
+
 def compute_badge_endpoint_data(
     line_rate: decimal.Decimal,
     color: str,
