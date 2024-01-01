@@ -1,78 +1,264 @@
-{% block title %}## Coverage report{% if subproject_id %} ({{ subproject_id  }}){% endif %}{% endblock title %}
-{% block coverage_evolution -%}
-{% if previous_coverage_rate -%}
-{% block coverage_evolution_wording -%}
-The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}`{{" "}}
-{%- endblock coverage_evolution_wording %}
-{%- block emoji_coverage -%}
-{%- if previous_coverage_rate | float < coverage.info.percent_covered | float -%}
-{%- block emoji_coverage_up -%}:arrow_up:{%- endblock emoji_coverage_up -%}
-{%- elif previous_coverage_rate | float > coverage.info.percent_covered | float -%}
-{%- block emoji_coverage_down -%}:arrow_down:{%- endblock emoji_coverage_down -%}
+{%- block title -%}## Coverage report{%- if subproject_id %} ({{ subproject_id  }}){%- endif -%}{%- endblock title%}
+
+{# Coverage evolution badge #}
+{% block coverage_badges -%}
+{%- block coverage_evolution_badge -%}
+{%- if previous_coverage_rate %}
+{%- set text = "Coverage for the whole project went from " ~ (previous_coverage_rate | pct) ~ " to " ~ (coverage.info.percent_covered | pct) -%}
+{%- set color = (coverage.info.percent_covered - previous_coverage_rate) | get_evolution_color(neutral_color='blue') -%}
+<img title="{{ text }}" src="{{ 'Coverage evolution' | generate_badge(message=(previous_coverage_rate | pct(precision=0)) ~ ' > ' ~ coverage.info.percent_covered | pct(precision=0), color=color) }}">
+
 {%- else -%}
-{%- block emoji_coverage_constant -%}:arrow_right:{%- endblock emoji_coverage_constant -%}
-{%- endif %}
-{%- endblock emoji_coverage -%}
+{%- set text = "Coverage for the whole project is " ~ (coverage.info.percent_covered | pct) ~ ". Previous coverage rate is not available, cannot report on evolution." -%}
+{%- set color = coverage.info.percent_covered | x100 | get_badge_color -%}
+<img title="{{ text }}" src="{{ 'Coverage' | generate_badge(message=(coverage.info.percent_covered | pct(precision=0)), color=color) }}">
+
+{%- endif -%}
+{%- endblock coverage_evolution_badge -%}
+
+{#- Coverage diff badge -#}
+{#- space #} {# space -#}
+{%- block diff_coverage_badge -%}
+{%- set text = (diff_coverage.total_percent_covered | pct) ~ " of the statement lines added by this PR are covered" -%}
+<img title="{{ text }}" src="{{ 'PR Coverage' | generate_badge(message=diff_coverage.total_percent_covered | pct(precision=0), color=diff_coverage.total_percent_covered | x100 | get_badge_color) }}">
+
+{%- endblock diff_coverage_badge -%}
+{%- endblock coverage_badges -%}
+
+
+{%- macro statements_badge(path, statements_count, previous_statements_count) -%}
+{% if previous_statements_count is not none -%}
+{% set statements_diff = statements_count - previous_statements_count %}
+{% if statements_diff > 0 -%}
+{% set text = "This PR adds " ~ statements_diff ~ " to the number of statements in " ~ path ~ ", taking it from " ~ previous_statements_count ~ " to " ~ statements_count ~"." -%}
+{% set color = "007ec6" -%}
+{% elif statements_diff < 0 -%}
+{% set text = "This PR removes " ~ (-statements_diff) ~ " from the number of statements in " ~ path ~ ", taking it from " ~ previous_statements_count ~ " to " ~ statements_count ~"." -%}
+{% set color = "49c2ee" -%}
+{% else -%}
+{% set text = "This PR doesn't change the number of statements in " ~ path ~ ", which is " ~ statements_count ~ "." -%}
+{% set color = "5d89ba" -%}
+{% endif -%}
+{% set message = statements_diff %}
+{% else -%}
+{% set text = "This PR adds " ~ statements_count ~ " statement" ~ (statements_count | pluralize) ~ " to " ~ path ~ ". The file did not seem to exist on the base branch." -%}
+{% set color = "007ec6" -%}
+{% set message = statements_count %}
+{% endif -%}
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ statements_count | string | generate_badge(message=(message | delta), color=color) }}"></a></td>
+
+{%- endmacro -%}
+
+{%- macro missing_lines_badge(path, missing_lines_count, previous_missing_lines_count) -%}
+{%- if previous_missing_lines_count is not none -%}
+{%- set missing_diff = missing_lines_count - previous_missing_lines_count %}
+{%- if missing_diff > 0 -%}
+{%- set text = "This PR adds " ~ missing_diff ~ " to the number of statements missing coverage in " ~ path ~ ", taking it from " ~ previous_missing_lines_count ~ " to " ~ missing_lines_count ~ "." -%}
+{%- elif missing_diff < 0 -%}
+{%- set text = "This PR removes " ~ (-missing_diff) ~ " from the number of statements missing coverage in " ~ path ~ ", taking it from " ~ previous_missing_lines_count ~ " to " ~ missing_lines_count ~ "." -%}
 {%- else -%}
-{% block no_comparison_info -%}
-{%- if pr_targets_default_branch -%}
-{% block no_comparison_info_data_not_found_message -%}
+{%- set text = "This PR doesn't change the number of statements missing coverage in " ~ path ~ ", which is " ~ missing_lines_count ~ "." -%}
+{%- endif -%}
+{%- set message = missing_diff -%}
+{%- else -%}
+{%- set text = "This PR adds " ~ missing_lines_count ~ " statement" ~ (statements_count | pluralize) ~ " missing coverage to " ~ path ~ ". The file did not seem to exist on the base branch." -%}
+{%- set message = missing_lines_count -%}
+{%- endif -%}
+{%- set color = message | get_evolution_color(up_is_good=false) -%}
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ missing_lines_count | string | generate_badge(message=(message | delta), color=color) }}"></a></td>
+
+{%- endmacro -%}
+
+{%- macro coverage_rate_badge(path, previous_percent_covered, previous_covered_statements_count, previous_statements_count, percent_covered, covered_statements_count, statements_count) -%}
+{%- if previous_percent_covered is not none -%}
+{%- set coverage_diff = percent_covered - previous_percent_covered -%}
+{%- if coverage_diff > 0 -%}
+{%- set text = "This PR adds " ~ ("{:.02f}".format(coverage_diff * 100)) ~ " percentage points to the coverage rate in " ~ path ~ ", taking it from " ~ previous_percent_covered | pct ~ " (" ~ previous_covered_statements_count ~ "/" ~ previous_statements_count ~ ") to " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ ")." -%}
+{%- elif coverage_diff < 0 -%}
+{%- set text = "This PR removes " ~ ("{:.02f}".format(-coverage_diff * 100)) ~ " percentage points from the coverage rate in " ~ path ~ ", taking it from " ~ previous_percent_covered | pct ~ " (" ~ previous_covered_statements_count ~ "/" ~ previous_statements_count ~ ") to " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ ")." -%}
+{%- else -%}
+{%- set text = "This PR doesn't change the coverage rate in " ~ path ~ ", which is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ ")." -%}
+{%- endif -%}
+{%- set color = coverage_diff | get_evolution_color() -%}
+{%- set message = "(" ~ previous_covered_statements_count ~ "/" ~ previous_statements_count ~ " > " ~ covered_statements_count ~ "/" ~ statements_count ~ ")" -%}
+{%- else -%}
+{%- set text = "The coverage rate of " ~ path ~ " is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ "). The file did not seem to exist on the base branch." -%}
+{%- set message = "(" ~ covered_statements_count ~ "/" ~ statements_count ~ ")" -%}
+{%- set color = percent_covered | x100 | get_badge_color -%}
+{%- endif -%}
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ percent_covered | pct(precision=0) | generate_badge(message=message, color=color) }}"></a></td>
+
+{%- endmacro -%}
+
+{%- macro diff_coverage_rate_badge(path, added_statements_count, covered_statements_count, percent_covered) -%}
+{% if added_statements_count -%}
+{% set text = "In this PR, " ~ (added_statements_count) ~ " new statements are added to " ~ path ~ ", " ~ covered_statements_count ~ " of which are covered (" ~ (percent_covered | pct) ~ ")." -%}
+{% set label = (percent_covered | pct(precision=0)) -%}
+{% set message = "(" ~ covered_statements_count ~ "/" ~ added_statements_count ~ ")" -%}
+{%- set color = (percent_covered | x100 | get_badge_color()) -%}
+{% else -%}
+{% set text = "This PR does not seem to add statements to " ~ path ~ "." -%}
+{% set label = "" -%}
+{%- set color = "grey" -%}
+{% set message = "N/A" -%}
+{% endif -%}
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ label | generate_badge(message=message, color=color) }}"></a></td>
+
+{%- endmacro -%}
+
+
+{# Individual file report #}
+{%- block coverage_by_file -%}
+{%- if not files -%}
+_This PR does not seem to contain any modification to coverable code._
+{%- else -%}
+<details><summary>Click to see where and how coverage changed</summary><table><thead>
+  <tr><th>File</th><th>Statements</th><th>Missing</th><th>Coverage</th><th>Coverage<br>(new stmts)</th><th>Lines missing</th></tr>
+</thead>
+<tbody>
+
+{%- for parent, files_in_folder in files|groupby(attribute="path.parent") -%}
+<tr>
+<td colspan="6">&nbsp;&nbsp;<b>{{ parent }}</b></td>
+
+{%- for file in files_in_folder -%}
+{%- set path = file.coverage.path -%}
+<tr>
+<td>&nbsp;&nbsp;<a href="{{ path | file_url }}">{{ path.name }}</a></td>
+
+{#- Statements cell -#}
+{%- block statements_badge_cell scoped -%}
+{{- statements_badge(
+  path=path,
+  statements_count=file.coverage.info.num_statements,
+  previous_statements_count=(file.previous.info.num_statements if file.previous else none),
+) -}}
+{%- endblock statements_badge_cell-%}
+
+{#- Missing cell -#}
+{%- block missing_lines_badge_cell scoped -%}
+{{- missing_lines_badge(
+  path=path,
+  missing_lines_count=file.coverage.info.missing_lines,
+  previous_missing_lines_count=(file.previous.info.missing_lines if file.previous else none),
+) -}}
+{%- endblock missing_lines_badge_cell -%}
+
+{#- Coverage rate -#}
+{%- block coverage_rate_badge_cell scoped -%}
+{{- coverage_rate_badge(
+  path=path,
+  previous_percent_covered=(file.previous.info.percent_covered if file.previous else none),
+  previous_covered_statements_count=(file.previous.info.covered_lines if file.previous else none),
+  previous_statements_count=(file.previous.info.num_statements if file.previous else none),
+  percent_covered=file.coverage.info.percent_covered,
+  covered_statements_count=file.coverage.info.covered_lines,
+  statements_count=file.coverage.info.num_statements,
+) -}}
+{%- endblock coverage_rate_badge_cell -%}
+
+{#- Coverage of added lines -#}
+{%- block diff_coverage_rate_badge_cell scoped -%}
+{{- diff_coverage_rate_badge(
+  path=path,
+  added_statements_count=((file.diff.added_statements | length) if file.diff else none),
+  covered_statements_count=((file.diff.covered_statements | length) if file.diff else none),
+  percent_covered=(file.diff.percent_covered if file.diff else none)
+) -}}
+{%- endblock diff_coverage_rate_badge_cell -%}
+
+{#- Link to missing lines -#}
+{%- block link_to_missing_diff_lines_cell scoped -%}
+<td>
+
+{%- set comma = joiner() -%}
+{%- for group in missing_diff_lines.get(path, []) -%}
+{{- comma() -}}
+<a href="{{ path | file_url(lines=(group.line_start, group.line_end))}}">
+
+{{- group.line_start -}}
+{%- if group.line_start != group.line_end -%}
+-
+{{- group.line_end -}}
+{%- endif -%}
+</a>
+
+{%- endfor -%}
+</td>
+
+{%- endblock link_to_missing_diff_lines_cell -%}
+{%- endfor -%}
+{%- endfor -%}
+</tbody>
+<tfoot>
+<tr>
+<td><b>Project Total</b></td>
+
+
+{#- Statements cell -#}
+{%- block statements_badge_total_cell scoped -%}
+{{- statements_badge(
+  path="the whole project",
+  statements_count=coverage.info.num_statements,
+  previous_statements_count=(previous_coverage.info.num_statements if previous_coverage else none),
+) -}}
+{%- endblock statements_badge_total_cell -%}
+
+{#- Missing cell -#}
+{%- block missing_lines_badge_total_cell scoped -%}
+{{- missing_lines_badge(
+  path="the whole project",
+  missing_lines_count=coverage.info.missing_lines,
+  previous_missing_lines_count=(previous_coverage.info.missing_lines if previous_coverage else none),
+) -}}
+{%- endblock missing_lines_badge_total_cell -%}
+
+{#- Coverage rate -#}
+{%- block coverage_rate_badge_total_cell scoped -%}
+{{- coverage_rate_badge(
+  path="the whole project",
+  previous_percent_covered=(previous_coverage.info.percent_covered if previous_coverage else none),
+  previous_covered_statements_count=(previous_coverage.info.covered_lines if previous_coverage else none),
+  previous_statements_count=(previous_coverage.info.num_statements if previous_coverage else none),
+  percent_covered=coverage.info.percent_covered,
+  covered_statements_count=coverage.info.covered_lines,
+  statements_count=coverage.info.num_statements,
+) -}}
+{%- endblock coverage_rate_badge_total_cell -%}
+
+{# Coverage of added lines #}
+{%- block diff_coverage_rate_badge_total_cell scoped -%}
+{{- diff_coverage_rate_badge(
+  path="the whole project",
+  added_statements_count=diff_coverage.total_num_lines,
+  covered_statements_count=(diff_coverage.total_num_lines-diff_coverage.total_num_violations),
+  percent_covered=diff_coverage.total_percent_covered,
+) -}}
+{%- endblock diff_coverage_rate_badge_total_cell -%}
+
+<td>&nbsp;</td>
+</tr>
+</tfoot>
+</table>
+
+{%- if max_files and count_files > max_files %}
+
 > [!NOTE]
-> Coverage data for the default branch was not found.
-> This usually happens when the action has not run on the default
-> branch yet, for example right after deploying it into the workflows.
-{%- endblock no_comparison_info_data_not_found_message -%}
-{% else %}
-{% block no_comparison_info_non_default_target -%}
-> [!NOTE]
-> Coverage evolution disabled because this PR targets a different branch
-> than the default branch, for which coverage data is not available.
-{%- endblock no_comparison_info_non_default_target %}
-{%- endif %}
-{%- endblock no_comparison_info %}
+> The report is truncated to {{ max_files }} files out of {{ count_files }}. To see the full report, please visit the workflow summary page.
 
-{% block coverage_value_wording -%}
-The coverage rate is `{{ coverage.info.percent_covered | pct }}`.
-{%- endblock coverage_value_wording %}
-{%- endif %}
-{%- endblock coverage_evolution %}
-{% block branch_coverage -%}
-{% if coverage.meta.branch_coverage and coverage.info.num_branches -%}
-{% block branch_coverage_wording -%}
-The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`.
-{% endblock branch_coverage_wording -%}
-{%- endif %}
-{% endblock branch_coverage -%}
+{% endif -%}
 
-{%- if diff_coverage.total_num_lines > 0 -%}
-{% block diff_coverage_wording -%}
-`{{ diff_coverage.total_percent_covered | pct }}` of new lines are covered.
-{%- endblock diff_coverage_wording %}
-{%- else -%}
-{% block diff_coverage_empty_wording -%}
-_None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
-{%- endblock diff_coverage_empty_wording %}
-{%- endif %}
+{%- endif -%}
+{%- endblock coverage_by_file -%}
 
-{% block coverage_by_file -%}
-{%if diff_coverage.files -%}
-<details>
-<summary>{% block coverage_by_file_summary_wording -%}Diff Coverage details (click to unfold){% endblock coverage_by_file_summary_wording -%}</summary>
-{% for filename, diff_file_coverage in diff_coverage.files.items() -%}
-{% block coverage_single_file scoped %}
-{% block coverage_single_file_title scoped %}### {{ filename }}{% endblock coverage_single_file_title %}
-{% block diff_coverage_single_file_wording scoped -%}
-`{{ diff_file_coverage.percent_covered | pct }}` of new lines are covered (`{{ coverage.files[filename].info.percent_covered | pct }}` of the complete file).
-{%- endblock diff_coverage_single_file_wording %}
-{%- if diff_file_coverage.violation_lines -%}
-{% block single_file_missing_lines_wording scoped -%}
-{% set separator = joiner(", ") %}
-Missing lines: {% for line in diff_file_coverage.violation_lines %}{{ separator() }}`{{ line }}`{% endfor %}
-{%- endblock single_file_missing_lines_wording %}
-{%- endif %}
-{% endblock coverage_single_file -%}
-{%- endfor %}
+{%- block footer -%}
+<sub>
+
+This report was generated by [python-coverage-comment-action](https://github.com/py-cov-action/python-coverage-comment-action)
+
+</sub>
+
+{%- endblock footer -%}
 </details>
-{%- endif %}
-{%- endblock coverage_by_file %}
-{{ marker }}
+
+{{ marker -}}
