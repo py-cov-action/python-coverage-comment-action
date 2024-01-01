@@ -10,6 +10,9 @@ from collections.abc import Sequence
 from coverage_comment import log, subprocess
 
 
+# The dataclasses in this module are accessible in the template, which is overridable by the user.
+# As a coutesy, we should do our best to keep the existing fields for backward compatibility,
+# and if we really can't and can't add properties, at least bump the major version.
 @dataclasses.dataclass
 class CoverageMetadata:
     version: str
@@ -57,13 +60,17 @@ class Coverage:
 class FileDiffCoverage:
     path: pathlib.Path
     percent_covered: decimal.Decimal
-    missing_lines: list[int]
+    covered_statements: list[int]
+    missing_statements: list[int]
+    added_statements: list[int]
+    # Added lines tracks all the lines that were added in the diff, not just
+    # the statements (so it includes comments, blank lines, etc.)
     added_lines: list[int]
 
     # for backward compatibility
     @property
     def violation_lines(self) -> list[int]:
-        return self.missing_lines
+        return self.missing_statements
 
 
 @dataclasses.dataclass
@@ -241,9 +248,9 @@ def get_diff_coverage_info(
 
         missing = set(file.missing_lines) & set(added_lines_for_file)
         count_missing = len(missing)
-        # Even partially covered lines are considered as covered, no line
-        # appears in both counts
-        count_total = count_executed + count_missing
+
+        added = executed | missing
+        count_total = len(added)
 
         total_num_lines += count_total
         total_num_violations += count_missing
@@ -255,7 +262,9 @@ def get_diff_coverage_info(
         files[path] = FileDiffCoverage(
             path=path,
             percent_covered=percent_covered,
-            missing_lines=sorted(missing),
+            covered_statements=sorted(executed),
+            missing_statements=sorted(missing),
+            added_statements=sorted(added),
             added_lines=added_lines_for_file,
         )
     final_percentage = compute_coverage(
