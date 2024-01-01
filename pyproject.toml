@@ -67,6 +67,7 @@ extend-select = [
   "W", # pycodestyle warnings
   "RUF", # ruff
 ]
+fixable = ["ALL"]
 extend-ignore = [
   "E501", # line too long
 ]
