@@ -125,7 +125,6 @@ def test_public_repo(
         "--jq=.comments[0].body",
         fail_value="\n",
     )
-    assert ":arrow_up:" in comment
     assert "## Coverage report (my-great-project)" in comment
     assert (
         "This comment was produced by python-coverage-comment-action (id: my-great-project)"
@@ -184,7 +183,7 @@ def test_public_repo(
         fail_value="\n",
     )
 
-    assert ":arrow_up:" in ext_comment
+    assert "-brightgreen.svg" in ext_comment
 
 
 @pytest.mark.repo_suffix("private")
@@ -275,7 +274,7 @@ def test_private_repo(
         "--jq=.comments[0].body",
         fail_value="\n",
     )
-    assert ":arrow_up:" in comment
+    assert "-brightgreen.svg" in comment
 
     # Let's merge the PR and see if everything works fine
     gh_me("pr", "merge", "1", "--merge")

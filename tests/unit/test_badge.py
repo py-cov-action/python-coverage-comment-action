@@ -68,7 +68,7 @@ def test_compute_badge_image(session):
 def test_get_static_badge_url():
     result = badge.get_static_badge_url(label="a-b", message="c_d e", color="green")
 
-    assert result == "https://img.shields.io/badge/a--b-c__d_e-green.svg"
+    assert result == "https://img.shields.io/badge/a--b-c__d%20e-green.svg"
 
 
 @pytest.mark.parametrize(

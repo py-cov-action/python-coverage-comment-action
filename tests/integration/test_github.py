@@ -346,13 +346,13 @@ def test_annotations(capsys):
         annotation_type="warning",
         annotations=[
             (pathlib.Path("codebase/code.py"), 1, 3),
-            (pathlib.Path("codebase/main.py"), 5, 5),
+            (pathlib.Path("codebase/other.py"), 5, 5),
         ],
     )
 
     expected = """::group::Annotations of lines with missing coverage
 ::warning file=codebase/code.py,line=1,endLine=3,title=Missing coverage::Missing coverage on lines 1-3
-::warning file=codebase/main.py,line=5,endLine=5,title=Missing coverage::Missing coverage on line 5
+::warning file=codebase/other.py,line=5,endLine=5,title=Missing coverage::Missing coverage on line 5
 ::endgroup::"""
     output = capsys.readouterr()
     assert output.err.strip() == expected
