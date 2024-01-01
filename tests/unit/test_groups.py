@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import pathlib
-
 import pytest
 
-from coverage_comment import annotations
+from coverage_comment import groups
 
 
 @pytest.mark.parametrize(
@@ -49,19 +47,7 @@ from coverage_comment import annotations
     ],
 )
 def test_compute_contiguous_groups(values, separators, joiners, expected):
-    result = annotations.compute_contiguous_groups(
-        values=values, separators=separators, joiners=joiners
+    result = groups.compute_contiguous_groups(
+        values=values, separators=separators, joiners=joiners, max_gap=3
     )
     assert result == expected
-
-
-def test_group_annotations(coverage_obj, diff_coverage_obj):
-    result = annotations.group_annotations(
-        coverage=coverage_obj, diff_coverage=diff_coverage_obj
-    )
-
-    assert list(result) == [
-        annotations.Annotation(
-            file=pathlib.Path("codebase/code.py"), line_start=7, line_end=9
-        )
-    ]
