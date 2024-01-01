@@ -65,6 +65,32 @@ def test_compute_badge_image(session):
     assert badge_data == "foo"
 
 
+def test_get_static_badge_url():
+    result = badge.get_static_badge_url(label="a-b", message="c_d e", color="green")
+
+    assert result == "https://img.shields.io/badge/a--b-c__d_e-green.svg"
+
+
+@pytest.mark.parametrize(
+    "label, message, color",
+    [
+        (
+            "Label",
+            "",
+            "brightgreen",
+        ),
+        (
+            "Label",
+            "100% > 99%",
+            "",
+        ),
+    ],
+)
+def test_get_static_badge_url__error(label, message, color):
+    with pytest.raises(ValueError):
+        badge.get_static_badge_url(label=label, message=message, color=color)
+
+
 def test_get_endpoint_url():
     url = badge.get_endpoint_url(endpoint_url="https://foo")
     expected = "https://img.shields.io/endpoint?url=https://foo"

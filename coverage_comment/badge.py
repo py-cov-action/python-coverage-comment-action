@@ -66,6 +66,15 @@ def compute_badge_image(
     ).text
 
 
+def get_static_badge_url(label: str, message: str, color: str) -> str:
+    if not color or not message:
+        raise ValueError("color and message are required")
+    code = "-".join(
+        e.replace("_", "__").replace("-", "--") for e in (label, message, color) if e
+    )
+    return "https://img.shields.io/badge/" + urllib.parse.quote(f"{code}.svg")
+
+
 def get_endpoint_url(endpoint_url: str) -> str:
     return f"https://img.shields.io/endpoint?url={endpoint_url}"
 
