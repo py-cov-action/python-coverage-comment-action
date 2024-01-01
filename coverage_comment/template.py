@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import dataclasses
 import decimal
+import functools
+import hashlib
+import itertools
+import pathlib
 from collections.abc import Callable
 from importlib import resources
 
 import jinja2
 from jinja2.sandbox import SandboxedEnvironment
 
+from coverage_comment import badge, diff_grouper
 from coverage_comment import coverage as coverage_module
 
 MARKER = (
@@ -19,7 +25,9 @@ def uptodate():
 
 
 class CommentLoader(jinja2.BaseLoader):
-    def __init__(self, base_template: str, custom_template: str | None):
+    def __init__(
+        self, base_template: str, custom_template: str | None, debug: bool = False
+    ):
         self.base_template = base_template
         self.custom_template = custom_template
 
@@ -27,7 +35,11 @@ class CommentLoader(jinja2.BaseLoader):
         self, environment: jinja2.Environment, template: str
     ) -> tuple[str, str | None, Callable[..., bool]]:
         if template == "base":
-            return self.base_template, None, uptodate
+            return (
+                self.base_template,
+                "coverage_comment/template_files/comment.md.j2",
+                uptodate,
+            )
 
         if self.custom_template and template == "custom":
             return self.custom_template, None, uptodate
@@ -47,10 +59,77 @@ def get_marker(marker_id: str | None):
     return MARKER.format(id_part=f" (id: {marker_id})" if marker_id else "")
 
 
+def pluralize(number, singular="", plural="s"):
+    if number == 1:
+        return singular
+    else:
+        return plural
+
+
+def sign(val: int | decimal.Decimal) -> str:
+    return "+" if val > 0 else "" if val < 0 else "±"
+
+
+def delta(val: int) -> str:
+    return f"({sign(val)}{val})"
+
+
+def remove_exponent(val: decimal.Decimal) -> decimal.Decimal:
+    # From https://docs.python.org/3/library/decimal.html#decimal-faq
+    return (
+        val.quantize(decimal.Decimal(1))
+        if val == val.to_integral()
+        else val.normalize()
+    )
+
+
+def percentage_value(val: decimal.Decimal, precision: int = 2) -> decimal.Decimal:
+    return remove_exponent(
+        (decimal.Decimal("100") * val).quantize(
+            decimal.Decimal("1." + ("0" * precision)),
+            rounding=decimal.ROUND_DOWN,
+        )
+    )
+
+
+def pct(val: decimal.Decimal, precision: int = 2) -> str:
+    rounded = percentage_value(val=val, precision=precision)
+    return f"{rounded:f}%"
+
+
+def x100(val: decimal.Decimal):
+    return val * 100
+
+
+@dataclasses.dataclass
+class FileInfo:
+    path: pathlib.Path
+    coverage: coverage_module.FileCoverage
+    diff: coverage_module.FileDiffCoverage | None
+    previous: coverage_module.FileCoverage | None
+
+    @property
+    def new_missing_lines(self) -> list[int]:
+        missing_lines = set(self.coverage.missing_lines)
+        if self.previous:
+            missing_lines -= set(self.previous.missing_lines)
+
+        return sorted(missing_lines)
+
+
 def get_comment_markdown(
+    *,
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: decimal.Decimal | None,
+    previous_coverage: coverage_module.Coverage | None,
+    files: list[FileInfo],
+    max_files: int | None,
+    count_files: int,
+    minimum_green: decimal.Decimal,
+    minimum_orange: decimal.Decimal,
+    repo_name: str,
+    pr_number: int,
     base_template: str,
     marker: str,
     subproject_id: str | None = None,
@@ -60,12 +139,39 @@ def get_comment_markdown(
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
     env.filters["pct"] = pct
+    env.filters["delta"] = delta
+    env.filters["x100"] = x100
+    env.filters["get_evolution_color"] = badge.get_evolution_badge_color
+    env.filters["generate_badge"] = badge.get_static_badge_url
+    env.filters["pluralize"] = pluralize
+    env.filters["file_url"] = functools.partial(
+        get_file_url, repo_name=repo_name, pr_number=pr_number
+    )
+    env.filters["get_badge_color"] = functools.partial(
+        badge.get_badge_color,
+        minimum_green=minimum_green,
+        minimum_orange=minimum_orange,
+    )
 
+    missing_diff_lines = {
+        key: list(value)
+        for key, value in itertools.groupby(
+            diff_grouper.get_diff_missing_groups(
+                coverage=coverage, diff_coverage=diff_coverage
+            ),
+            lambda x: x.file,
+        )
+    }
     try:
         comment = env.get_template("custom" if custom_template else "base").render(
             previous_coverage_rate=previous_coverage_rate,
             coverage=coverage,
             diff_coverage=diff_coverage,
+            previous_coverage=previous_coverage,
+            count_files=count_files,
+            max_files=max_files,
+            files=files,
+            missing_diff_lines=missing_diff_lines,
             subproject_id=subproject_id,
             marker=marker,
             pr_targets_default_branch=pr_targets_default_branch,
@@ -77,6 +183,47 @@ def get_comment_markdown(
         raise MissingMarker()
 
     return comment
+
+
+def select_files(
+    *,
+    coverage: coverage_module.Coverage,
+    diff_coverage: coverage_module.DiffCoverage,
+    previous_coverage: coverage_module.Coverage | None = None,
+    max_files: int | None,
+) -> tuple[list[FileInfo], int]:
+    """
+    Selects the MAX_FILES files with the most new missing lines sorted by path
+
+    """
+    previous_coverage_files = previous_coverage.files if previous_coverage else {}
+
+    files = []
+    for path, coverage_file in coverage.files.items():
+        diff_coverage_file = diff_coverage.files.get(path)
+        previous_coverage_file = previous_coverage_files.get(path)
+
+        file_info = FileInfo(
+            path=path,
+            coverage=coverage_file,
+            diff=diff_coverage_file,
+            previous=previous_coverage_file,
+        )
+        has_diff = bool(diff_coverage_file)
+        has_evolution_from_previous = (
+            previous_coverage_file.info != coverage_file.info
+            if previous_coverage_file
+            else False
+        )
+
+        if has_diff or has_evolution_from_previous:
+            files.append(file_info)
+
+    count_files = len(files)
+    files = sorted(files, key=lambda x: len(x.new_missing_lines), reverse=True)
+    if max_files is not None:
+        files = files[:max_files]
+    return sorted(files, key=lambda x: x.path), count_files
 
 
 def get_readme_markdown(
@@ -131,9 +278,18 @@ def read_template_file(template: str) -> str:
     ).read_text()
 
 
-def pct(val: decimal.Decimal | float) -> str:
-    if isinstance(val, decimal.Decimal):
-        val *= decimal.Decimal("100")
-        return f"{val.quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_DOWN).normalize():f}%"
-    else:
-        return f"{val:.0%}"
+def get_file_url(
+    filename: pathlib.Path,
+    lines: tuple[int, int] | None = None,
+    *,
+    repo_name: str,
+    pr_number: int,
+) -> str:
+    # To link to a file in a PR, GitHub uses the link to the file overview combined with a SHA256 hash of the file path
+    s = f"https://github.com/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
+
+    if lines is not None:
+        # R stands for Right side of the diff. But since we generate these links for new code we only need the right side.
+        s += f"R{lines[0]}-R{lines[1]}"
+
+    return s

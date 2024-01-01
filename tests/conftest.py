@@ -75,208 +75,6 @@ def workflow_run_config(base_config):
 
 
 @pytest.fixture
-def coverage_json():
-    return {
-        "meta": {
-            "version": "1.2.3",
-            "timestamp": "2000-01-01T00:00:00",
-            "branch_coverage": True,
-            "show_contexts": False,
-        },
-        "files": {
-            "codebase/code.py": {
-                "executed_lines": [1, 2, 5, 6, 9],
-                "summary": {
-                    "covered_lines": 5,
-                    "num_statements": 6,
-                    "percent_covered": 75.0,
-                    "missing_lines": 1,
-                    "excluded_lines": 0,
-                    "num_branches": 2,
-                    "num_partial_branches": 1,
-                    "covered_branches": 1,
-                    "missing_branches": 1,
-                },
-                "missing_lines": [7, 9],
-                "excluded_lines": [],
-            }
-        },
-        "totals": {
-            "covered_lines": 5,
-            "num_statements": 6,
-            "percent_covered": 75.0,
-            "missing_lines": 1,
-            "excluded_lines": 0,
-            "num_branches": 2,
-            "num_partial_branches": 1,
-            "covered_branches": 1,
-            "missing_branches": 1,
-        },
-    }
-
-
-@pytest.fixture
-def coverage_obj():
-    return coverage_module.Coverage(
-        meta=coverage_module.CoverageMetadata(
-            version="1.2.3",
-            timestamp=datetime.datetime(2000, 1, 1),
-            branch_coverage=True,
-            show_contexts=False,
-        ),
-        info=coverage_module.CoverageInfo(
-            covered_lines=5,
-            num_statements=6,
-            percent_covered=decimal.Decimal("0.75"),
-            missing_lines=1,
-            excluded_lines=0,
-            num_branches=2,
-            num_partial_branches=1,
-            covered_branches=1,
-            missing_branches=1,
-        ),
-        files={
-            pathlib.Path("codebase/code.py"): coverage_module.FileCoverage(
-                path=pathlib.Path("codebase/code.py"),
-                executed_lines=[1, 2, 5, 6, 9],
-                missing_lines=[7, 9],
-                excluded_lines=[],
-                info=coverage_module.CoverageInfo(
-                    covered_lines=5,
-                    num_statements=6,
-                    percent_covered=decimal.Decimal("0.75"),
-                    missing_lines=1,
-                    excluded_lines=0,
-                    num_branches=2,
-                    num_partial_branches=1,
-                    covered_branches=1,
-                    missing_branches=1,
-                ),
-            )
-        },
-    )
-
-
-@pytest.fixture
-def coverage_obj_no_branch():
-    return coverage_module.Coverage(
-        meta=coverage_module.CoverageMetadata(
-            version="1.2.3",
-            timestamp=datetime.datetime(2000, 1, 1),
-            branch_coverage=False,
-            show_contexts=False,
-        ),
-        info=coverage_module.CoverageInfo(
-            covered_lines=5,
-            num_statements=6,
-            percent_covered=decimal.Decimal("0.75"),
-            missing_lines=1,
-            excluded_lines=0,
-            num_branches=None,
-            num_partial_branches=None,
-            covered_branches=None,
-            missing_branches=None,
-        ),
-        files={
-            pathlib.Path("codebase/code.py"): coverage_module.FileCoverage(
-                path=pathlib.Path("codebase/code.py"),
-                executed_lines=[1, 2, 5, 6, 9],
-                missing_lines=[7],
-                excluded_lines=[],
-                info=coverage_module.CoverageInfo(
-                    covered_lines=5,
-                    num_statements=6,
-                    percent_covered=decimal.Decimal("0.8333"),
-                    missing_lines=1,
-                    excluded_lines=0,
-                    num_branches=None,
-                    num_partial_branches=None,
-                    covered_branches=None,
-                    missing_branches=None,
-                ),
-            )
-        },
-    )
-
-
-@pytest.fixture
-def coverage_obj_more_files(coverage_obj_no_branch):
-    coverage_obj_no_branch.files[
-        pathlib.Path("codebase/other.py")
-    ] = coverage_module.FileCoverage(
-        path=pathlib.Path("codebase/other.py"),
-        executed_lines=[10, 11, 12],
-        missing_lines=[13],
-        excluded_lines=[],
-        info=coverage_module.CoverageInfo(
-            covered_lines=3,
-            num_statements=4,
-            percent_covered=decimal.Decimal("0.75"),
-            missing_lines=1,
-            excluded_lines=0,
-            num_branches=None,
-            num_partial_branches=None,
-            covered_branches=None,
-            missing_branches=None,
-        ),
-    )
-    return coverage_obj_no_branch
-
-
-@pytest.fixture
-def make_coverage_obj(coverage_obj_more_files):
-    def f(**kwargs):
-        obj = coverage_obj_more_files
-        for key, value in kwargs.items():
-            vars(obj.files[pathlib.Path(key)]).update(value)
-        return obj
-
-    return f
-
-
-@pytest.fixture
-def diff_coverage_obj():
-    return coverage_module.DiffCoverage(
-        total_num_lines=5,
-        total_num_violations=1,
-        total_percent_covered=decimal.Decimal("0.8"),
-        num_changed_lines=39,
-        files={
-            pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
-                path=pathlib.Path("codebase/code.py"),
-                percent_covered=decimal.Decimal("0.8"),
-                missing_lines=[7, 9],
-                added_lines=[7, 8, 9],
-            )
-        },
-    )
-
-
-@pytest.fixture
-def diff_coverage_obj_many_missing_lines():
-    return coverage_module.DiffCoverage(
-        total_num_lines=5,
-        total_num_violations=1,
-        total_percent_covered=decimal.Decimal("0.8"),
-        num_changed_lines=39,
-        files={
-            pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
-                path=pathlib.Path("codebase/code.py"),
-                percent_covered=decimal.Decimal("0.8"),
-                missing_lines=[7, 9],
-                added_lines=[7, 8, 9],
-            ),
-            pathlib.Path("codebase/main.py"): coverage_module.FileDiffCoverage(
-                path=pathlib.Path("codebase/code.py"),
-                percent_covered=decimal.Decimal("0.8"),
-                missing_lines=[1, 2, 8, 17],
-                added_lines=[1, 2, 3, 4, 5, 6, 7, 8, 17],
-            ),
-        },
-    )
-
-
-@pytest.fixture
 def session(is_failed):
     """
     You get a session object. Register responses on it:
@@ -465,3 +263,296 @@ def is_failed():
 
     yield f
     _is_failed.clear()
+
+
+@pytest.fixture
+def make_coverage():
+    def _(code: str, has_branches: bool = True) -> coverage_module.Coverage:
+        current_file = None
+        coverage_obj = coverage_module.Coverage(
+            meta=coverage_module.CoverageMetadata(
+                version="1.2.3",
+                timestamp=datetime.datetime(2000, 1, 1),
+                branch_coverage=True,
+                show_contexts=False,
+            ),
+            info=coverage_module.CoverageInfo(
+                covered_lines=0,
+                num_statements=0,
+                percent_covered=decimal.Decimal("1.0"),
+                missing_lines=0,
+                excluded_lines=0,
+                num_branches=0 if has_branches else None,
+                num_partial_branches=0 if has_branches else None,
+                covered_branches=0 if has_branches else None,
+                missing_branches=0 if has_branches else None,
+            ),
+            files={},
+        )
+        line_number = 0
+        # (we start at 0 because the first line will be empty for readabilty)
+        for line in code.splitlines()[1:]:
+            line = line.strip()
+            if line.startswith("# file: "):
+                current_file = pathlib.Path(line.split("# file: ")[1])
+                continue
+            assert current_file, (line, current_file, code)
+            line_number += 1
+            if coverage_obj.files.get(current_file) is None:
+                coverage_obj.files[current_file] = coverage_module.FileCoverage(
+                    path=current_file,
+                    executed_lines=[],
+                    missing_lines=[],
+                    excluded_lines=[],
+                    info=coverage_module.CoverageInfo(
+                        covered_lines=0,
+                        num_statements=0,
+                        percent_covered=decimal.Decimal("1.0"),
+                        missing_lines=0,
+                        excluded_lines=0,
+                        num_branches=0 if has_branches else None,
+                        num_partial_branches=0 if has_branches else None,
+                        covered_branches=0 if has_branches else None,
+                        missing_branches=0 if has_branches else None,
+                    ),
+                )
+            if set(line.split()) & {
+                "covered",
+                "missing",
+                "excluded",
+                "partial",
+                "branch",
+            }:
+                coverage_obj.files[current_file].info.num_statements += 1
+                coverage_obj.info.num_statements += 1
+            if "covered" in line or "partial" in line:
+                coverage_obj.files[current_file].executed_lines.append(line_number)
+                coverage_obj.files[current_file].info.covered_lines += 1
+                coverage_obj.info.covered_lines += 1
+            elif "missing" in line:
+                coverage_obj.files[current_file].missing_lines.append(line_number)
+                coverage_obj.files[current_file].info.missing_lines += 1
+                coverage_obj.info.missing_lines += 1
+            elif "excluded" in line:
+                coverage_obj.files[current_file].excluded_lines.append(line_number)
+                coverage_obj.files[current_file].info.excluded_lines += 1
+                coverage_obj.info.excluded_lines += 1
+
+            if has_branches and "branch" in line:
+                coverage_obj.files[current_file].info.num_branches += 1
+                coverage_obj.info.num_branches += 1
+                if "branch partial" in line:
+                    coverage_obj.files[current_file].info.num_partial_branches += 1
+                    coverage_obj.info.num_partial_branches += 1
+                elif "branch covered" in line:
+                    coverage_obj.files[current_file].info.covered_branches += 1
+                    coverage_obj.info.covered_branches += 1
+                elif "branch missing" in line:
+                    coverage_obj.files[current_file].info.missing_branches += 1
+                    coverage_obj.info.missing_branches += 1
+
+            info = coverage_obj.files[current_file].info
+            coverage_obj.files[
+                current_file
+            ].info.percent_covered = coverage_module.compute_coverage(
+                num_covered=info.covered_lines,
+                num_total=info.num_statements,
+            )
+
+            info = coverage_obj.info
+            coverage_obj.info.percent_covered = coverage_module.compute_coverage(
+                num_covered=info.covered_lines,
+                num_total=info.num_statements,
+            )
+
+        return coverage_obj
+
+    return _
+
+
+@pytest.fixture
+def make_diff_coverage():
+    return coverage_module.get_diff_coverage_info
+
+
+@pytest.fixture
+def make_coverage_and_diff(make_coverage, make_diff_coverage):
+    def _(code: str) -> tuple[coverage_module.Coverage, coverage_module.DiffCoverage]:
+        added_lines: dict[pathlib.Path, list[int]] = {}
+        new_code = ""
+        current_file = None
+        # (we start at 0 because the first line will be empty for readabilty)
+        line_number = 0
+        for line in code.splitlines()[1:]:
+            line = line.strip()
+            if line.startswith("# file: "):
+                new_code += line + "\n"
+                current_file = pathlib.Path(line.split("# file: ")[1])
+                line_number = 0
+                continue
+            assert current_file
+            line_number += 1
+
+            if line.startswith("+ "):
+                added_lines.setdefault(current_file, []).append(line_number)
+                new_code += line[2:] + "\n"
+            else:
+                new_code += line + "\n"
+
+        coverage = make_coverage("\n" + new_code)
+        return coverage, make_diff_coverage(added_lines=added_lines, coverage=coverage)
+
+    return _
+
+
+@pytest.fixture
+def coverage_code():
+    return """
+        # file: codebase/code.py
+        1 covered
+        2 covered
+        3 covered
+        4
+        5 branch partial
+        6 missing
+        7
+        8 missing
+        9
+        10 branch missing
+        11 missing
+        12
+        13 branch covered
+        14 covered
+        """
+
+
+@pytest.fixture
+def coverage_json():
+    return {
+        "meta": {
+            "version": "1.2.3",
+            "timestamp": "2000-01-01T00:00:00",
+            "branch_coverage": True,
+            "show_contexts": False,
+        },
+        "files": {
+            "codebase/code.py": {
+                "executed_lines": [1, 2, 3, 5, 13, 14],
+                "summary": {
+                    "covered_lines": 6,
+                    "num_statements": 10,
+                    "percent_covered": 60.0,
+                    "missing_lines": 4,
+                    "excluded_lines": 0,
+                    "num_branches": 3,
+                    "num_partial_branches": 1,
+                    "covered_branches": 1,
+                    "missing_branches": 1,
+                },
+                "missing_lines": [6, 8, 10, 11],
+                "excluded_lines": [],
+            }
+        },
+        "totals": {
+            "covered_lines": 6,
+            "num_statements": 10,
+            "percent_covered": 60.0,
+            "missing_lines": 4,
+            "excluded_lines": 0,
+            "num_branches": 3,
+            "num_partial_branches": 1,
+            "covered_branches": 1,
+            "missing_branches": 1,
+        },
+    }
+
+
+@pytest.fixture
+def coverage_obj(make_coverage, coverage_code):
+    return make_coverage(coverage_code)
+
+
+@pytest.fixture
+def coverage_obj_no_branch_code():
+    return """
+        # file: codebase/code.py
+        covered
+        covered
+        missing
+
+        covered
+        missing
+
+        missing
+        missing
+        covered
+        """
+
+
+@pytest.fixture
+def coverage_obj_no_branch(make_coverage, coverage_obj_no_branch_code):
+    return make_coverage(coverage_obj_no_branch_code, has_branches=False)
+
+
+@pytest.fixture
+def coverage_obj_more_files(make_coverage):
+    return make_coverage(
+        """
+        # file: codebase/code.py
+        covered
+        covered
+        covered
+
+        branch partial
+        missing
+
+        missing
+
+        branch missing
+        missing
+
+        branch covered
+        covered
+        # file: codebase/other.py
+
+
+        missing
+        covered
+        missing
+        missing
+
+        missing
+        covered
+        covered
+        """
+    )
+
+
+@pytest.fixture
+def make_coverage_obj(coverage_obj_more_files):
+    def f(**kwargs):
+        obj = coverage_obj_more_files
+        for key, value in kwargs.items():
+            vars(obj.files[pathlib.Path(key)]).update(value)
+        return obj
+
+    return f
+
+
+@pytest.fixture
+def diff_coverage_obj(coverage_obj, make_diff_coverage):
+    return make_diff_coverage(
+        added_lines={pathlib.Path("codebase/code.py"): [3, 4, 5, 6, 7, 8, 9, 12]},
+        coverage=coverage_obj,
+    )
+
+
+@pytest.fixture
+def diff_coverage_obj_more_files(coverage_obj_more_files, make_diff_coverage):
+    return make_diff_coverage(
+        added_lines={
+            pathlib.Path("codebase/code.py"): [3, 4, 5, 6, 7, 8, 9, 12],
+            pathlib.Path("codebase/other.py"): [1, 2, 3, 4, 5, 6, 7, 8, 17],
+        },
+        coverage=coverage_obj_more_files,
+    )

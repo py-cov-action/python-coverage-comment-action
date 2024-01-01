@@ -322,6 +322,15 @@ jobs:
     # Same with orange. Below is red.
     MINIMUM_ORANGE: 70
 
+    # Maximum number of files to display in the comment. If there are more
+    # files than this number, they will only appear in the workflow summary.
+    # The selected files are the ones with the most new uncovered lines. The
+    # closer this number gets to 35, the higher the risk that it reaches
+    # GitHub's maximum comment size limit of 65536 characters. If you want
+    # more files, you may need to use a custom comment template (see below).
+    # (Feel free to open an issue.)
+    MAX_FILES_IN_COMMENT: 25
+
     # If true, will run `coverage combine` before reading the `.coverage` file.
     MERGE_COVERAGE_FILES: false
 
@@ -583,6 +592,14 @@ to use the svg badge directly, and not the `shields.io` URL.
 
 ## Upgrading from v2 to v3
 
-- When upgrading, we change the location and format where the coverage
-  data is kept. Pull request that have not been re-based may be displaying
-  slightly wrong information.
+When upgrading, we change the location and format where the coverage
+data is kept. Pull request that have not been re-based may be displaying
+slightly wrong information.
+
+## New comment format starting with 3.19
+
+Starting with 3.19, the format for the Pull Request changed to a table
+with badges. We've been iterating a lot on the new format.
+It's perfectly ok if you preferred the old format. In that case, see
+#335 for instructions on how to emulate the old format using
+`COMMENT_TEMPLATE`.

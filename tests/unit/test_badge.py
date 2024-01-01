@@ -24,6 +24,27 @@ def test_get_badge_color(rate, expected):
     assert color == expected
 
 
+@pytest.mark.parametrize(
+    "delta, up_is_good, neutral_color, expected",
+    [
+        (decimal.Decimal("-5"), True, "lightgrey", "red"),
+        (decimal.Decimal("5"), True, "lightgrey", "brightgreen"),
+        (decimal.Decimal("-5"), False, "lightgrey", "brightgreen"),
+        (decimal.Decimal("5"), False, "lightgrey", "red"),
+        (decimal.Decimal("0"), False, "blue", "blue"),
+        (decimal.Decimal("0"), False, "lightgrey", "lightgrey"),
+        (decimal.Decimal("0"), True, "lightgrey", "lightgrey"),
+    ],
+)
+def test_get_evolution_badge_color(delta, up_is_good, neutral_color, expected):
+    color = badge.get_evolution_badge_color(
+        delta=delta,
+        up_is_good=up_is_good,
+        neutral_color=neutral_color,
+    )
+    assert color == expected
+
+
 def test_compute_badge_endpoint_data():
     badge_data = badge.compute_badge_endpoint_data(
         line_rate=decimal.Decimal("27.42"), color="red"
@@ -42,6 +63,32 @@ def test_compute_badge_image(session):
     )
 
     assert badge_data == "foo"
+
+
+def test_get_static_badge_url():
+    result = badge.get_static_badge_url(label="a-b", message="c_d e", color="green")
+
+    assert result == "https://img.shields.io/badge/a--b-c__d%20e-green.svg"
+
+
+@pytest.mark.parametrize(
+    "label, message, color",
+    [
+        (
+            "Label",
+            "",
+            "brightgreen",
+        ),
+        (
+            "Label",
+            "100% > 99%",
+            "",
+        ),
+    ],
+)
+def test_get_static_badge_url__error(label, message, color):
+    with pytest.raises(ValueError):
+        badge.get_static_badge_url(label=label, message=message, color=color)
 
 
 def test_get_endpoint_url():

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import decimal
+import json
 import pathlib
 
 from coverage_comment import files
@@ -65,9 +66,24 @@ def test_compute_datafile():
 
 
 def test_parse_datafile():
-    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == decimal.Decimal(
-        "0.1234"
+    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == (
+        None,
+        decimal.Decimal("0.1234"),
     )
+
+
+def test_parse_datafile__previous(coverage_json, coverage_obj):
+    result = files.parse_datafile(
+        contents=json.dumps(
+            {
+                "coverage": 12.34,
+                "raw_data": coverage_json,
+                "coverage_path": ".",
+            }
+        )
+    )
+
+    assert result == (coverage_obj, decimal.Decimal("0.1234"))
 
 
 def test_get_urls():

@@ -192,11 +192,16 @@ def test_action__pull_request__store_comment(
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
     assert comment == summary_file.read_text()
-    assert "Coverage data for the default branch was not found." in comment
-    assert "The coverage rate is `77.77%`" in comment
-    assert "`75%` of new lines are covered." in comment
     assert (
-        "### foo.py\n`75%` of new lines are covered (`77.77%` of the complete file)"
+        "Coverage for the whole project is 77.77%. Previous coverage rate is not available"
+        in comment
+    )
+    assert (
+        "In this PR, 4 new statements are added to the whole project, 3 of which are covered (75%)."
+        in comment
+    )
+    assert (
+        "https://github.com/py-cov-action/foobar/pull/2/files#diff-b08fd7a517303ab07cfa211f74d03c1a4c2e64b3b0656d84ff32ecb449b785d2"
         in comment
     )
     assert (
@@ -270,7 +275,10 @@ def test_action__pull_request__store_comment_not_targeting_default(
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
     assert comment == summary_file.read_text()
-    assert "Coverage evolution disabled because this PR targets" in comment
+    assert (
+        "Previous coverage rate is not available, cannot report on evolution."
+        in comment
+    )
 
 
 def test_action__pull_request__post_comment(
@@ -324,7 +332,8 @@ def test_action__pull_request__post_comment(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "The coverage rate went from `30%` to `77.77%` :arrow_up:" in comment
+    assert "Coverage for the whole project went from 30% to 77.77%" in comment
+    assert comment.count("<img") == 10
     assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"
@@ -394,7 +403,7 @@ def test_action__push__non_default_branch(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "The coverage rate went from `30%` to `77.77%` :arrow_up:" in comment
+    assert "Coverage for the whole project went from 30% to 77.77%" in comment
     assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"

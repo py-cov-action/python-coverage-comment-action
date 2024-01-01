@@ -108,10 +108,18 @@ def compute_datafile(
     )
 
 
-def parse_datafile(contents) -> decimal.Decimal:
-    return decimal.Decimal(str(json.loads(contents)["coverage"])) / decimal.Decimal(
+def parse_datafile(contents) -> tuple[coverage.Coverage | None, decimal.Decimal]:
+    file_contents = json.loads(contents)
+    coverage_rate = decimal.Decimal(str(file_contents["coverage"])) / decimal.Decimal(
         "100"
     )
+    try:
+        return coverage.extract_info(
+            data=file_contents["raw_data"],
+            coverage_path=pathlib.Path(file_contents["coverage_path"]),
+        ), coverage_rate
+    except KeyError:
+        return None, coverage_rate
 
 
 class ImageURLs(TypedDict):

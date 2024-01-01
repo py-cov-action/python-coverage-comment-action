@@ -9,6 +9,20 @@ import pytest
 from coverage_comment import coverage, subprocess
 
 
+def test_diff_violations(make_coverage_and_diff):
+    _, diff = make_coverage_and_diff(
+        """
+        # file: a.py
+        + 1 missing
+        2 missing
+        + 3 missing
+        4 covered
+        + 5 covered
+        """
+    )
+    assert diff.files[pathlib.Path("a.py")].violation_lines == [1, 3]
+
+
 @pytest.mark.parametrize(
     "num_covered, num_total, expected_coverage",
     [
@@ -137,7 +151,9 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("0.5"),
-                        missing_lines=[3],
+                        added_statements=[1, 3],
+                        covered_statements=[1],
+                        missing_statements=[3],
                         added_lines=[1, 3],
                     )
                 },
@@ -174,7 +190,9 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("1"),
-                        missing_lines=[],
+                        added_statements=[],
+                        covered_statements=[],
+                        missing_statements=[],
                         added_lines=[4, 5, 6],
                     )
                 },
@@ -207,13 +225,17 @@ def test_generate_coverage_markdown(mocker):
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
                         percent_covered=decimal.Decimal("1"),
-                        missing_lines=[],
+                        added_statements=[5, 6],
+                        covered_statements=[5, 6],
+                        missing_statements=[],
                         added_lines=[4, 5, 6],
                     ),
                     pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/other.py"),
                         percent_covered=decimal.Decimal("0.5"),
-                        missing_lines=[13],
+                        added_statements=[10, 13],
+                        covered_statements=[10],
+                        missing_statements=[13],
                         added_lines=[10, 13],
                     ),
                 },

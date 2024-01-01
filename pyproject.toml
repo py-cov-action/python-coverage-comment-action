@@ -34,7 +34,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 addopts = """
     --cov-report term-missing --cov-branch --cov-report html --cov-report term
-    --cov=coverage_comment -vv --strict-markers -rfE
+    --cov=coverage_comment --cov-context=test -vv --strict-markers -rfE
     --ignore=tests/end_to_end/repo
 """
 testpaths = ["tests/unit", "tests/integration", "tests/end_to_end"]
@@ -53,6 +53,9 @@ relative_files = true
 [tool.coverage.report]
 exclude_also = ["\\.\\.\\."]
 
+[tool.coverage.html]
+show_contexts = true
+
 [tool.mypy]
 no_implicit_optional = true
 
@@ -64,6 +67,7 @@ extend-select = [
   "W", # pycodestyle warnings
   "RUF", # ruff
 ]
+fixable = ["ALL"]
 extend-ignore = [
   "E501", # line too long
 ]
