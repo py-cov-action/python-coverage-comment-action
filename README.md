@@ -580,6 +580,14 @@ to use the svg badge directly, and not the `shields.io` URL.
 
 ## Upgrading from v2 to v3
 
-- When upgrading, we change the location and format where the coverage
-  data is kept. Pull request that have not been re-based may be displaying
-  slightly wrong information.
+When upgrading, we change the location and format where the coverage
+data is kept. Pull request that have not been re-based may be displaying
+slightly wrong information.
+
+## New comment format starting with 3.19
+
+Starting with 3.19, the format for the Pull Request changed to a table
+with badges. We've been iterating a lot on the new format.
+It's perfectly ok if you preferred the old format. In that case, see
+#335 for instructions on how to emulate the old format using
+`COMMENT_TEMPLATE`.
