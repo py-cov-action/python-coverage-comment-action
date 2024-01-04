@@ -19,14 +19,14 @@ def test_checked_out_branch(git):
 
 
 def test_checked_out_branch__detached_head(git):
-    git.register("git branch --show-current")(exit_code=1)
+    git.register("git branch --show-current")(stdout="")
     git.register("git rev-parse --short HEAD")(stdout="123abc")
     git.register("git reset --hard")()
     git.register("git fetch origin foo")()
     git.register("git switch foo")()
 
     with storage.checked_out_branch(git=git, branch="foo"):
-        git.register("git switch 123abc")()
+        git.register("git switch --detach 123abc")()
 
 
 def test_checked_out_branch__branch_does_not_exist(git):
