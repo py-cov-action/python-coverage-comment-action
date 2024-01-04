@@ -28,9 +28,11 @@ GIT_COMMIT_MESSAGE = "Update coverage data"
 
 @contextlib.contextmanager
 def checked_out_branch(git: subprocess.Git, branch: str):
-    try:
-        current_checkout = git.branch("--show-current").strip()
-    except subprocess.SubProcessError:
+    # If we're not on a branch, `git branch --show-current` will print nothing
+    # and still exit with 0.
+    current_checkout = git.branch("--show-current").strip()
+    is_on_a_branch = bool(current_checkout)
+    if not is_on_a_branch:
         current_checkout = git.rev_parse("--short", "HEAD").strip()
 
     log.debug(f"Current checkout is {current_checkout}")
@@ -66,7 +68,8 @@ def checked_out_branch(git: subprocess.Git, branch: str):
         yield
     finally:
         log.debug(f"Back to checkout of {current_checkout}")
-        git.switch(current_checkout)
+        detach = ["--detach"] if not is_on_a_branch else []
+        git.switch(*detach, current_checkout)
 
 
 def commit_operations(
