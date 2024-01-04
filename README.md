@@ -4,6 +4,7 @@
 
 ## Presentation
 
+
 This action analyses the coverage data produced by the Python
 [coverage](https://coverage.readthedocs.io) library and produces:
 
