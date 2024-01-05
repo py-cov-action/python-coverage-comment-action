@@ -17,6 +17,13 @@ jobs:
       && github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
+
       - run: >
           gh api
           "repos/py-cov-action/python-coverage-comment-action/check-runs"
@@ -26,6 +33,6 @@ jobs:
           -F status="in_progress"
           -F started_at="$(date -u +%FT%TZ)"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
