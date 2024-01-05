@@ -1,46 +1,38 @@
 name: Run end-to-end tests on external PR approval
 
 on:
-  workflow_run:
-    workflows: ["Trigger end-to-end tests on external PR approval"]
+  check_run:
     types:
-      - completed
+      - created
+      - rerequested
 
 jobs:
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    if: toJSON(github.event.check_run.pull_requests) != '[]'
     permissions:
       actions: read
       pull-requests: write
       contents: write
     steps:
-      - name: Extract the approved commit
-        id: extract
-        run: |
-          PR_NUMBER=$(gh api "repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}" --jq '.pull_requests | first | .number')
-          if [ -z "${PR_NUMBER}" ]; then
-            echo "No PR number found"
-            exit 1
-          fi
-          COMMIT_ID=$(gh pr --repo py-cov-action/python-coverage-comment-action view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER") | .commit.oid] | last')
-          if [ -z "${COMMIT_ID}" ]; then
-          echo "No approved commit found"
-          exit 1
-          fi
-          echo "PR_NUMBER=${PR_NUMBER}" >> "${GITHUB_OUTPUT}"
-          echo "COMMIT_ID=${COMMIT_ID}" > "${GITHUB_OUTPUT}"
+      - name: Update check with URL
+        run: >
+          gh api
+          "repos/py-cov-action/python-coverage-comment-action/check-runs/${CHECK_RUN_ID}"
+          -X PATCH
+          -F details_url="$(gh api "/repos/py-cov-action/python-coverage-comment-action/actions/jobs/${JOB_ID}" --jq '.url')"
         env:
-          RUN_ID: ${{ github.event.workflow_run.id }}
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_RUN_ID: ${{ github.event.check_run.id }}
+          JOB_ID: ${{ github.job }}
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           # Important: use the commit that was reviewed. GitHub is making sure
           # that this is race-condition-proof
-          ref: ${{ steps.extract.outputs.COMMIT_ID }}
+          ref: ${{ github.event.check_run.head_sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -66,5 +58,18 @@ jobs:
         env:
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
-          COVERAGE_COMMENT_E2E_ACTION_REF: ${{ steps.extract.outputs.COMMIT_ID }}
-          COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ steps.extract.outputs.PR_NUMBER }}
+          COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.event.check_run.head_sha }}
+          COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ github.event.check_run.pull_requests[0].number }}
+
+      - name: Report results to Check
+        if: always()
+        run: >
+          gh api
+          "repos/py-cov-action/python-coverage-comment-action/check-runs/${CHECK_RUN_ID}"
+          -X PATCH
+          -F conclusion=${JOB_STATUS}
+          -F status=completed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_RUN_ID: ${{ github.event.check_run.id }}
+          JOB_STATUS: ${{ job.status }}

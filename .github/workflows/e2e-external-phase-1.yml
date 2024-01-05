@@ -15,7 +15,17 @@ jobs:
       github.event.pull_request.author_association != 'MEMBER'
       && github.event.review.author_association == 'MEMBER'
       && github.event.review.state == 'approved'
-      && contains(github.event.review.body, '/e2e')
     runs-on: ubuntu-latest
     steps:
-      - run: true
+      - run: >
+          gh api
+          "repos/py-cov-action/python-coverage-comment-action/check-runs"
+          -X POST
+          -F name="End-to-end tests (external PR)"
+          -F head_sha="${HEAD_SHA}"
+          -F status="in_progress"
+          -F started_at="$(date -u +%FT%TZ)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
