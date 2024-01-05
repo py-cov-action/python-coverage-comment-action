@@ -16,6 +16,13 @@ jobs:
       pull-requests: write
       contents: write
     steps:
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
+
       - name: Update check with URL
         run: >
           gh api
@@ -23,7 +30,7 @@ jobs:
           -X PATCH
           -F details_url="$(gh api "/repos/py-cov-action/python-coverage-comment-action/actions/jobs/${JOB_ID}" --jq '.url')"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           CHECK_RUN_ID: ${{ github.event.check_run.id }}
           JOB_ID: ${{ github.job }}
 
@@ -70,6 +77,6 @@ jobs:
           -F conclusion=${JOB_STATUS}
           -F status=completed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           CHECK_RUN_ID: ${{ github.event.check_run.id }}
           JOB_STATUS: ${{ job.status }}
