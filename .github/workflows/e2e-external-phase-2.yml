@@ -33,7 +33,7 @@ jobs:
           --method GET
           "/repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}/artifacts"
           -F name="pr_number"
-          --jq '.artifacts[] | .archive_download_url | last'
+          --jq '.artifacts[] | .archive_download_url'
           | xargs curl -sL
           | funzip
           > "${GITHUB_OUTPUT}"
@@ -106,7 +106,7 @@ jobs:
           COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ steps.extract_pr_number.outputs.PR_NUMBER }}
 
       - name: Report results to Check
-        if: always()
+        if: always() && steps.create_check.outputs.CHECK_RUN_ID
         run: >
           gh api
           "repos/py-cov-action/python-coverage-comment-action/check-runs/${CHECK_RUN_ID}"
