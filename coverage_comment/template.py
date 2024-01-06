@@ -201,7 +201,7 @@ def select_files(
             diff=diff_coverage_file,
             previous=previous_coverage_file,
         )
-        has_diff = bool(diff_coverage_file)
+        has_diff = bool(diff_coverage_file and diff_coverage_file.added_statements)
         has_evolution_from_previous = (
             previous_coverage_file.info != coverage_file.info
             if previous_coverage_file
