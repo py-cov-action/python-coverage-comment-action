@@ -108,14 +108,6 @@ class FileInfo:
     diff: coverage_module.FileDiffCoverage | None
     previous: coverage_module.FileCoverage | None
 
-    @property
-    def new_missing_lines(self) -> list[int]:
-        missing_lines = set(self.coverage.missing_lines)
-        if self.previous:
-            missing_lines -= set(self.previous.missing_lines)
-
-        return sorted(missing_lines)
-
 
 def get_comment_markdown(
     *,
@@ -209,7 +201,7 @@ def select_files(
             diff=diff_coverage_file,
             previous=previous_coverage_file,
         )
-        has_diff = bool(diff_coverage_file)
+        has_diff = bool(diff_coverage_file and diff_coverage_file.added_statements)
         has_evolution_from_previous = (
             previous_coverage_file.info != coverage_file.info
             if previous_coverage_file
@@ -220,10 +212,29 @@ def select_files(
             files.append(file_info)
 
     count_files = len(files)
-    files = sorted(files, key=lambda x: len(x.new_missing_lines), reverse=True)
+    files = sorted(files, key=sort_order, reverse=True)
     if max_files is not None:
         files = files[:max_files]
     return sorted(files, key=lambda x: x.path), count_files
+
+
+def sort_order(file_info: FileInfo) -> tuple[int, int, int]:
+    """
+    Sort order for files:
+    1. Files with the most new missing lines
+    2. Files with the most added lines (from the diff)
+    3. Files with the most new executed lines (including not in the diff)
+    """
+    new_missing_lines = len(file_info.coverage.missing_lines)
+    if file_info.previous:
+        new_missing_lines -= len(file_info.previous.missing_lines)
+
+    added_statements = len(file_info.diff.added_statements) if file_info.diff else 0
+    new_covered_lines = len(file_info.coverage.executed_lines)
+    if file_info.previous:
+        new_covered_lines -= len(file_info.previous.executed_lines)
+
+    return abs(new_missing_lines), added_statements, abs(new_covered_lines)
 
 
 def get_readme_markdown(

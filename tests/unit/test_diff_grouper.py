@@ -24,8 +24,7 @@ def test_group_annotations_more_files(
     )
 
     assert list(result) == [
-        groups.Group(file=pathlib.Path("codebase/code.py"), line_start=6, line_end=8),
-        groups.Group(
-            file=pathlib.Path("codebase/other.py"), line_start=17, line_end=17
-        ),
+        groups.Group(file=pathlib.Path("codebase/code.py"), line_start=5, line_end=8),
+        groups.Group(file=pathlib.Path("codebase/other.py"), line_start=1, line_end=1),
+        groups.Group(file=pathlib.Path("codebase/other.py"), line_start=3, line_end=5),
     ]
