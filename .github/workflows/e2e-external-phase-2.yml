@@ -61,7 +61,7 @@ jobs:
           "repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}/attempts/${RUN_ATTEMPT}/jobs"
           --jq '
           .jobs[]
-          | select(.runner_name=='"${RUNNER_NAME}"')
+          | select(.runner_name=="'"${RUNNER_NAME}"'")
           | "JOB_ID=" + (.id | tostring)'
           > "${GITHUB_OUTPUT}"
         env:
