@@ -44,7 +44,7 @@ jobs:
       - name: Extract the approved commit
         id: extract_commit
         run: |
-          COMMIT_ID=$(gh pr --repo py-cov-action/python-coverage-comment-action view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER") | .commit.oid] | last')
+          COMMIT_ID=$(gh pr --repo py-cov-action/python-coverage-comment-action view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER" and (.body | contains("/e2e")) ) | .commit.oid] | last')
           if [ -z "${COMMIT_ID}" ]; then
           echo "No approved commit found"
           exit 1
