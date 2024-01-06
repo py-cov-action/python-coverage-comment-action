@@ -4,9 +4,6 @@ on:
   pull_request_review:
     types: [submitted]
 
-concurrency:
-  group: ${{ github.event_name }}-${{ github.ref }}
-
 jobs:
   test:
     name: Trigger end-to-end tests
@@ -17,22 +14,5 @@ jobs:
       && github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
-      - name: Generate a token
-        id: generate_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.E2E_APP_ID }}
-          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
-
-      - run: >
-          gh api
-          "repos/py-cov-action/python-coverage-comment-action/check-runs"
-          -X POST
-          -F name="End-to-end tests (external PR)"
-          -F head_sha="${HEAD_SHA}"
-          -F status="in_progress"
-          -F started_at="$(date -u +%FT%TZ)"
-        env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Launch e2e tests
+        run: gh workflow run e2e-external-phase-2.yml -f PR_NUMBER=${{ github.event.pull_request.number }}
