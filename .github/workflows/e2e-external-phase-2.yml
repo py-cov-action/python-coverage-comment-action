@@ -47,12 +47,28 @@ jobs:
           COMMIT_ID=$(gh pr --repo py-cov-action/python-coverage-comment-action view "${PR_NUMBER}" --json reviews --jq '[.reviews[] | select(.state == "APPROVED" and .authorAssociation == "MEMBER" and (.body | contains("/e2e")) ) | .commit.oid] | last')
           if [ -z "${COMMIT_ID}" ]; then
           echo "No approved commit found"
-          exit 1
+            exit 1
           fi
           echo "COMMIT_ID=${COMMIT_ID}" > "${GITHUB_OUTPUT}"
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ steps.extract_pr_number.outputs.PR_NUMBER }}
+
+      - name: Extract the current job id
+        id: extract_job_id
+        run: >
+          gh api
+          "repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}/attempts/${RUN_ATTEMPT}/jobs"
+          --jq '
+          .jobs[]
+          | select(.runner_name=='"${RUNNER_NAME}"')
+          | "JOB_ID=" + (.id | tostring)'
+          > "${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUNNER_NAME: ${{ runner.name }}
 
       - name: Create PR check
         id: create_check
@@ -69,7 +85,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           HEAD_SHA: ${{ steps.extract_commit.outputs.COMMIT_ID }}
-          JOB_ID: ${{ github.job }}
+          JOB_ID: ${{ steps.extract_job_id.outputs.JOB_ID }}
 
       - name: Checkout
         uses: actions/checkout@v4
