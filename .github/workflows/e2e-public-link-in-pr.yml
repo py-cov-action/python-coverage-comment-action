@@ -17,8 +17,8 @@ jobs:
 
           Admin commands cheatsheet:
 
-          - `/e2e` (in approved PR review body): Trigger end-to-end tests on external contributions
-          - `/invite` (in comment): Invite the author & admins to the end-to-end private repo
+          - \`/e2e\` (in approved PR review body): Trigger end-to-end tests on external contributions
+          - \`/invite\` (in comment): Invite the author & admins to the end-to-end private repo
           EOF
         env:
           LINK: ${{ github.event.pull_request.html_url }}
