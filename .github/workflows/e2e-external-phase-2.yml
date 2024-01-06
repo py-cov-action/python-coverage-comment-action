@@ -35,7 +35,8 @@ jobs:
           -F name="pr_number"
           --jq '[.artifacts[]] | last | .archive_download_url'
           | xargs gh api
-
+          | funzip
+          > "${GITHUB_OUTPUT}"
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
