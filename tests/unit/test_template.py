@@ -643,6 +643,30 @@ def test_get_marker(marker_id, result):
             """
             # file: a.py
             1 covered
+            # file: c.py
+            1 covered
+            # file: b.py
+            1 covered
+            """,
+            """
+            # file: a.py
+            1
+            2 covered
+            # file: c.py
+            + 1 covered
+            # file: b.py
+            1 covered
+            1 covered
+            """,
+            2,
+            ["b.py", "c.py"],
+            2,
+            id="truncated_and_ordered_sort_order_advanced",
+        ),
+        pytest.param(
+            """
+            # file: a.py
+            1 covered
             # file: b.py
             1 covered
             """,
@@ -701,6 +725,90 @@ def test_select_files__no_previous(
     )
     assert [str(e.path) for e in files] == ["a.py"]
     assert total == 1
+
+
+@pytest.mark.parametrize(
+    "previous_code, current_code_and_diff, expected_new_missing, expected_added, expected_new_covered",
+    [
+        pytest.param(
+            """
+            # file: a.py
+            1 covered
+            2 missing
+            """,
+            """
+            # file: a.py
+            + 1
+            2 covered
+            + 3 missing
+            + 4 missing
+            + 5 covered
+            """,
+            1,
+            3,
+            1,
+            id="added_code",
+        ),
+        pytest.param(
+            """
+            # file: a.py
+            1 covered
+            2 missing
+            3 covered
+            4 missing
+            """,
+            """
+            # file: a.py
+            + 1 missing
+            """,
+            1,
+            1,
+            2,
+            id="removed_code",
+        ),
+    ],
+)
+def test_sort_order(
+    make_coverage_and_diff,
+    make_coverage,
+    previous_code,
+    current_code_and_diff,
+    expected_new_missing,
+    expected_added,
+    expected_new_covered,
+):
+    previous_cov = make_coverage(previous_code)
+    cov, diff_cov = make_coverage_and_diff(current_code_and_diff)
+    path = pathlib.Path("a.py")
+    file_info = template.FileInfo(
+        path=path,
+        coverage=cov.files[path],
+        diff=diff_cov.files[path],
+        previous=previous_cov.files[path],
+    )
+    new_missing, added, new_covered = template.sort_order(file_info=file_info)
+    assert new_missing == expected_new_missing
+    assert added == expected_added
+    assert new_covered == expected_new_covered
+
+
+def test_sort_order__none(make_coverage):
+    cov = make_coverage(
+        """
+        # file: a.py
+        1 covered
+        """
+    )
+    file_info = template.FileInfo(
+        path=pathlib.Path("a.py"),
+        coverage=cov.files[pathlib.Path("a.py")],
+        diff=None,
+        previous=None,
+    )
+    new_missing, added, new_covered = template.sort_order(file_info=file_info)
+    assert new_missing == 0
+    assert added == 0
+    assert new_covered == 1
 
 
 def test_get_readme_markdown():
