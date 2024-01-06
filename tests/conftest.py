@@ -291,10 +291,13 @@ def make_coverage():
         )
         line_number = 0
         # (we start at 0 because the first line will be empty for readabilty)
-        for line in code.splitlines()[1:]:
+        for line in code.splitlines():
             line = line.strip()
+            if not line:
+                continue
             if line.startswith("# file: "):
                 current_file = pathlib.Path(line.split("# file: ")[1])
+                line_number = 0
                 continue
             assert current_file, (line, current_file, code)
             line_number += 1
@@ -383,8 +386,10 @@ def make_coverage_and_diff(make_coverage, make_diff_coverage):
         current_file = None
         # (we start at 0 because the first line will be empty for readabilty)
         line_number = 0
-        for line in code.splitlines()[1:]:
+        for line in code.splitlines():
             line = line.strip()
+            if not line:
+                continue
             if line.startswith("# file: "):
                 new_code += line + "\n"
                 current_file = pathlib.Path(line.split("# file: ")[1])
