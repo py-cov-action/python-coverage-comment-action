@@ -16,3 +16,5 @@ jobs:
     steps:
       - name: Launch e2e tests
         run: gh workflow run e2e-external-phase-2.yml -f PR_NUMBER=${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ github.token }}
