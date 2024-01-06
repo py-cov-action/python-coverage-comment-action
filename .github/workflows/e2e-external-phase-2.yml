@@ -34,7 +34,7 @@ jobs:
           "/repos/py-cov-action/python-coverage-comment-action/actions/runs/${RUN_ID}/artifacts"
           -F name="pr_number"
           --jq '[.artifacts[]] | last | .archive_download_url'
-          | xargs curl -sL
+          | xargs gh api
 
         env:
           GH_TOKEN: ${{ github.token }}
