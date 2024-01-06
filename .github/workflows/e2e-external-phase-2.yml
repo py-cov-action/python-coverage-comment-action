@@ -80,7 +80,7 @@ jobs:
           -F head_sha="${HEAD_SHA}"
           -F status="in_progress"
           -F started_at="$(date -u +%FT%TZ)"
-          -F details_url="$(gh api "/repos/py-cov-action/python-coverage-comment-action/actions/jobs/${JOB_ID}" --jq '.url')"
+          -F details_url="$(gh api "/repos/py-cov-action/python-coverage-comment-action/actions/jobs/${JOB_ID}" --jq '.html_url')"
           --jq '"CHECK_RUN_ID=" + (.id | tostring)' > "${GITHUB_OUTPUT}"
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
