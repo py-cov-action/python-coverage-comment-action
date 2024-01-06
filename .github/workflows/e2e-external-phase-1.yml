@@ -12,9 +12,15 @@ jobs:
       github.event.pull_request.author_association != 'MEMBER'
       && github.event.review.author_association == 'MEMBER'
       && github.event.review.state == 'approved'
+      && contains(github.event.review.body, '/e2e')
     runs-on: ubuntu-latest
     steps:
-      - name: Launch e2e tests
-        run: gh workflow --repo py-cov-action/python-coverage-comment-action run e2e-external-phase-2.yml -f PR_NUMBER=${{ github.event.pull_request.number }}
+      - name: Store PR number in a file
+        run: echo "PR_NUMBER=${PR_NUMBER}" > pr_number.txt
         env:
-          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr_number
+          path: pr_number.txt
