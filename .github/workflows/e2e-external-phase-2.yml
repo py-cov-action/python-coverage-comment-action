@@ -94,8 +94,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install Poetry
+        # https://github.com/pypa/pipx/issues/1195
         run: |
-          pipx install poetry --python=python3.11
+          pipx install poetry --python="$(command -v python3.11)"
 
       - name: Poetry caches
         uses: actions/cache@v3
