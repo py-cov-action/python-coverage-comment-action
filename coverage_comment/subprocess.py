@@ -23,6 +23,8 @@ def run(*args, path: pathlib.Path, **kwargs) -> str:
             args,
             cwd=path,
             text=True,
+            # Only relates to DecodeErrors while decoding the output
+            errors='replace',
             check=True,
             capture_output=True,
             **kwargs,
