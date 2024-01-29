@@ -17,8 +17,8 @@ This action analyses the coverage data produced by the Python
   - The coverage summary
   - The full HTML coverage in a browsable format (not available for private repos)
 
-All of this is free of charge and runs on the GitHub infrastructure: your code isn't sent
-anywhere out of GitHub.
+All of this runs on top of GitHub Action without extra-charges and runs on the GitHub
+infrastructure: your code isn't sent anywhere out of GitHub.
 
 [See this action in action](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
