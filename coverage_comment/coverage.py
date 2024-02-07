@@ -108,7 +108,7 @@ def get_coverage_info(
                 "relative_files = true\n\n"
                 "Note that the specific format can be slightly different if you're using "
                 "setup.cfg or pyproject.toml. See details in: "
-                "https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files"
+                "https://coverage.readthedocs.io/en/latest/config.html#config-run-relative-files"
             )
         raise
 

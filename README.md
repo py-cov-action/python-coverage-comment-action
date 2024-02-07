@@ -64,7 +64,7 @@ See [an example](https://github.com/py-cov-action/python-coverage-comment-action
 ### Setup
 
 Please ensure that your `.coverage` file(s) is created with the option
-[`relative_files = true`](https://coverage.readthedocs.io/en/6.2/config.html#config-run-relative-files).
+[`relative_files = true`](https://coverage.readthedocs.io/en/latest/config.html#config-run-relative-files).
 
 Please ensure that the branch `python-coverage-comment-action-data` is not
 protected (there's no reason that it would be the case, except if you have very
