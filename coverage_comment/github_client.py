@@ -47,7 +47,6 @@ class _Callable:
 
 
 class GitHub:
-
     """
     GitHub client.
     """
@@ -58,9 +57,18 @@ class GitHub:
     def __getattr__(self, attr):
         return _Callable(self, "/%s" % attr)
 
-    def _http(self, method, path, *, bytes=False, **kw):
+    def _http(
+        self,
+        method: str,
+        path: str,
+        *,
+        bytes: bool = False,
+        headers: dict[str, str] | None = None,
+        **kw,
+    ):
         _method = method.lower()
         requests_kwargs = {}
+        header_kwargs = {"headers": headers} if headers else {}
         if _method == "get" and kw:
             requests_kwargs = {"params": kw}
 
@@ -71,6 +79,7 @@ class GitHub:
             _method.upper(),
             path,
             timeout=TIMEOUT,
+            **header_kwargs,
             **requests_kwargs,
         )
         if bytes:
@@ -93,9 +102,13 @@ class GitHub:
 
 def response_contents(
     response: httpx.Response,
-) -> JsonObject | bytes:
+) -> JsonObject | str | bytes:
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
+    if response.headers.get("content-type", "").startswith(
+        "application/vnd.github.raw+json"
+    ):
+        return response.text
     return response.content
 
 

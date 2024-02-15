@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import pathlib
 
 import pytest
@@ -142,9 +141,8 @@ def test_get_datafile_contents__not_found(gh, session):
 
 
 def test_get_datafile_contents(gh, session):
-    payload = base64.b64encode(b"yay").decode()
     session.register("GET", "/repos/foo/bar/contents/data.json", params={"ref": "baz"})(
-        json={"content": payload}
+        text="yay", headers={"content-type": "application/vnd.github.raw+json"}
     )
 
     result = storage.get_datafile_contents(
