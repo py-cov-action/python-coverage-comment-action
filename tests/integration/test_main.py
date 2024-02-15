@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import json
 import os
 import pathlib
@@ -232,7 +231,7 @@ def test_action__pull_request__store_comment_not_targeting_default(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(json={"content": base64.b64encode(payload.encode()).decode()})
+    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
@@ -293,7 +292,7 @@ def test_action__pull_request__post_comment(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(json={"content": base64.b64encode(payload.encode()).decode()})
+    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
@@ -355,7 +354,7 @@ def test_action__push__non_default_branch(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(json={"content": base64.b64encode(payload.encode()).decode()})
+    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     session.register(
         "GET",
@@ -444,7 +443,7 @@ def test_action__push__non_default_branch__no_pr(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(json={"content": base64.b64encode(payload.encode()).decode()})
+    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     session.register(
         "GET",
@@ -498,7 +497,7 @@ def test_action__pull_request__force_store_comment(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(json={"content": base64.b64encode(payload.encode()).decode()})
+    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     git.register("git fetch origin main --depth=1000")()
     git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)

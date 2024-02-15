@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import contextlib
 import pathlib
 
@@ -120,11 +119,16 @@ def get_datafile_contents(
 ) -> str | None:
     contents_path = github.repos(repository).contents(str(files.DATA_PATH))
     try:
-        response = contents_path.get(ref=branch)
+        response = contents_path.get(
+            ref=branch,
+            # If we don't pass this header, the format of the answer will depend on
+            # the size of the file. With the header, we're sure to get the raw content.
+            headers={"Accept": "application/vnd.github.raw+json"},
+        )
     except github_client.NotFound:
         return None
 
-    return base64.b64decode(response.content).decode()
+    return response
 
 
 def get_raw_file_url(
