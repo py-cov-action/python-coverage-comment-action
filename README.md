@@ -14,16 +14,16 @@
 | coverage\_comment/diff\_grouper.py  |       12 |        0 |        4 |        0 |     100% |           |
 | coverage\_comment/files.py          |       60 |        0 |        6 |        0 |     100% |           |
 | coverage\_comment/github.py         |      107 |        0 |       26 |        0 |     100% |           |
-| coverage\_comment/github\_client.py |       65 |        0 |       14 |        0 |     100% |           |
+| coverage\_comment/github\_client.py |       68 |        0 |       16 |        0 |     100% |           |
 | coverage\_comment/groups.py         |       35 |        0 |       11 |        0 |     100% |           |
 | coverage\_comment/log.py            |        5 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/log\_utils.py     |        9 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/main.py           |      130 |        0 |       24 |        0 |     100% |           |
 | coverage\_comment/settings.py       |      119 |        0 |       56 |        0 |     100% |           |
-| coverage\_comment/storage.py        |       70 |        0 |       10 |        0 |     100% |           |
+| coverage\_comment/storage.py        |       69 |        0 |       10 |        0 |     100% |           |
 | coverage\_comment/subprocess.py     |       26 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/template.py       |      108 |        0 |       22 |        0 |     100% |           |
-|                           **TOTAL** |  **926** |    **0** |  **229** |    **0** | **100%** |           |
+|                           **TOTAL** |  **928** |    **0** |  **231** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
