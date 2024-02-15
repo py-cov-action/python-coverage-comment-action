@@ -102,9 +102,13 @@ class GitHub:
 
 def response_contents(
     response: httpx.Response,
-) -> JsonObject | bytes:
+) -> JsonObject | str | bytes:
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
+    if response.headers.get("content-type", "").startswith(
+        "application/vnd.github.raw+json"
+    ):
+        return response.text
     return response.content
 
 
