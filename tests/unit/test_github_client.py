@@ -13,6 +13,15 @@ def test_github_client__get(session, gh):
     assert gh.repos("a/b").issues().get(a=1) == {"foo": "bar"}
 
 
+def test_github_client__get_headers(session, gh):
+    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
+        json={"foo": "bar"},
+        headers={"X-foo": "yay"},
+    )
+
+    assert gh.repos("a/b").issues().get(a=1, headers={"X-foo": "yay"}) == {"foo": "bar"}
+
+
 def test_github_client__post_non_json(session, gh):
     session.register("POST", "/repos/a/b/issues", timeout=60, json={"a": 1})()
 
