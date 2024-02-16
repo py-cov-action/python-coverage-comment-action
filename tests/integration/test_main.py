@@ -192,7 +192,7 @@ def test_action__pull_request__store_comment(
     assert comment == comment_file
     assert comment == summary_file.read_text()
     assert (
-        "Coverage for the whole project is 77.77%. Previous coverage rate is not available"
+        "Coverage for the whole project is 77.78%. Previous coverage rate is not available"
         in comment
     )
     assert (
@@ -331,7 +331,7 @@ def test_action__pull_request__post_comment(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "Coverage for the whole project went from 30% to 77.77%" in comment
+    assert "Coverage for the whole project went from 30% to 77.78%" in comment
     assert comment.count("<img") == 10
     assert comment == summary_file.read_text()
 
@@ -402,7 +402,7 @@ def test_action__push__non_default_branch(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "Coverage for the whole project went from 30% to 77.77%" in comment
+    assert "Coverage for the whole project went from 30% to 77.78%" in comment
     assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"
