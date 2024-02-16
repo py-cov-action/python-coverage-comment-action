@@ -195,7 +195,7 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
                     covered_lines=file_data["summary"]["covered_lines"],
                     num_statements=file_data["summary"]["num_statements"],
                     percent_covered=decimal.Decimal(
-                        round(file_data["summary"]["percent_covered"] / 100, ndigits=2)
+                        str(round(file_data["summary"]["percent_covered"] / 100, ndigits=2))
                     ),
                     missing_lines=file_data["summary"]["missing_lines"],
                     excluded_lines=file_data["summary"]["excluded_lines"],
@@ -213,7 +213,7 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
             covered_lines=data["totals"]["covered_lines"],
             num_statements=data["totals"]["num_statements"],
             percent_covered=decimal.Decimal(
-                round(data["totals"]["percent_covered"] / 100, ndigits=2)
+                str(round(data["totals"]["percent_covered"] / 100, ndigits=2))
             ),
             missing_lines=data["totals"]["missing_lines"],
             excluded_lines=data["totals"]["excluded_lines"],
