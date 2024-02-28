@@ -7,13 +7,14 @@ from coverage_comment import log_utils
 
 
 def test_level_mapping__all_supported():
-    # TODO Python 3.11: replace logging._levelToName with
-    # logging.getLevelNamesMapping()
     ignored = {
         logging.getLevelName("NOTSET"),
         logging.getLevelName("TRACE"),
     }
-    assert set(log_utils.LEVEL_MAPPING) == set(logging._levelToName) - ignored
+    assert (
+        set(log_utils.LEVEL_MAPPING)
+        == set(logging.getLevelNamesMapping().values()) - ignored
+    )
 
 
 def test__github_formatter():

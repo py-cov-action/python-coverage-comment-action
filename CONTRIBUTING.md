@@ -4,7 +4,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 
 ### Things to know:
 
-- Python3.11
+- Python3.12
 - Use [Poetry](https://python-poetry.org/)
 - Launch tests with `pytest`, config is in setup.cfg
 - `ruff` runs through `pre-commit`, so you can install hooks with `pre-commit install`.

@@ -22,12 +22,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install Poetry
         # https://github.com/pypa/pipx/issues/1195
         run: |
-          pipx install poetry --python="$(command -v python3.11)"
+          pipx install poetry --python="$(command -v python3.12)"
 
       - name: Poetry caches
         uses: actions/cache@v4
