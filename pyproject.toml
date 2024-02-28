@@ -11,10 +11,10 @@ include = ["coverage_comment/default.md.j2"]
 coverage_comment = 'coverage_comment.main:main'
 
 [project]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 coverage = { version = "*", extras = ["toml"] }
 httpx = { version = "*", extras = ["http2"] }
 Jinja2 = "*"
