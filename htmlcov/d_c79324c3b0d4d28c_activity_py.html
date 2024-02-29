@@ -95,7 +95,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_badge_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-28 23:21 +0000
+            created at 2024-02-29 21:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -117,28 +117,29 @@
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="str">The code in main should be as straightforward as possible, we're offloading</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="str">the branching logic to this module.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">class</span> <span class="nam">ActivityNotFound</span><span class="op">(</span><span class="nam">Exception</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="key">pass</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">class</span> <span class="nam">ActivityNotFound</span><span class="op">(</span><span class="nam">Exception</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="key">pass</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="key">def</span> <span class="nam">find_activity</span><span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs15" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">    <span class="nam">event_name</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">    <span class="nam">is_default_branch</span><span class="op">:</span> <span class="nam">bool</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="str">"""Find the activity to perform based on the event type and payload."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"workflow_run"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs20" /><span class="r"><label for="ctxs20" class="ctx">23 ctx</label></span><span class="ctxs">1bcdefghiqrjkltuvwmnosxp</span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="key">return</span> <span class="str">"post_comment"</span>&nbsp;</span><input type="checkbox" id="ctxs21" /><span class="r"><label for="ctxs21" class="ctx">5 ctx</label></span><span class="ctxs">1tuvwx</span></p>
-    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">if</span> <span class="op">(</span><span class="nam">event_name</span> <span class="op">==</span> <span class="str">"push"</span> <span class="key">and</span> <span class="nam">is_default_branch</span><span class="op">)</span> <span class="key">or</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"schedule"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23" /><span class="r"><label for="ctxs23" class="ctx">18 ctx</label></span><span class="ctxs">1bcdefghiqrjklmnosp</span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">        <span class="key">return</span> <span class="str">"save_coverage_data_files"</span>&nbsp;</span><input type="checkbox" id="ctxs24" /><span class="r"><label for="ctxs24" class="ctx">3 ctx</label></span><span class="ctxs">1qrs</span></p>
-    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="key">not</span> <span class="key">in</span> <span class="op">{</span><span class="str">"pull_request"</span><span class="op">,</span> <span class="str">"push"</span><span class="op">}</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs26" /><span class="r"><label for="ctxs26" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghijklmnop</span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ActivityNotFound</span>&nbsp;</span><input type="checkbox" id="ctxs27" /><span class="r"><label for="ctxs27" class="ctx">2 ctx</label></span><span class="ctxs">1bp</span></p>
-    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">return</span> <span class="str">"process_pr"</span>&nbsp;</span><input type="checkbox" id="ctxs29" /><span class="r"><label for="ctxs29" class="ctx">13 ctx</label></span><span class="ctxs">1cdefghijklmno</span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">def</span> <span class="nam">find_activity</span><span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">    <span class="nam">event_name</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">is_default_branch</span><span class="op">:</span> <span class="nam">bool</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="str">"""Find the activity to perform based on the event type and payload."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"workflow_run"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs21" /><span class="r"><label for="ctxs21" class="ctx">23 ctx</label></span><span class="ctxs">1bcdefghiqrjkltuvwmnosxp</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="key">return</span> <span class="str">"post_comment"</span>&nbsp;</span><input type="checkbox" id="ctxs22" /><span class="r"><label for="ctxs22" class="ctx">5 ctx</label></span><span class="ctxs">1tuvwx</span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="key">if</span> <span class="op">(</span><span class="nam">event_name</span> <span class="op">==</span> <span class="str">"push"</span> <span class="key">and</span> <span class="nam">is_default_branch</span><span class="op">)</span> <span class="key">or</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"schedule"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24" /><span class="r"><label for="ctxs24" class="ctx">18 ctx</label></span><span class="ctxs">1bcdefghiqrjklmnosp</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="key">return</span> <span class="str">"save_coverage_data_files"</span>&nbsp;</span><input type="checkbox" id="ctxs25" /><span class="r"><label for="ctxs25" class="ctx">3 ctx</label></span><span class="ctxs">1qrs</span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="key">not</span> <span class="key">in</span> <span class="op">{</span><span class="str">"pull_request"</span><span class="op">,</span> <span class="str">"push"</span><span class="op">}</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs27" /><span class="r"><label for="ctxs27" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghijklmnop</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ActivityNotFound</span>&nbsp;</span><input type="checkbox" id="ctxs28" /><span class="r"><label for="ctxs28" class="ctx">2 ctx</label></span><span class="ctxs">1bp</span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">return</span> <span class="str">"process_pr"</span>&nbsp;</span><input type="checkbox" id="ctxs30" /><span class="r"><label for="ctxs30" class="ctx">13 ctx</label></span><span class="ctxs">1cdefghijklmno</span></p>
 </main>
 <footer>
     <div class="content">
@@ -148,7 +149,7 @@
             <a id="nextFileLink" class="nav" href="d_c79324c3b0d4d28c_badge_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-28 23:21 +0000
+            created at 2024-02-29 21:01 +0000
         </p>
     </div>
 </footer>
