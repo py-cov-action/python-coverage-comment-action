@@ -5,6 +5,7 @@ based on the github event type and repository.
 The code in main should be as straightforward as possible, we're offloading
 the branching logic to this module.
 """
+
 from __future__ import annotations
 
 
