@@ -2,6 +2,7 @@
 This module contains info pertaining to the files we intend to save,
 independently from storage specifics (storage.py)
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -25,8 +26,7 @@ BADGE_PATH = pathlib.Path("badge.svg")
 class Operation(Protocol):
     path: pathlib.Path
 
-    def apply(self):
-        ...
+    def apply(self): ...
 
 
 @dataclasses.dataclass
