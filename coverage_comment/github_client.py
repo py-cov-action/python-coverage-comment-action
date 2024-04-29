@@ -56,7 +56,7 @@ class GitHub:
         self.session = session
 
     def __getattr__(self, attr):
-        return _Callable(self, "/%s" % attr)
+        return _Callable(self, f"/{attr}")
 
     def _http(
         self,
@@ -122,7 +122,7 @@ class JsonObject(dict):
         try:
             return self[key]
         except KeyError:
-            raise AttributeError(r"'Dict' object has no attribute '%s'" % key)
+            raise AttributeError(rf"'Dict' object has no attribute '{key}'")
 
 
 class ApiError(Exception):
