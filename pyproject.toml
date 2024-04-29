@@ -61,6 +61,7 @@ no_implicit_optional = true
 
 [tool.ruff]
 target-version = "py312"
+unsafe-fixes = true
 
 [tool.ruff.lint]
 extend-select = [
