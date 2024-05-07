@@ -183,7 +183,7 @@ def test_public_repo(
         fail_value="\n",
     )
 
-    assert "-brightgreen.svg" in ext_comment
+    assert "-brightgreen.png" in ext_comment
 
 
 @pytest.mark.repo_suffix("private")
@@ -274,7 +274,7 @@ def test_private_repo(
         "--jq=.comments[0].body",
         fail_value="\n",
     )
-    assert "-brightgreen.svg" in comment
+    assert "-brightgreen.png" in comment
 
     # Let's merge the PR and see if everything works fine
     gh_me("pr", "merge", "1", "--merge")

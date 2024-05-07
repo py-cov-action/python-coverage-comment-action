@@ -8,6 +8,7 @@ from __future__ import annotations
 import decimal
 import json
 import urllib.parse
+from typing import Literal
 
 import httpx
 
@@ -67,13 +68,18 @@ def compute_badge_image(
     ).text
 
 
-def get_static_badge_url(label: str, message: str, color: str) -> str:
+def get_static_badge_url(
+    label: str,
+    message: str,
+    color: str,
+    format: Literal["svg", "png"] = "png",
+) -> str:
     if not color or not message:
         raise ValueError("color and message are required")
     code = "-".join(
         e.replace("_", "__").replace("-", "--") for e in (label, message, color) if e
     )
-    return "https://img.shields.io/badge/" + urllib.parse.quote(f"{code}.svg")
+    return "https://img.shields.io/badge/" + urllib.parse.quote(f"{code}.{format}")
 
 
 def get_endpoint_url(endpoint_url: str) -> str:

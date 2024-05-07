@@ -8,6 +8,7 @@ import itertools
 import pathlib
 from collections.abc import Callable
 from importlib import resources
+from typing import Literal
 
 import jinja2
 from jinja2.sandbox import SandboxedEnvironment
@@ -127,6 +128,7 @@ def get_comment_markdown(
     subproject_id: str | None = None,
     custom_template: str | None = None,
     pr_targets_default_branch: bool = True,
+    image_format: Literal["svg", "png"] = "png",
 ):
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
@@ -134,7 +136,9 @@ def get_comment_markdown(
     env.filters["delta"] = delta
     env.filters["x100"] = x100
     env.filters["get_evolution_color"] = badge.get_evolution_badge_color
-    env.filters["generate_badge"] = badge.get_static_badge_url
+    env.filters["generate_badge"] = functools.partial(
+        badge.get_static_badge_url, format=image_format
+    )
     env.filters["pluralize"] = pluralize
     env.filters["file_url"] = functools.partial(
         get_file_url, repo_name=repo_name, pr_number=pr_number
