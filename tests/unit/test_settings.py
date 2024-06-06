@@ -4,7 +4,6 @@ import decimal
 import pathlib
 
 import pytest
-
 from coverage_comment import settings
 
 
@@ -127,6 +126,8 @@ def config():
     "github_ref, github_pr_number",
     [
         ("foo", None),
+        ("refs/heads/branch-with-pull", None),
+        ("refs/tags/tag-with-pull", None),
         ("refs/pull/2/merge", 2),
     ],
 )
@@ -138,6 +139,8 @@ def test_config__GITHUB_PR_NUMBER(config, github_ref, github_pr_number):
     "github_ref, github_branch_name",
     [
         ("refs/pull/2/merge", None),
+        ("refs/pull/2/head", None),
+        ("refs/tags/tag-with-heads", None),
         ("refs/heads/a/b", "a/b"),
     ],
 )
