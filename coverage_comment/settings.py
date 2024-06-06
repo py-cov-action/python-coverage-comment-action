@@ -125,14 +125,14 @@ class Config:
     @property
     def GITHUB_PR_NUMBER(self) -> int | None:
         # "refs/pull/2/merge"
-        if "pull" in self.GITHUB_REF:
+        if self.GITHUB_REF.startswith("refs/pull"):
             return int(self.GITHUB_REF.split("/")[2])
         return None
 
     @property
     def GITHUB_BRANCH_NAME(self) -> str | None:
         # "refs/heads/my_branch_name"
-        if "heads" in self.GITHUB_REF:
+        if self.GITHUB_REF.startswith("refs/heads"):
             return self.GITHUB_REF.split("/", 2)[2]
         return None
 
