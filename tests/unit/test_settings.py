@@ -4,6 +4,7 @@ import decimal
 import pathlib
 
 import pytest
+
 from coverage_comment import settings
 
 
