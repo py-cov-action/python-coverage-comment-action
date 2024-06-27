@@ -45,7 +45,7 @@
 {% set color = "007ec6" -%}
 {% set message = statements_count %}
 {% endif -%}
-<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ statements_count | string | generate_badge(message=(message | delta), color=color) }}"></a></td>
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ statements_count | compact | generate_badge(message=(message | delta), color=color) }}"></a></td>
 
 {%- endmacro -%}
 
@@ -65,7 +65,7 @@
 {%- set message = missing_lines_count -%}
 {%- endif -%}
 {%- set color = message | get_evolution_color(up_is_good=false) -%}
-<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ missing_lines_count | string | generate_badge(message=(message | delta), color=color) }}"></a></td>
+<td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ missing_lines_count | compact | generate_badge(message=(message | delta), color=color) }}"></a></td>
 
 {%- endmacro -%}
 
@@ -80,10 +80,10 @@
 {%- set text = "This PR doesn't change the coverage rate in " ~ path ~ ", which is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ ")." -%}
 {%- endif -%}
 {%- set color = coverage_diff | get_evolution_color() -%}
-{%- set message = "(" ~ previous_covered_statements_count ~ "/" ~ previous_statements_count ~ " > " ~ covered_statements_count ~ "/" ~ statements_count ~ ")" -%}
+{%- set message = "(" ~ previous_covered_statements_count | compact ~ "/" ~ previous_statements_count | compact ~ " > " ~ covered_statements_count | compact ~ "/" ~ statements_count | compact ~ ")" -%}
 {%- else -%}
 {%- set text = "The coverage rate of " ~ path ~ " is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ "). The file did not seem to exist on the base branch." -%}
-{%- set message = "(" ~ covered_statements_count ~ "/" ~ statements_count ~ ")" -%}
+{%- set message = "(" ~ covered_statements_count | compact ~ "/" ~ statements_count | compact ~ ")" -%}
 {%- set color = percent_covered | x100 | get_badge_color -%}
 {%- endif -%}
 <td align="center"><a href="{{ path | file_url }}"><img title="{{ text }}" src="{{ percent_covered | pct(precision=0) | generate_badge(message=message, color=color) }}"></a></td>
@@ -94,7 +94,7 @@
 {% if added_statements_count -%}
 {% set text = "In this PR, " ~ (added_statements_count) ~ " new statements are added to " ~ path ~ ", " ~ covered_statements_count ~ " of which are covered (" ~ (percent_covered | pct) ~ ")." -%}
 {% set label = (percent_covered | pct(precision=0)) -%}
-{% set message = "(" ~ covered_statements_count ~ "/" ~ added_statements_count ~ ")" -%}
+{% set message = "(" ~ covered_statements_count | compact ~ "/" ~ added_statements_count | compact ~ ")" -%}
 {%- set color = (percent_covered | x100 | get_badge_color()) -%}
 {% else -%}
 {% set text = "This PR does not seem to add statements to " ~ path ~ "." -%}

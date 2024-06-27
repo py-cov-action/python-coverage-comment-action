@@ -836,3 +836,20 @@ def test_get_log_message():
         subproject_id="foo",
     )
     assert result.startswith("Coverage info for foo:")
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (0, "0"),
+        (1, "1"),
+        (999, "999"),
+        (1_042, "1.0k"),
+        (9_900, "9.9k"),
+        (12_345, "12k"),
+        (999_999, "1000k"),
+        (1_234_567, "1M"),
+    ],
+)
+def test_compact(value, expected):
+    assert template.compact(value) == expected
