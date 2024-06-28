@@ -6,6 +6,7 @@ import decimal
 import json
 import pathlib
 from collections.abc import Sequence
+from typing import cast
 
 from coverage_comment import log, subprocess
 
@@ -40,6 +41,8 @@ class FileCoverage:
     executed_lines: list[int]
     missing_lines: list[int]
     excluded_lines: list[int]
+    executed_branches: list[list[int]] | None
+    missing_branches: list[list[int]] | None
     info: CoverageInfo
 
 
@@ -82,10 +85,26 @@ class DiffCoverage:
     files: dict[pathlib.Path, FileDiffCoverage]
 
 
-def compute_coverage(num_covered: int, num_total: int) -> decimal.Decimal:
-    if num_total == 0:
+def compute_coverage(
+    num_covered: int,
+    num_total: int,
+    use_branch_coverage: bool,
+    num_branches_covered: int | None,
+    num_branches_total: int | None,
+) -> decimal.Decimal:
+    """Compute the coverage percentage, with or without branch coverage."""
+    if use_branch_coverage:
+        num_branches_covered = cast(int, num_branches_covered)
+        num_branches_total = cast(int, num_branches_total)
+        numerator = decimal.Decimal(num_covered + num_branches_covered)
+        denominator = decimal.Decimal(num_total + num_branches_total)
+    else:
+        numerator = decimal.Decimal(num_covered)
+        denominator = decimal.Decimal(num_total)
+
+    if denominator == 0:
         return decimal.Decimal("1")
-    return decimal.Decimal(num_covered) / decimal.Decimal(num_total)
+    return numerator / denominator
 
 
 def get_coverage_info(
@@ -191,12 +210,19 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
                 excluded_lines=file_data["excluded_lines"],
                 executed_lines=file_data["executed_lines"],
                 missing_lines=file_data["missing_lines"],
+                executed_branches=file_data.get("executed_branches"),
+                missing_branches=file_data.get("missing_branches"),
                 info=CoverageInfo(
                     covered_lines=file_data["summary"]["covered_lines"],
                     num_statements=file_data["summary"]["num_statements"],
                     percent_covered=compute_coverage(
-                        file_data["summary"]["covered_lines"],
-                        file_data["summary"]["num_statements"],
+                        num_covered=file_data["summary"]["covered_lines"],
+                        num_total=file_data["summary"]["num_statements"],
+                        use_branch_coverage=data["meta"]["branch_coverage"],
+                        num_branches_covered=file_data["summary"].get(
+                            "covered_branches"
+                        ),
+                        num_branches_total=file_data["summary"].get("num_branches"),
                     ),
                     missing_lines=file_data["summary"]["missing_lines"],
                     excluded_lines=file_data["summary"]["excluded_lines"],
@@ -214,8 +240,11 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
             covered_lines=data["totals"]["covered_lines"],
             num_statements=data["totals"]["num_statements"],
             percent_covered=compute_coverage(
-                data["totals"]["covered_lines"],
-                data["totals"]["num_statements"],
+                num_covered=data["totals"]["covered_lines"],
+                num_total=data["totals"]["num_statements"],
+                use_branch_coverage=data["meta"]["branch_coverage"],
+                num_branches_covered=data["totals"].get("covered_branches"),
+                num_branches_total=data["totals"].get("num_branches"),
             ),
             missing_lines=data["totals"]["missing_lines"],
             excluded_lines=data["totals"]["excluded_lines"],
@@ -255,8 +284,18 @@ def get_diff_coverage_info(
         total_num_lines += count_total
         total_num_violations += count_missing
 
+        num_branches_covered = None
+        num_branches_total = None
+        if coverage.meta.branch_coverage:
+            num_branches_covered = 12
+            num_branches_total = 12
+
         percent_covered = compute_coverage(
-            num_covered=count_executed, num_total=count_total
+            num_covered=count_executed,
+            num_total=count_total,
+            use_branch_coverage=coverage.meta.branch_coverage,
+            num_branches_covered=num_branches_covered,
+            num_branches_total=num_branches_total,
         )
 
         files[path] = FileDiffCoverage(
