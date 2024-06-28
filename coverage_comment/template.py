@@ -74,6 +74,16 @@ def delta(val: int) -> str:
     return f"({sign(val)}{val})"
 
 
+def compact(val: int) -> str:
+    if val < 1_000:
+        return str(val)
+    if val < 10_000:
+        return f"{val / 1_000:.1f}k"
+    if val < 1_000_000:
+        return f"{val / 1_000:.0f}k"
+    return f"{val / 1_000_000:.0f}M"
+
+
 def remove_exponent(val: decimal.Decimal) -> decimal.Decimal:
     # From https://docs.python.org/3/library/decimal.html#decimal-faq
     return (
@@ -136,6 +146,7 @@ def get_comment_markdown(
     env.filters["get_evolution_color"] = badge.get_evolution_badge_color
     env.filters["generate_badge"] = badge.get_static_badge_url
     env.filters["pluralize"] = pluralize
+    env.filters["compact"] = compact
     env.filters["file_url"] = functools.partial(
         get_file_url, repo_name=repo_name, pr_number=pr_number
     )
