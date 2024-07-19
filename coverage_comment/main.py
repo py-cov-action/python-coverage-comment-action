@@ -189,6 +189,7 @@ def process_pr(
             previous_coverage_rate=previous_coverage_rate,
             files=files_info,
             count_files=count_files,
+            max_files=None,
             minimum_green=config.MINIMUM_GREEN,
             minimum_orange=config.MINIMUM_ORANGE,
             repo_name=config.GITHUB_REPOSITORY,
