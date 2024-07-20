@@ -182,6 +182,7 @@ def process_pr(
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
         )
+        # Same as above except `max_files` is None
         summary_comment = template.get_comment_markdown(
             coverage=coverage,
             diff_coverage=diff_coverage,
