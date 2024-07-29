@@ -182,6 +182,25 @@ def process_pr(
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
         )
+        # Same as above except `max_files` is None
+        summary_comment = template.get_comment_markdown(
+            coverage=coverage,
+            diff_coverage=diff_coverage,
+            previous_coverage=previous_coverage,
+            previous_coverage_rate=previous_coverage_rate,
+            files=files_info,
+            count_files=count_files,
+            max_files=None,
+            minimum_green=config.MINIMUM_GREEN,
+            minimum_orange=config.MINIMUM_ORANGE,
+            repo_name=config.GITHUB_REPOSITORY,
+            pr_number=config.GITHUB_PR_NUMBER,
+            base_template=template.read_template_file("comment.md.j2"),
+            custom_template=config.COMMENT_TEMPLATE,
+            pr_targets_default_branch=pr_targets_default_branch,
+            marker=marker,
+            subproject_id=config.SUBPROJECT_ID,
+        )
     except template.MissingMarker:
         log.error(
             "Marker not found. This error can happen if you defined a custom comment "
@@ -200,7 +219,7 @@ def process_pr(
         return 1
 
     github.add_job_summary(
-        content=comment, github_step_summary=config.GITHUB_STEP_SUMMARY
+        content=summary_comment, github_step_summary=config.GITHUB_STEP_SUMMARY
     )
     pr_number: int | None = config.GITHUB_PR_NUMBER
     if pr_number is None:
