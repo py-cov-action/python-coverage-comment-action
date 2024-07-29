@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # See Dockerfile.build for instructions on bumping this.
           tags: ewjoachim/python-coverage-comment-action-base:v6
