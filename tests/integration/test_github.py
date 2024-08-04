@@ -54,6 +54,48 @@ def test_download_artifact(gh, session, zip_bytes):
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
         json={"artifacts": artifacts}
     )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={})
+
+    session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
+        content=zip_bytes(filename="foo.txt", content="bar")
+    )
+
+    result = github.download_artifact(
+        github=gh,
+        repository="foo/bar",
+        artifact_name="foo",
+        run_id=123,
+        filename=pathlib.Path("foo.txt"),
+    )
+
+    assert result == "bar"
+
+
+def test_download_artifact_from_page_2(gh, session, zip_bytes):
+    artifacts_page_1 = [
+        {"name": "test", "id": 000},
+    ]
+    artifacts_page_2 = [
+        {"name": "bar", "id": 456},
+        {"name": "foo", "id": 789},
+    ]
+    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
+        json={"artifacts": artifacts_page_1}
+    )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={"artifacts": artifacts_page_2})
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "3"},
+    )(json={})
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
         content=zip_bytes(filename="foo.txt", content="bar")
@@ -77,6 +119,11 @@ def test_download_artifact__no_artifact(gh, session):
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
         json={"artifacts": artifacts}
     )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={})
 
     with pytest.raises(github.NoArtifact):
         github.download_artifact(
@@ -95,6 +142,11 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
         json={"artifacts": artifacts}
     )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={})
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
         content=zip_bytes(filename="foo.txt", content="bar")

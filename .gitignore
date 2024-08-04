@@ -3,3 +3,6 @@
 .coverage
 dev-env-vars
 .coverage*
+.python-version
+__pycache__
+.vscode

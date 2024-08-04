@@ -54,7 +54,14 @@ def download_artifact(
     filename: pathlib.Path,
 ) -> str:
     repo_path = github.repos(repository)
-    artifacts = repo_path.actions.runs(run_id).artifacts.get().artifacts
+    page = 1
+    artifacts = []
+    while True:
+        result = repo_path.actions.runs(run_id).artifacts.get(page=str(page))
+        if not result:
+            break
+        artifacts.extend(result.artifacts)
+        page += 1
     try:
         artifact = next(
             iter(artifact for artifact in artifacts if artifact.name == artifact_name),
