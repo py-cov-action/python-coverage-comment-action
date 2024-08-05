@@ -811,12 +811,7 @@ def test_action__workflow_run__no_artifact(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-    )(json={"artifacts": [{"name": "wrong_name"}]})
-    session.register(
-        "GET",
-        "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-        params={"page": "2"},
-    )(json={})
+    )(json={"artifacts": [{"name": "wrong_name"}], "total_count": 1})
 
     result = main.action(
         config=workflow_run_config(),
@@ -857,12 +852,12 @@ def test_action__workflow_run__post_comment(
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-    )(json={"artifacts": [{"name": "python-coverage-comment-action", "id": 789}]})
-    session.register(
-        "GET",
-        "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-        params={"page": "2"},
-    )(json={})
+    )(
+        json={
+            "artifacts": [{"name": "python-coverage-comment-action", "id": 789}],
+            "total_count": 1,
+        }
+    )
 
     session.register(
         "GET",
