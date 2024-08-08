@@ -54,15 +54,15 @@ def download_artifact(
     filename: pathlib.Path,
 ) -> str:
     repo_path = github.repos(repository)
-    artifacts = repo_path.actions.runs(run_id).artifacts.get().artifacts
+
     try:
         artifact = next(
-            iter(artifact for artifact in artifacts if artifact.name == artifact_name),
+            artifact
+            for artifact in _fetch_artifacts(repo_path, run_id)
+            if artifact.name == artifact_name
         )
     except StopIteration:
-        raise NoArtifact(
-            f"Not artifact found with name {artifact_name} in run {run_id}"
-        )
+        raise NoArtifact(f"No artifact found with name {artifact_name} in run {run_id}")
 
     zip_bytes = io.BytesIO(repo_path.actions.artifacts(artifact.id).zip.get(bytes=True))
     zipf = zipfile.ZipFile(zip_bytes)
@@ -71,6 +71,24 @@ def download_artifact(
         return zipf.open(str(filename), "r").read().decode("utf-8")
     except KeyError:
         raise NoArtifact(f"File named {filename} not found in artifact {artifact_name}")
+
+
+def _fetch_artifacts(repo_path, run_id):
+    page = 1
+    total_fetched = 0
+
+    while True:
+        result = repo_path.actions.runs(run_id).artifacts.get(page=str(page))
+        if not result or not result.artifacts:
+            break
+
+        yield from result.artifacts
+
+        total_fetched += len(result.artifacts)
+        if total_fetched >= result.total_count:
+            break
+
+        page += 1
 
 
 def get_branch_from_workflow_run(

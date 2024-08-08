@@ -52,8 +52,40 @@ def test_download_artifact(gh, session, zip_bytes):
         {"name": "foo", "id": 789},
     ]
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts}
+        json={"artifacts": artifacts, "total_count": 2}
     )
+
+    session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
+        content=zip_bytes(filename="foo.txt", content="bar")
+    )
+
+    result = github.download_artifact(
+        github=gh,
+        repository="foo/bar",
+        artifact_name="foo",
+        run_id=123,
+        filename=pathlib.Path("foo.txt"),
+    )
+
+    assert result == "bar"
+
+
+def test_download_artifact_from_page_2(gh, session, zip_bytes):
+    artifacts_page_1 = [
+        {"name": "test", "id": 000},
+    ]
+    artifacts_page_2 = [
+        {"name": "bar", "id": 456},
+        {"name": "foo", "id": 789},
+    ]
+    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
+        json={"artifacts": artifacts_page_1, "total_count": 3}
+    )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={"artifacts": artifacts_page_2, "total_count": 3})
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
         content=zip_bytes(filename="foo.txt", content="bar")
@@ -75,7 +107,7 @@ def test_download_artifact__no_artifact(gh, session):
         {"name": "bar", "id": 456},
     ]
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts}
+        json={"artifacts": artifacts, "total_count": 1}
     )
 
     with pytest.raises(github.NoArtifact):
@@ -89,12 +121,15 @@ def test_download_artifact__no_artifact(gh, session):
 
 
 def test_download_artifact__no_file(gh, session, zip_bytes):
-    artifacts = [
-        {"name": "foo", "id": 789},
-    ]
+    artifacts = [{"name": "foo", "id": 789}]
     session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
         json={"artifacts": artifacts}
     )
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        params={"page": "2"},
+    )(json={})
 
     session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
         content=zip_bytes(filename="foo.txt", content="bar")
@@ -107,6 +142,59 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
             run_id=123,
             filename=pathlib.Path("bar.txt"),
         )
+
+
+def test_fetch_artifacts_empty_response(gh, session):
+    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
+        json={"artifacts": [], "total_count": 0}
+    )
+
+    repo_path = gh.repos("foo/bar")
+
+    result = github._fetch_artifacts(
+        repo_path=repo_path,
+        run_id=123,
+    )
+
+    assert not list(result)
+
+
+def test_fetch_artifacts_single_page(gh, session):
+    artifacts = [{"name": "bar", "id": 456}]
+
+    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
+        json={"artifacts": artifacts, "total_count": 1}
+    )
+
+    repo_path = gh.repos("foo/bar")
+
+    result = github._fetch_artifacts(
+        repo_path=repo_path,
+        run_id=123,
+    )
+
+    assert list(result) == artifacts
+
+
+def test_fetch_artifacts_multiple_pages(gh, session):
+    artifacts_page_1 = [{"name": "bar", "id": 456}]
+    artifacts_page_2 = [{"name": "bar", "id": 789}]
+
+    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
+        json={"artifacts": artifacts_page_1, "total_count": 2}
+    )
+    session.register(
+        "GET", "/repos/foo/bar/actions/runs/123/artifacts", params={"page": "2"}
+    )(json={"artifacts": artifacts_page_2, "total_count": 2})
+
+    repo_path = gh.repos("foo/bar")
+
+    result = github._fetch_artifacts(
+        repo_path=repo_path,
+        run_id=123,
+    )
+
+    assert list(result) == artifacts_page_1 + artifacts_page_2
 
 
 def test_get_branch_from_workflow_run(gh, session):
