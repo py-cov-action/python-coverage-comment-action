@@ -64,3 +64,16 @@ To run the end-to-end tests, you'll need:
 - Please be aware that the tests will launch `gh auth setup-git` which might be
   surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
   seems not to be enough to isolate tests.)
+
+## Coverage labs
+
+### Computing the coverage rate
+
+The coverage rate is `covered_lines / total_lines` (as one would expect).
+In case "branch coverage" is enabled, the coverage rate is
+`(covered_lines + covered_branches) / (total_lines + total_branches)`.
+In order to display coverage rates, we need to round the values. Depending on
+the situation, we either round to 0 or 2 decimal places. Rounding rules are:
+- We always round down (truncate) the value.
+- We don't display the trailing zeros in the decimal part (nor the decimal point
+  if the decimal part is 0).
