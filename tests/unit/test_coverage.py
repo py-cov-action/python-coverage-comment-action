@@ -39,6 +39,24 @@ def test_compute_coverage(num_covered, num_total, expected_coverage):
     )
 
 
+@pytest.mark.parametrize(
+    "num_covered, num_total, branch_covered, branch_total, expected_coverage",
+    [
+        (0, 10, 0, 15, "0"),
+        (0, 0, 0, 0, "1"),
+        (5, 0, 5, 0, "1"),
+        (5, 10, 5, 10, "0.5"),
+        (1, 50, 1, 50, "0.02"),
+    ],
+)
+def test_compute_coverage_with_branches(
+    num_covered, num_total, branch_covered, branch_total, expected_coverage
+):
+    assert coverage.compute_coverage(
+        num_covered, num_total, branch_covered, branch_total
+    ) == decimal.Decimal(expected_coverage)
+
+
 def test_get_coverage_info(mocker, coverage_json, coverage_obj):
     run = mocker.patch(
         "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
