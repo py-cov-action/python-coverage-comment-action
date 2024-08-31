@@ -282,10 +282,10 @@ def make_coverage():
                 percent_covered=decimal.Decimal("1.0"),
                 missing_lines=0,
                 excluded_lines=0,
-                num_branches=0 if has_branches else None,
-                num_partial_branches=0 if has_branches else None,
-                covered_branches=0 if has_branches else None,
-                missing_branches=0 if has_branches else None,
+                num_branches=0,
+                num_partial_branches=0,
+                covered_branches=0,
+                missing_branches=0,
             ),
             files={},
         )
@@ -313,10 +313,10 @@ def make_coverage():
                         percent_covered=decimal.Decimal("1.0"),
                         missing_lines=0,
                         excluded_lines=0,
-                        num_branches=0 if has_branches else None,
-                        num_partial_branches=0 if has_branches else None,
-                        covered_branches=0 if has_branches else None,
-                        missing_branches=0 if has_branches else None,
+                        num_branches=0,
+                        num_partial_branches=0,
+                        covered_branches=0,
+                        missing_branches=0,
                     ),
                 )
             if set(line.split()) & {
@@ -340,7 +340,6 @@ def make_coverage():
                 coverage_obj.files[current_file].excluded_lines.append(line_number)
                 coverage_obj.files[current_file].info.excluded_lines += 1
                 coverage_obj.info.excluded_lines += 1
-
             if has_branches and "branch" in line:
                 coverage_obj.files[current_file].info.num_branches += 1
                 coverage_obj.info.num_branches += 1
@@ -353,21 +352,22 @@ def make_coverage():
                 elif "branch missing" in line:
                     coverage_obj.files[current_file].info.missing_branches += 1
                     coverage_obj.info.missing_branches += 1
-
             info = coverage_obj.files[current_file].info
             coverage_obj.files[
                 current_file
             ].info.percent_covered = coverage_module.compute_coverage(
                 num_covered=info.covered_lines,
                 num_total=info.num_statements,
+                num_branches_covered=info.covered_branches,
+                num_branches_total=info.num_branches,
             )
-
             info = coverage_obj.info
             coverage_obj.info.percent_covered = coverage_module.compute_coverage(
                 num_covered=info.covered_lines,
                 num_total=info.num_statements,
+                num_branches_covered=info.covered_branches,
+                num_branches_total=info.num_branches,
             )
-
         return coverage_obj
 
     return _
@@ -446,7 +446,7 @@ def coverage_json():
                 "summary": {
                     "covered_lines": 6,
                     "num_statements": 10,
-                    "percent_covered": 60.0,
+                    "percent_covered": 53.84615384615384615384615385,
                     "missing_lines": 4,
                     "excluded_lines": 0,
                     "num_branches": 3,
@@ -461,7 +461,7 @@ def coverage_json():
         "totals": {
             "covered_lines": 6,
             "num_statements": 10,
-            "percent_covered": 60.0,
+            "percent_covered": 53.84615384615384615384615385,
             "missing_lines": 4,
             "excluded_lines": 0,
             "num_branches": 3,
