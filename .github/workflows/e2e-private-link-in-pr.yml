@@ -16,11 +16,11 @@ jobs:
         collaborator:
           - LOGIN: kieferro
             PERMISSION: admin
-            ENABLED: "true"
+            ENABLED: true
 
           - LOGIN: ewjoachim
             PERMISSION: admin
-            ENABLED: "true"
+            ENABLED: true
 
           - LOGIN: ${{ github.event.issue.user.login }}
             PERMISSION: push
@@ -30,7 +30,7 @@ jobs:
 
       - name: Invite @${{ matrix.collaborator.LOGIN }} to the e2e private repo
         run: gh api --method PUT /repos/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private/collaborators/${LOGIN} -f permission=${PERMISSION}
-        if: ${{ matrix.collaborator.ENABLED == 'true' }}
+        if: ${{ matrix.collaborator.ENABLED == true }}
         env:
           LOGIN: ${{ matrix.collaborator.LOGIN }}
           NUMBER: ${{ github.event.issue.number }}
