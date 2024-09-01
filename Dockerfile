@@ -1,5 +1,6 @@
 # See Dockerfile.build for instructions on bumping this.
-FROM ewjoachim/python-coverage-comment-action-base:v6
+FROM docker.io/ewjoachim/python-coverage-comment-action-base:v7
 
-COPY coverage_comment ./coverage_comment
-RUN md5sum -c pyproject.toml.md5 || pip install -e .
+COPY coverage_comment ./
+COPY pyproject.toml ./
+RUN md5sum -c pyproject.toml.md5 || uv pip install --editable .

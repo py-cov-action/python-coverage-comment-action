@@ -1,6 +1,6 @@
 .PHONY: install
 install: ## install dependencies
-	poetry install --with dev
+	uv sync
 	pre-commit install
 
 .PHONY: lint
@@ -9,4 +9,4 @@ lint: ## lint code
 
 .PHONY: test
 test: ## run all tests
-	poetry run pytest tests
+	uv run pytest tests

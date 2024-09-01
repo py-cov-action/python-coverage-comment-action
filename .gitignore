@@ -4,3 +4,5 @@
 dev-env-vars
 .coverage*
 __pycache__
+.venv
+*.egg-info

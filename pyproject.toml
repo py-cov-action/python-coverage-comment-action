@@ -1,35 +1,27 @@
-[tool.poetry]
+[project]
 name = "coverage-comment"
 version = "0.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
-authors = ["Joachim Jablon <ewjoachim@gmail.com>"]
-license = "MIT License"
-packages = [{ include = "coverage_comment" }]
-include = ["coverage_comment/default.md.j2"]
+authors = [{ name = "Joachim Jablon", email = "ewjoachim@gmail.com" }]
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+dependencies = ["coverage[toml]", "httpx[http2]", "Jinja2"]
 
-[tool.poetry.scripts]
+[project.scripts]
 coverage_comment = 'coverage_comment.main:main'
 
-[project]
-requires-python = ">=3.12"
+[tool.setuptools.packages.find]
+include = ["coverage_comment"]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-coverage = { version = "*", extras = ["toml"] }
-httpx = { version = "*", extras = ["http2"] }
-Jinja2 = "*"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "*"
-mypy = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-mock = "*"
-tenacity = "*"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+  "mypy",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest",
+  "ruff",
+  "tenacity",
+]
 
 [tool.pytest.ini_options]
 addopts = """
@@ -41,10 +33,10 @@ testpaths = ["tests/unit", "tests/integration", "tests/end_to_end"]
 
 filterwarnings = ["error"]
 markers = [
-    "repo_suffix: Allows to use an additional suffix for the e2e test repo.",
-    "code_path: Allows to place the code in a subdirectory for the e2e test repo.",
-    "subproject_id: Allows to use a different subproject id for the e2e test repo.",
-    "add_branches: Adds branches besides 'main' and 'branch' to integration tests setup.",
+  "repo_suffix: Allows to use an additional suffix for the e2e test repo.",
+  "code_path: Allows to place the code in a subdirectory for the e2e test repo.",
+  "subproject_id: Allows to use a different subproject id for the e2e test repo.",
+  "add_branches: Adds branches besides 'main' and 'branch' to integration tests setup.",
 ]
 
 [tool.coverage.run]
@@ -66,9 +58,9 @@ unsafe-fixes = true
 [tool.ruff.lint]
 extend-select = [
   "UP",  # pyupgrade
-  "I", # isort
-  "E", # pycodestyle errors
-  "W", # pycodestyle warnings
+  "I",   # isort
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
   "RUF", # ruff
 ]
 fixable = ["ALL"]
