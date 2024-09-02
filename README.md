@@ -268,7 +268,9 @@ jobs:
         with:
           name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
-          # By default hidden files/folders (i.e. starting with .) are ignored
+          # By default hidden files/folders (i.e. starting with .) are ignored.
+          # You may prefer (for security reason) not setting this and instead
+          # set COVERAGE_FILE above to not start with a `.`
           include-hidden-files: true
 
   coverage:
