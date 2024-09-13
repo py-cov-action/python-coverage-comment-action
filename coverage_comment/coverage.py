@@ -6,7 +6,6 @@ import decimal
 import json
 import pathlib
 from collections.abc import Sequence
-from typing import cast
 
 from coverage_comment import log, subprocess
 
@@ -92,8 +91,6 @@ def compute_coverage(
     num_branches_total: int = 0,
 ) -> decimal.Decimal:
     """Compute the coverage percentage, with or without branch coverage."""
-    num_branches_covered = cast(int, num_branches_covered)
-    num_branches_total = cast(int, num_branches_total)
     numerator = decimal.Decimal(num_covered + num_branches_covered)
     denominator = decimal.Decimal(num_total + num_branches_total)
     if denominator == 0:
