@@ -161,8 +161,8 @@ def _make_coverage_info(data: dict) -> CoverageInfo:
         ),
         missing_lines=data["missing_lines"],
         excluded_lines=data["excluded_lines"],
-        num_branches=data.get("num_branches"),
-        num_partial_branches=data.get("num_partial_branches"),
+        num_branches=data.get("num_branches", 0),
+        num_partial_branches=data.get("num_partial_branches", 0),
         covered_branches=data.get("covered_branches", 0),
         missing_branches=data.get("missing_branches", 0),
     )
