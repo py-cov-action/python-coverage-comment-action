@@ -150,6 +150,42 @@ def test_generate_coverage_markdown(mocker):
     assert result == "foo"
 
 
+def test__make_coverage_info():
+    result = coverage._make_coverage_info(
+        {
+            "covered_lines": 14,
+            "num_statements": 20,
+            "missing_lines": 6,
+            "excluded_lines": 0,
+        }
+    )
+    assert isinstance(result, coverage.CoverageInfo)
+    assert result.percent_covered == decimal.Decimal(14) / decimal.Decimal(20)
+    assert result.num_branches == 0
+    assert result.num_partial_branches == 0
+    assert result.covered_branches == 0
+    assert result.missing_branches == 0
+
+
+def test__make_coverage_info__with_branches():
+    result = coverage._make_coverage_info(
+        {
+            "covered_lines": 4,
+            "num_statements": 10,
+            "missing_lines": 1,
+            "excluded_lines": 0,
+            "covered_branches": 4,
+            "num_branches": 6,
+            "num_partial_branches": 2,
+        }
+    )
+    assert isinstance(result, coverage.CoverageInfo)
+    assert result.percent_covered == decimal.Decimal(4 + 4) / decimal.Decimal(10 + 6)
+    assert result.covered_branches == 4
+    assert result.missing_branches == 0
+    assert result.excluded_lines == 0
+
+
 @pytest.mark.parametrize(
     "added_lines, update_obj, expected",
     [
