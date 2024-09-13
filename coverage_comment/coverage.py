@@ -14,7 +14,7 @@ from coverage_comment import log, subprocess
 # The dataclasses in this module are accessible in the template, which is overridable by the user.
 # As a coutesy, we should do our best to keep the existing fields for backward compatibility,
 # and if we really can't and can't add properties, at least bump the major version.
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class CoverageMetadata:
     version: str
     timestamp: datetime.datetime
@@ -22,7 +22,7 @@ class CoverageMetadata:
     show_contexts: bool
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class CoverageInfo:
     covered_lines: int
     num_statements: int
@@ -35,7 +35,7 @@ class CoverageInfo:
     missing_branches: int = 0
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class FileCoverage:
     path: pathlib.Path
     executed_lines: list[int]
@@ -59,7 +59,7 @@ class Coverage:
 # Maybe in v4, we can change it to a simpler format.
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class FileDiffCoverage:
     path: pathlib.Path
     percent_covered: decimal.Decimal
@@ -76,7 +76,7 @@ class FileDiffCoverage:
         return self.missing_statements
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class DiffCoverage:
     total_num_lines: int
     total_num_violations: int
