@@ -282,10 +282,10 @@ def make_coverage():
                 percent_covered=decimal.Decimal("1.0"),
                 missing_lines=0,
                 excluded_lines=0,
-                num_branches=0 if has_branches else None,
-                num_partial_branches=0 if has_branches else None,
-                covered_branches=0 if has_branches else None,
-                missing_branches=0 if has_branches else None,
+                num_branches=0,
+                num_partial_branches=0,
+                covered_branches=0,
+                missing_branches=0,
             ),
             files={},
         )
@@ -313,10 +313,10 @@ def make_coverage():
                         percent_covered=decimal.Decimal("1.0"),
                         missing_lines=0,
                         excluded_lines=0,
-                        num_branches=0 if has_branches else None,
-                        num_partial_branches=0 if has_branches else None,
-                        covered_branches=0 if has_branches else None,
-                        missing_branches=0 if has_branches else None,
+                        num_branches=0,
+                        num_partial_branches=0,
+                        covered_branches=0,
+                        missing_branches=0,
                     ),
                 )
             if set(line.split()) & {
@@ -340,7 +340,6 @@ def make_coverage():
                 coverage_obj.files[current_file].excluded_lines.append(line_number)
                 coverage_obj.files[current_file].info.excluded_lines += 1
                 coverage_obj.info.excluded_lines += 1
-
             if has_branches and "branch" in line:
                 coverage_obj.files[current_file].info.num_branches += 1
                 coverage_obj.info.num_branches += 1
@@ -353,21 +352,22 @@ def make_coverage():
                 elif "branch missing" in line:
                     coverage_obj.files[current_file].info.missing_branches += 1
                     coverage_obj.info.missing_branches += 1
-
             info = coverage_obj.files[current_file].info
             coverage_obj.files[
                 current_file
             ].info.percent_covered = coverage_module.compute_coverage(
                 num_covered=info.covered_lines,
                 num_total=info.num_statements,
+                num_branches_covered=info.covered_branches,
+                num_branches_total=info.num_branches,
             )
-
             info = coverage_obj.info
             coverage_obj.info.percent_covered = coverage_module.compute_coverage(
                 num_covered=info.covered_lines,
                 num_total=info.num_statements,
+                num_branches_covered=info.covered_branches,
+                num_branches_total=info.num_branches,
             )
-
         return coverage_obj
 
     return _
@@ -425,9 +425,19 @@ def coverage_code():
         9
         10 branch missing
         11 missing
-        12
+        12 covered
         13 branch covered
         14 covered
+        15 branch partial
+        16 branch covered
+        17 branch missing
+        18 covered
+        19 covered
+        20 branch partial
+        21 branch missing
+        22 branch covered
+        23 branch covered
+        24 branch covered
         """
 
 
@@ -442,32 +452,48 @@ def coverage_json():
         },
         "files": {
             "codebase/code.py": {
-                "executed_lines": [1, 2, 3, 5, 13, 14],
+                "executed_lines": [
+                    1,
+                    2,
+                    3,
+                    5,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    18,
+                    19,
+                    20,
+                    22,
+                    23,
+                    24,
+                ],
                 "summary": {
-                    "covered_lines": 6,
-                    "num_statements": 10,
-                    "percent_covered": 60.0,
-                    "missing_lines": 4,
+                    "covered_lines": 15,
+                    "num_statements": 21,
+                    "percent_covered": 0.625,
+                    "missing_lines": 6,
                     "excluded_lines": 0,
-                    "num_branches": 3,
-                    "num_partial_branches": 1,
-                    "covered_branches": 1,
-                    "missing_branches": 1,
+                    "num_branches": 11,
+                    "num_partial_branches": 3,
+                    "covered_branches": 5,
+                    "missing_branches": 3,
                 },
-                "missing_lines": [6, 8, 10, 11],
+                "missing_lines": [6, 8, 10, 11, 17, 21],
                 "excluded_lines": [],
             }
         },
         "totals": {
-            "covered_lines": 6,
-            "num_statements": 10,
-            "percent_covered": 60.0,
-            "missing_lines": 4,
+            "covered_lines": 15,
+            "num_statements": 21,
+            "percent_covered": 0.625,
+            "missing_lines": 6,
             "excluded_lines": 0,
-            "num_branches": 3,
-            "num_partial_branches": 1,
-            "covered_branches": 1,
-            "missing_branches": 1,
+            "num_branches": 11,
+            "num_partial_branches": 3,
+            "covered_branches": 5,
+            "missing_branches": 3,
         },
     }
 
