@@ -25,6 +25,6 @@ repos:
     - id: ruff-format
 
 - repo: https://github.com/floatingpurr/sync_with_poetry
-  rev: 1.1.0
+  rev: 1.2.0
   hooks:
     - id: sync_with_poetry
