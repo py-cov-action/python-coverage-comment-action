@@ -7,23 +7,23 @@
 | coverage\_comment/\_\_init\_\_.py   |        0 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/\_\_main\_\_.py   |        6 |        0 |        2 |        0 |     100% |           |
 | coverage\_comment/activity.py       |       11 |        0 |        6 |        0 |     100% |           |
-| coverage\_comment/badge.py          |       31 |        0 |       12 |        0 |     100% |           |
+| coverage\_comment/badge.py          |       31 |        0 |       10 |        0 |     100% |           |
 | coverage\_comment/comment\_file.py  |        4 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/communication.py  |        8 |        0 |        0 |        0 |     100% |           |
-| coverage\_comment/coverage.py       |      126 |        0 |       34 |        0 |     100% |           |
+| coverage\_comment/coverage.py       |      126 |        0 |       18 |        0 |     100% |           |
 | coverage\_comment/diff\_grouper.py  |       12 |        0 |        4 |        0 |     100% |           |
-| coverage\_comment/files.py          |       59 |        0 |        6 |        0 |     100% |           |
-| coverage\_comment/github.py         |      118 |        0 |       28 |        0 |     100% |           |
+| coverage\_comment/files.py          |       59 |        0 |        2 |        0 |     100% |           |
+| coverage\_comment/github.py         |      118 |        0 |       16 |        0 |     100% |           |
 | coverage\_comment/github\_client.py |       67 |        0 |       14 |        0 |     100% |           |
-| coverage\_comment/groups.py         |       35 |        0 |       11 |        0 |     100% |           |
+| coverage\_comment/groups.py         |       35 |        0 |        6 |        0 |     100% |           |
 | coverage\_comment/log.py            |        5 |        0 |        0 |        0 |     100% |           |
 | coverage\_comment/log\_utils.py     |        9 |        0 |        0 |        0 |     100% |           |
-| coverage\_comment/main.py           |      131 |        0 |       22 |        0 |     100% |           |
-| coverage\_comment/settings.py       |      119 |        0 |       50 |        0 |     100% |           |
-| coverage\_comment/storage.py        |       69 |        0 |       10 |        0 |     100% |           |
+| coverage\_comment/main.py           |      131 |        0 |       20 |        0 |     100% |           |
+| coverage\_comment/settings.py       |      119 |        0 |       14 |        0 |     100% |           |
+| coverage\_comment/storage.py        |       69 |        0 |        6 |        0 |     100% |           |
 | coverage\_comment/subprocess.py     |       26 |        0 |        0 |        0 |     100% |           |
-| coverage\_comment/template.py       |      117 |        0 |       28 |        0 |     100% |           |
-|                           **TOTAL** |  **953** |    **0** |  **227** |    **0** | **100%** |           |
+| coverage\_comment/template.py       |      117 |        0 |       22 |        0 |     100% |           |
+|                           **TOTAL** |  **953** |    **0** |  **140** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
