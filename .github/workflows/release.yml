@@ -40,7 +40,7 @@ jobs:
           # See Dockerfile.build for instructions on bumping this.
           tags: |
             ewjoachim/python-coverage-comment-action-base:v6
-            ghcr.io/ewjoachim/python-coverage-comment-action-base:v6
+            ghcr.io/py-cov-action/python-coverage-comment-action-base:v6
           push: true
           file: Dockerfile.build
 
