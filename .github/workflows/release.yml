@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     # Check if the tests were successful and were launched by a push event
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    env:
+      IMAGE_NAME: ${{ github.repository }}
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -22,11 +29,20 @@ jobs:
           username: ewjoachim
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           # See Dockerfile.build for instructions on bumping this.
-          tags: ewjoachim/python-coverage-comment-action-base:v6
+          tags: |
+            ewjoachim/python-coverage-comment-action-base:v6
+            ghcr.io/ewjoachim/python-coverage-comment-action-base:v6
           push: true
           file: Dockerfile.build
 
