@@ -119,7 +119,9 @@ def session(is_failed):
                         **response_kwargs,
                         request=httpx.Request(method=method, url=path),
                     )
-            assert False, f"No response found for kwargs {request_kwargs}\nExpected answers are {self.responses}"
+            assert False, (
+                f"No response found for kwargs {request_kwargs}\nExpected answers are {self.responses}"
+            )
 
         def __getattr__(self, value):
             if value in ["get", "post", "patch", "delete", "put"]:
@@ -201,14 +203,16 @@ def git(is_failed):
         def command(self, command, *args, env=None):
             args = " ".join(("git", command, *args))
             if not self.expected_calls:
-                assert (
-                    False
-                ), f"Received command `{args}` with env {env} while expecting nothing."
+                assert False, (
+                    f"Received command `{args}` with env {env} while expecting nothing."
+                )
 
             call = self.expected_calls[0]
             exp_args, exp_env, exit_code, stdout = call
             if not (args == exp_args and (not exp_env or exp_env == env)):
-                assert False, f"Expected command is not `{args}` with env {env}\nExpected command is {self.expected_calls[0]}"
+                assert False, (
+                    f"Expected command is not `{args}` with env {env}\nExpected command is {self.expected_calls[0]}"
+                )
 
             self.expected_calls.pop(0)
             if exit_code == 0:
