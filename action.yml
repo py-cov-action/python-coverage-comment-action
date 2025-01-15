@@ -8,8 +8,8 @@ description: >
 inputs:
   GITHUB_BASE_URL:
     description: >
-      The base URL for the GitHub API, typically used to specify custom endpoints 
-      for GitHub Enterprise Server (e.g., `https://github.mycompany.com/api/v3`). 
+      The base URL for the GitHub API, typically used to specify custom endpoints
+      for GitHub Enterprise Server (e.g., `https://github.mycompany.com/api/v3`).
       Defaults to `https://api.github.com` for GitHub.com.
     default: "https://api.github.com"
     required: false
