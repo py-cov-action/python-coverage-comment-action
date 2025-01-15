@@ -6,6 +6,13 @@ description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
 inputs:
+  GITHUB_BASE_URL:
+    description: >
+      The base URL for the GitHub API, typically used to specify custom endpoints 
+      for GitHub Enterprise Server (e.g., `https://github.mycompany.com/api/v3`). 
+      Defaults to `https://api.github.com` for GitHub.com.
+    default: "https://api.github.com"
+    required: false
   GITHUB_TOKEN:
     description: >
       A GitHub token to write comments and write the badge & coverage data

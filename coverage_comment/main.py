@@ -34,7 +34,7 @@ def main():
         config = settings.Config.from_environ(environ=os.environ)
 
         github_session = httpx.Client(
-            base_url="https://api.github.com",
+            base_url=config.GITHUB_BASE_URL,
             follow_redirects=True,
             headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
         )
