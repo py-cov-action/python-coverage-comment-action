@@ -4,3 +4,4 @@
 dev-env-vars
 .coverage*
 __pycache__
+.idea/

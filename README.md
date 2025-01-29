@@ -311,6 +311,8 @@ jobs:
   id: coverage_comment
   uses: py-cov-action/python-coverage-comment-action@v3
   with:
+    GITHUB_BASE_URL: https://api.github.com
+    
     GITHUB_TOKEN: ${{ github.token }}
 
     # Only necessary in the "workflow_run" workflow.
@@ -593,6 +595,10 @@ source =
 
 This action is supposedly compatible with private repository. Just make sure
 to use the svg badge directly, and not the `shields.io` URL.
+
+## Github Enterprise(GHE) Support
+
+This action should be compatible with GitHub Enterprise. Just make sure to set the `GITHUB_BASE_URL` input to your GHE URL.
 
 ## Upgrading from v2 to v3
 
