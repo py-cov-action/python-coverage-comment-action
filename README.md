@@ -312,7 +312,7 @@ jobs:
   uses: py-cov-action/python-coverage-comment-action@v3
   with:
     GITHUB_BASE_URL: https://api.github.com
-    
+
     GITHUB_TOKEN: ${{ github.token }}
 
     # Only necessary in the "workflow_run" workflow.
