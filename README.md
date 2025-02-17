@@ -312,7 +312,7 @@ jobs:
   uses: py-cov-action/python-coverage-comment-action@v3
   with:
     GITHUB_TOKEN: ${{ github.token }}
-    
+
     # Change this in case you use GitHub Entreprise with a different API endpoint
     GITHUB_BASE_URL: https://api.github.com
 
