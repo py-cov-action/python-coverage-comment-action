@@ -1,30 +1,35 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_language_version:
-    python: python3.12
+  python: python3.12
 
 ci:
-    # Renovate updates the file. We can't disable pre-commit CI's autoupdate entirely
-    # but this is the least frequent we can make it.
-    autoupdate_schedule: quarterly
+  # Renovate updates the file. We can't disable pre-commit CI's autoupdate entirely
+  # but this is the least frequent we can make it.
+  autoupdate_schedule: quarterly
 
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
-  hooks:
-  - id: trailing-whitespace
-  - id: end-of-file-fixer
-  - id: check-yaml
-  - id: check-added-large-files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.9
-  hooks:
-    - id: ruff
-      args: [ --fix ]
-    - id: ruff-format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.7
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
 
-- repo: https://github.com/floatingpurr/sync_with_poetry
-  rev: 1.2.0
-  hooks:
-    - id: sync_with_poetry
+  - repo: local
+    hooks:
+      - id: sync-pre-commit
+        name: Sync pre-commit hooks
+        language: python
+        entry: scripts/sync-pre-commit.py
+        additional_dependencies:
+          - uv
+          - ruamel.yaml

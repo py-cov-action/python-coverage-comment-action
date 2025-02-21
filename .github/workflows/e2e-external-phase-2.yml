@@ -88,28 +88,23 @@ jobs:
           # that this is race-condition-proof
           ref: ${{ steps.extract_commit.outputs.COMMIT_ID }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-
-      - name: Install Poetry
-        # https://github.com/pypa/pipx/issues/1195
-        run: |
-          pipx install poetry --python="$(command -v python3.12)"
 
       - name: Poetry caches
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/
-          key: ${{ hashFiles('poetry.lock') }}
+          key: ${{ hashFiles('uv.lock') }}
 
       - name: Install deps
-        run: poetry install
+        run: uv install --all-groups
 
       - name: Run end-to-end tests
-        run: poetry run pytest tests/end_to_end
+        run: pytest tests/end_to_end
         env:
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
