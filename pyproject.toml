@@ -1,35 +1,27 @@
-[tool.poetry]
+[project]
 name = "coverage-comment"
 version = "0.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
-authors = ["Joachim Jablon <ewjoachim@gmail.com>"]
-license = "MIT License"
-packages = [{ include = "coverage_comment" }]
-include = ["coverage_comment/default.md.j2"]
-
-[tool.poetry.scripts]
-coverage_comment = 'coverage_comment.main:main'
-
-[project]
+authors = [{ name = "Joachim Jablon", email = "ewjoachim@gmail.com" }]
 requires-python = ">=3.12"
+license = { file = "LICENSE" }
+dependencies = ["coverage[toml]", "httpx[http2]", "Jinja2"]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-coverage = { version = "*", extras = ["toml"] }
-httpx = { version = "*", extras = ["http2"] }
-Jinja2 = "*"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "*"
-mypy = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-mock = "*"
-tenacity = "*"
+[project.scripts]
+coverage_comment = "coverage_comment.main:main"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["ruff", "mypy", "pytest", "pytest-cov", "pytest-mock", "tenacity"]
+
+[tool.hatch.build.targets.sdist]
+include = ["coverage_comment", "coverage_comment/default.md.j2"]
+
+[tool.hatch.build.targets.wheel]
+include = ["coverage_comment", "coverage_comment/default.md.j2"]
 
 [tool.pytest.ini_options]
 addopts = """
@@ -65,15 +57,15 @@ unsafe-fixes = true
 
 [tool.ruff.lint]
 extend-select = [
-  "UP",  # pyupgrade
-  "I", # isort
-  "E", # pycodestyle errors
-  "W", # pycodestyle warnings
-  "RUF", # ruff
+    "UP",  # pyupgrade
+    "I",   # isort
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "RUF", # ruff
 ]
 fixable = ["ALL"]
 extend-ignore = [
-  "E501", # line too long
+    "E501", # line too long
 ]
 
 [tool.ruff.lint.isort]

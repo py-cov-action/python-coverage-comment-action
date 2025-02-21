@@ -5,7 +5,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 ### Things to know:
 
 - Python3.12
-- Use [Poetry](https://python-poetry.org/)
+- Use [uv](https://docs.astral.sh/uv/)
 - Launch tests with `pytest`, config is in setup.cfg
 - `ruff` runs through `pre-commit`, so you can install hooks with `pre-commit install`.
 - `docker`. Classic stuff.
@@ -17,10 +17,12 @@ Use:
 ```console
 $ source ./dev-env
 ```
+
 This should take care of everything and will display instructions.
 Feel free to read the script yourself to see what it does.
 
 You'll need a GitHub token to test the action locally. You have 3 choices:
+
 - Before launching `dev-env`, copy `dev-env-vars.dist` to `dev-env-vars` and
   set your token
 - After launching `dev-env`, run `token-from-gh` to reuse your `gh` token
@@ -30,6 +32,7 @@ You'll need a GitHub token to test the action locally. You have 3 choices:
   personal access token (feel free to then save it to `dev-env-vars`)
 
 #### Manually
+
 ```console
 $ # Either push (compute & post badge), pull_request (compute comment) or workflow_run (post comment)
 $ export GITHUB_EVENT_NAME=workflow_run
@@ -44,7 +47,8 @@ $ export GITHUB_REPOSITORY=py-cov-action/python-coverage-comment-action-v3-examp
 $ # Used everywhere. Generate at https://github.com/settings/tokens/new?scopes=repo&description=test%20python-coverage-comment-action
 $  export GITHUB_TOKEN=
 ```
-Then either launch with `poetry run coverage_comment` or through docker.
+
+Then either launch with `uv run coverage_comment` or through docker.
 
 ### End to end tests
 

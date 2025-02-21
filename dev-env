@@ -3,8 +3,8 @@
 
 # We're doing our best to keep it compatible with bash and zsh.
 
-if ! which poetry; then
-    echo "This script needs poetry installed. Either follow the official method: https://python-poetry.org/docs/#installation or use pipx https://pypa.github.io/pipx/installation/" &>2
+if ! which uv; then
+    echo "This script needs uv installed. Either follow the official method: https://docs.astral.sh/uv/getting-started/installation/ or use pipx https://pypa.github.io/pipx/installation/" &>2
     return
 fi
 
@@ -29,10 +29,10 @@ else
 fi
 
 echo "Installing virtualenv" >&2
-poetry install
+uv sync --all-groups
 
 echo "Activating virtualenv" >&2
-source $(poetry env info -p)/bin/activate
+source .venv/bin/activate
 
 echo "Moving to a temporary folder" >&2
 TMPDIR=$(mktemp -d)
