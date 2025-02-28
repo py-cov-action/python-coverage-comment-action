@@ -313,6 +313,9 @@ jobs:
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
+    # Change this in case you use GitHub Entreprise with a different API endpoint
+    GITHUB_BASE_URL: https://api.github.com
+
     # Only necessary in the "workflow_run" workflow.
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
 
@@ -593,6 +596,10 @@ source =
 
 This action is supposedly compatible with private repository. Just make sure
 to use the svg badge directly, and not the `shields.io` URL.
+
+## Github Enterprise (GHE) Support
+
+This action should be compatible with GitHub Enterprise. Just make sure to set the `GITHUB_BASE_URL` input to your GHE URL.
 
 ## Upgrading from v2 to v3
 

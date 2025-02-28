@@ -37,6 +37,7 @@ class Config:
 
     # A branch name, not a fully-formed ref. For example, `main`.
     GITHUB_BASE_REF: str
+    GITHUB_BASE_URL: str = "https://api.github.com"
     GITHUB_TOKEN: str = dataclasses.field(repr=False)
     GITHUB_REPOSITORY: str
     # > The ref given is fully-formed, meaning that for branches the format is
