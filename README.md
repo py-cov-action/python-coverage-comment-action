@@ -258,10 +258,6 @@ jobs:
         run: make test # This is the part where you put your own test command
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
-          # Alternatively you can run coverage with the --parallel flag or add
-          # `parallel = True` in the coverage config file.
-          # If using pytest-cov, you can also add the `--cov-append` flag
-          # directly or through PYTEST_ADD_OPTS.
 
       - name: Store coverage file
         uses: actions/upload-artifact@v4
