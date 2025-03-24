@@ -43,6 +43,7 @@ jobs:
             ghcr.io/py-cov-action/python-coverage-comment-action-base:v6
           push: true
           file: Dockerfile.build
+          platforms: linux/amd64,linux/arm64
 
   compute-tags:
     name: Re-tag action with new version
