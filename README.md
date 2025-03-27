@@ -258,10 +258,10 @@ jobs:
         run: make test # This is the part where you put your own test command
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
-          # Alternatively you can run coverage with the --parallel flag or add
-          # `parallel = True` in the coverage config file.
-          # If using pytest-cov, you can also add the `--cov-append` flag
-          # directly or through PYTEST_ADD_OPTS.
+          # The file name prefix must be ".coverage." for "coverage combine"
+          # enabled by "MERGE_COVERAGE_FILES: true" to work. A "subprocess"
+          # error with the message "No data to combine" will be triggered if
+          # this prefix is not used.
 
       - name: Store coverage file
         uses: actions/upload-artifact@v4
@@ -269,8 +269,10 @@ jobs:
           name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
           # By default hidden files/folders (i.e. starting with .) are ignored.
-          # You may prefer (for security reason) not setting this and instead
-          # set COVERAGE_FILE above to not start with a `.`
+          # You may prefer (for security reasons) not setting this and instead
+          # set COVERAGE_FILE above to not start with a `.`, but you cannot
+          # use "MERGE_COVERAGE_FILES: true" later on and need to manually
+          # combine the coverage file using "pipx run coverage combine"
           include-hidden-files: true
 
   coverage:
