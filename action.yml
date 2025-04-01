@@ -118,6 +118,7 @@ runs:
   using: docker
   image: Dockerfile
   env:
+    GITHUB_BASE_URL: ${{ inputs.GITHUB_BASE_URL }}
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
     COMMENT_TEMPLATE: ${{ inputs.COMMENT_TEMPLATE }}
