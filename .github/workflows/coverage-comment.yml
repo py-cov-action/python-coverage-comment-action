@@ -17,7 +17,7 @@ jobs:
       contents: write
     steps:
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@main
+        uses: py-cov-action/python-coverage-comment-action@6a358b14250432019657300436a100839bc44861 # current main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
