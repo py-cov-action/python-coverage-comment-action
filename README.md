@@ -614,3 +614,10 @@ with badges. We've been iterating a lot on the new format.
 It's perfectly ok if you preferred the old format. In that case, see
 #335 for instructions on how to emulate the old format using
 `COMMENT_TEMPLATE`.
+
+## New base image registry
+
+The Dockerfile used by this image can have both registeries as sources:
+- ewjoachim/python-coverage-comment-action-base:v6
+- ghcr.io/py-cov-action/python-coverage-comment-action-base:v6
+Take your pick according to your needs.
