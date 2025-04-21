@@ -60,7 +60,7 @@ jobs:
             org='py-cov-action'
             commit-sha='${{ github.sha }}'
             org.opencontainers.image.source='https://github.com/${{ github.repository }}'
-            org.opencontainers.image.description='AWS Lambda Calculator is the only extensive and thorough cost estimation tool for the AWS Lambda product. It's based on a simple API that produces a cost estimation based on different Lambda configuration variables and parameters such as CPU, RAM, concurrency, invocations, free tier, and much more. This can be helpful for any FinOps fields or tools in the future.'
+            org.opencontainers.image.description='Publish coverage report as PR comment, and create a coverage badge & dashboard to display on the Readme for Python projects, all inside GitHub without third party servers'
             org.opencontainers.image.licenses='MIT'
           tags: |
             ewjoachim/python-coverage-comment-action-base:v6
