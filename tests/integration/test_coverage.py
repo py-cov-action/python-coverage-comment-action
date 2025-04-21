@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import subprocess
-from coverage_comment import coverage, subprocess as subprocess_module
+
+from coverage_comment import coverage
+from coverage_comment import subprocess as subprocess_module
 
 
 def test_get_added_lines(
