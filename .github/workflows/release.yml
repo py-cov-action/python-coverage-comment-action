@@ -30,23 +30,49 @@ jobs:
           username: ewjoachim
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.6.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.10.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3.3.0
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - id: docker_meta
+        uses: docker/metadata-action@v5.7.0
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: type=sha,format=long
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          # See Dockerfile.build for instructions on bumping this.
+          context: .
+          file: Dockerfile.build
+          platforms: linux/amd64,linux/arm64
+          labels: |
+            project='python-coverage-comment-action-base'
+            org='py-cov-action'
+            commit-sha='${{ github.sha }}'
+            org.opencontainers.image.source='https://github.com/${{ github.repository }}'
+            org.opencontainers.image.description='AWS Lambda Calculator is the only extensive and thorough cost estimation tool for the AWS Lambda product. It's based on a simple API that produces a cost estimation based on different Lambda configuration variables and parameters such as CPU, RAM, concurrency, invocations, free tier, and much more. This can be helpful for any FinOps fields or tools in the future.'
+            org.opencontainers.image.licenses='MIT'
           tags: |
             ewjoachim/python-coverage-comment-action-base:v6
             ghcr.io/py-cov-action/python-coverage-comment-action-base:v6
+            ${{ steps.docker_meta.outputs.tags }}
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-to: type=inline
           push: true
-          file: Dockerfile.build
-          platforms: linux/amd64,linux/arm64
 
   compute-tags:
     name: Re-tag action with new version
