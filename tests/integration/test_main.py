@@ -172,7 +172,7 @@ def test_action__pull_request__store_comment(
     )(status_code=403)
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     result = main.action(
         config=pull_request_config(
@@ -253,7 +253,7 @@ def test_action__pull_request__store_comment_not_targeting_default(
     )(status_code=403)
 
     git.register("git fetch origin foo --depth=1000")(stdout=DIFF_STDOUT)
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     result = main.action(
         config=pull_request_config(
@@ -300,7 +300,7 @@ def test_action__pull_request__post_comment(
     session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     comment = None
 
@@ -347,7 +347,7 @@ def test_action__push__non_default_branch(
         json={"default_branch": "main", "visibility": "public"}
     )
     git.register("git fetch origin main --depth=1000")(stdout=DIFF_STDOUT)
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -436,7 +436,7 @@ def test_action__push__non_default_branch__no_pr(
         json={"default_branch": "main", "visibility": "public"}
     )
     git.register("git fetch origin main --depth=1000")(stdout=DIFF_STDOUT)
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
@@ -500,7 +500,7 @@ def test_action__pull_request__force_store_comment(
     )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     result = main.action(
         config=pull_request_config(FORCE_WORKFLOW_RUN=True, GITHUB_OUTPUT=output_file),
@@ -531,7 +531,7 @@ def test_action__pull_request__post_comment__no_marker(
     )(status_code=404)
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""foo"""),
@@ -556,7 +556,7 @@ def test_action__pull_request__annotations(
     )(status_code=404)
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     # Who am I
     session.register("GET", "/user")(json={"login": "foo"})
@@ -598,7 +598,7 @@ def test_action__pull_request__post_comment__template_error(
     )(status_code=404)
 
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=DIFF_STDOUT)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=DIFF_STDOUT)
 
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""{%"""),
