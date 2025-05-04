@@ -101,7 +101,7 @@ jobs:
           key: ${{ hashFiles('uv.lock') }}
 
       - name: Install deps
-        run: uv install --all-groups
+        run: uv sync --all-groups
 
       - name: Run end-to-end tests
         run: pytest tests/end_to_end
