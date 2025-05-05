@@ -104,7 +104,7 @@ jobs:
         run: uv sync --all-groups
 
       - name: Run end-to-end tests
-        run: pytest tests/end_to_end
+        run: uv run pytest tests/end_to_end
         env:
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
