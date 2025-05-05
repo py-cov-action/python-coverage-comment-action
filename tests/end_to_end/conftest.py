@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import time
 
+import httpx
 import pytest
 import tenacity
 
@@ -387,3 +388,9 @@ def add_coverage_line(git, code_path):
         git("commit", "-m", "improve coverage")
 
     return f
+
+
+@pytest.fixture
+def http_client():
+    with httpx.Client() as client:
+        yield client

@@ -33,20 +33,22 @@ def main():
         log.info("Starting action")
         config = settings.Config.from_environ(environ=os.environ)
 
-        github_session = httpx.Client(
-            base_url=config.GITHUB_BASE_URL,
-            follow_redirects=True,
-            headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
-        )
-        http_session = httpx.Client()
         git = subprocess.Git()
 
-        exit_code = action(
-            config=config,
-            github_session=github_session,
-            http_session=http_session,
-            git=git,
-        )
+        with (
+            httpx.Client(
+                base_url=config.GITHUB_BASE_URL,
+                follow_redirects=True,
+                headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
+            ) as github_session,
+            httpx.Client() as http_session,
+        ):
+            exit_code = action(
+                config=config,
+                github_session=github_session,
+                http_session=http_session,
+                git=git,
+            )
 
         log.info("Ending action")
         sys.exit(exit_code)

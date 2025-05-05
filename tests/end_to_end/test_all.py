@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import base64
 
-import httpx
 import pytest
 
 
@@ -24,6 +23,7 @@ def test_public_repo(
     token_other,
     gh_create_fork,
     gh_other_username,
+    http_client,
 ):
     # Create a GitHub repo, make it public
     gh_create_repo("--public")
@@ -60,14 +60,12 @@ def test_public_repo(
     # - coverage branch readme url
     assert len(links) == 5
 
-    client = httpx.Client()
-
     # Check that all 5 links are valid and lead to a 200
     # It's made this way to avoid hardcoding links in the test, because I assume
     # they'll be evolving.
     number_of_svgs = 0
     for link in links:
-        response = client.get(link)
+        response = http_client.get(link)
         response.raise_for_status()
         number_of_svgs += int(response.text.startswith("<svg"))
 
@@ -81,7 +79,7 @@ def test_public_repo(
     raw_url_prefix = f"https://github.com/{repo_full_name}/raw/python-coverage-comment-action-data-my-great-project"
 
     readme_url = f"{raw_url_prefix}/README.md"
-    response = client.get(readme_url, follow_redirects=True)
+    response = http_client.get(readme_url, follow_redirects=True)
     response.raise_for_status()
     # And all previously found links should be present
     readme = response.text
@@ -91,13 +89,13 @@ def test_public_repo(
     # And while we're at it, there are 2 other files we want to check in this
     # branch. Once again, trying to avoid hardcoding too many specifics, that's what
     # unit tests are for.
-    data = client.get(f"{raw_url_prefix}/data.json", follow_redirects=True).json()
+    data = http_client.get(f"{raw_url_prefix}/data.json", follow_redirects=True).json()
     assert "coverage" in data
     assert "raw_data" in data
     assert "meta" in data["raw_data"]
     assert "coverage_path" in data
 
-    endpoint = client.get(
+    endpoint = http_client.get(
         f"{raw_url_prefix}/endpoint.json", follow_redirects=True
     ).json()
     assert "schemaVersion" in endpoint
