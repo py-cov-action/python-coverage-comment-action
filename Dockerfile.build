@@ -14,7 +14,7 @@ RUN git config --system --add safe.directory '*'
 
 WORKDIR /workdir
 
-COPY pyproject.toml ./
+COPY pyproject.toml LICENSE ./
 RUN md5sum pyproject.toml > pyproject.toml.md5
 
 COPY coverage_comment ./coverage_comment
