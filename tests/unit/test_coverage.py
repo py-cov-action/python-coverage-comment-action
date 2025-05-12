@@ -309,7 +309,7 @@ def test_get_added_lines(git):
         """+++ b/README.md\n@@ -1,2 +1,3 @@\n-# coverage-comment\n+coverage-comment\n"""
     )
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
     assert coverage.get_added_lines(git=git, base_ref="main") == {
         pathlib.Path("README.md"): [1, 2, 3]
     }
@@ -364,7 +364,7 @@ rename from coverage_comment/annotations.py
 rename to coverage_comment/annotations2.py
 """
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
     assert coverage.parse_diff_output(diff=diff) == {
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
@@ -379,6 +379,6 @@ diff --git a/README.md b/README.md
 index 1f1d9a4..e69de29 100644
 """
     git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD -- .")(stdout=diff)
+    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
     with pytest.raises(ValueError):
         coverage.parse_diff_output(diff=diff)

@@ -293,7 +293,7 @@ def get_added_lines(
     # don't merge chunks. This means the headers that describe line number
     # are always enough to derive what line numbers were added.
     git.fetch("origin", base_ref, "--depth=1000")
-    diff = git.diff("--unified=0", "FETCH_HEAD", "--", ".")
+    diff = git.diff("--unified=0", "FETCH_HEAD...HEAD")
     return parse_diff_output(diff)
 
 

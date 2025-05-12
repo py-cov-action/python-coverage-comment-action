@@ -116,6 +116,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # New lines are discovered by running a three-dot notation diff on base_ref...head. They must share a common
+          # ancestor. Setting fetch-depth to 1000 here should ensure that.
+          fetch-depth: 1000
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
@@ -205,6 +209,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1000
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
@@ -247,6 +253,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1000
 
       - name: Set up Python
         id: setup-python
@@ -284,6 +292,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1000
 
       - uses: actions/download-artifact@v4
         id: download
