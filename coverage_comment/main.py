@@ -201,6 +201,7 @@ def process_pr(
             max_files=config.MAX_FILES_IN_COMMENT,
             minimum_green=config.MINIMUM_GREEN,
             minimum_orange=config.MINIMUM_ORANGE,
+            github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),
@@ -220,6 +221,7 @@ def process_pr(
             max_files=None,
             minimum_green=config.MINIMUM_GREEN,
             minimum_orange=config.MINIMUM_ORANGE,
+            github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),
@@ -411,17 +413,21 @@ def save_coverage_data_files(
         github_step_summary=config.GITHUB_STEP_SUMMARY,
     )
 
+    github_host = github.extract_github_host(config.GITHUB_BASE_URL)
     url_getter = functools.partial(
         storage.get_raw_file_url,
+        github_host=github_host,
         is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
     )
     readme_url = storage.get_repo_file_url(
+        github_host=github_host,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )
     html_report_url = storage.get_html_report_url(
+        github_host=github_host,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )

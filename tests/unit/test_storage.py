@@ -154,14 +154,16 @@ def test_get_datafile_contents(gh, session):
 
 
 @pytest.mark.parametrize(
-    "is_public, expected",
+    "github_host, is_public, expected",
     [
-        (False, "https://github.com/foo/bar/raw/baz/qux"),
-        (True, "https://raw.githubusercontent.com/foo/bar/baz/qux"),
+        ("https://github.com", False, "https://github.com/foo/bar/raw/baz/qux"),
+        ("https://github.com", True, "https://raw.githubusercontent.com/foo/bar/baz/qux"),
+        ("https://github.mycompany.com", True, "https://github.mycompany.com/foo/bar/raw/baz/qux"),
     ],
 )
-def test_get_raw_file_url(is_public, expected):
+def test_get_raw_file_url(github_host, is_public, expected):
     result = storage.get_raw_file_url(
+        github_host=github_host,
         repository="foo/bar",
         branch="baz",
         path=pathlib.Path("qux"),
@@ -171,29 +173,40 @@ def test_get_raw_file_url(is_public, expected):
 
 
 @pytest.mark.parametrize(
-    "path, expected",
+    "github_host, path, expected",
     [
-        ("", "https://github.com/foo/bar/tree/baz"),
-        ("/", "https://github.com/foo/bar/tree/baz"),
-        ("qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
-        ("qux/", "https://github.com/foo/bar/tree/baz/qux"),
-        ("/qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
-        ("/qux/", "https://github.com/foo/bar/tree/baz/qux"),
+        ("https://github.com", "", "https://github.com/foo/bar/tree/baz"),
+        ("https://github.com", "/", "https://github.com/foo/bar/tree/baz"),
+        ("https://github.com", "qux", "https://github.com/foo/bar/blob/baz/qux"),  # blob
+        ("https://github.com", "qux/", "https://github.com/foo/bar/tree/baz/qux"),
+        ("https://github.mycompany.com", "/qux", "https://github.mycompany.com/foo/bar/blob/baz/qux"),  # blob
+        ("https://github.mycompany.com", "/qux/", "https://github.mycompany.com/foo/bar/tree/baz/qux"),
     ],
 )
-def test_get_repo_file_url(path, expected):
-    result = storage.get_repo_file_url(repository="foo/bar", branch="baz", path=path)
+def test_get_repo_file_url(github_host, path, expected):
+    result = storage.get_repo_file_url(github_host=github_host, repository="foo/bar", branch="baz", path=path)
 
     assert result == expected
 
+@pytest.mark.parametrize(
+    "github_host",
+    [
+        "https://github.com",
+        "https://github.mycompany.com",
+    ],
+)
+def test_get_repo_file_url__no_path(github_host):
+    result = storage.get_repo_file_url(github_host=github_host, repository="foo/bar", branch="baz")
 
-def test_get_repo_file_url__no_path():
-    result = storage.get_repo_file_url(repository="foo/bar", branch="baz")
+    assert result == f"{github_host}/foo/bar/tree/baz"
 
-    assert result == "https://github.com/foo/bar/tree/baz"
-
-
-def test_get_html_report_url():
-    result = storage.get_html_report_url(repository="foo/bar", branch="baz")
-    expected = "https://htmlpreview.github.io/?https://github.com/foo/bar/blob/baz/htmlcov/index.html"
+@pytest.mark.parametrize(
+    "github_host, expected",
+    [
+        ("https://github.com", "https://htmlpreview.github.io/?https://github.com/foo/bar/blob/baz/htmlcov/index.html"),
+        ("https://github.mycompany.com", "https://github.mycompany.com/foo/bar/blob/baz/htmlcov/index.html"),
+    ],
+)
+def test_get_html_report_url(github_host, expected):
+    result = storage.get_html_report_url(github_host=github_host, repository="foo/bar", branch="baz")
     assert result == expected
