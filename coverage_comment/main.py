@@ -4,6 +4,7 @@ import functools
 import logging
 import os
 import sys
+import json
 
 import httpx
 
@@ -69,12 +70,23 @@ def action(
     log.debug(f"Operating on {config.GITHUB_REF}")
     gh = github_client.GitHub(session=github_session)
     event_name = config.GITHUB_EVENT_NAME
+    event_path = config.GITHUB_EVENT_PATH
+    event_action = None
+
+    if event_path and os.path.exists(event_path):
+        with open(event_path, "r") as event_file:
+            event_payload = json.load(event_file)
+        is_merged_pr_action = event_payload.get("pull_request", {}).get("merged", False)
+        if is_merged_pr_action:
+            event_action = "merged"
+
     repo_info = github.get_repository_info(
         github=gh, repository=config.GITHUB_REPOSITORY
     )
     try:
         activity = activity_module.find_activity(
             event_name=event_name,
+            event_action=event_action,
             is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
         )
     except activity_module.ActivityNotFound:

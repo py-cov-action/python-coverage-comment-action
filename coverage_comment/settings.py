@@ -47,6 +47,7 @@ class Config:
     # (from https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables )
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
+    GITHUB_EVENT_PATH: pathlib.Path | None = None
     GITHUB_PR_RUN_ID: int | None
     GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
