@@ -47,7 +47,7 @@ function create-repo(){
     repo_dirname=$(basename ${GITHUB_REPOSITORY})
     mv "${repo_dirname}/"{*,.*} .
     rmdir "${repo_dirname}"
-    git pull --ff-only origin master
+    git pull --ff-only origin main
 }
 
 function delete-repo(){
@@ -142,7 +142,7 @@ function help(){
     echo "  coverage_comment" >&2
     echo "      Launch the action locally (no argument)" >&2
     echo "  pytest" >&2
-    echo "      Launch the the tests on the example repo (generates the coverage data that the action uses)" >&2
+    echo "      Launch the tests on the example repo (generates the coverage data that the action uses)" >&2
     echo "" >&2
 
     echo "Change configuration:" >&2

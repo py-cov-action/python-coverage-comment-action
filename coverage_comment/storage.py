@@ -155,7 +155,9 @@ def get_raw_file_url(
     # seconds.
 
 
-def get_repo_file_url(github_host: str, repository: str, branch: str, path: str = "/") -> str:
+def get_repo_file_url(
+    github_host: str, repository: str, branch: str, path: str = "/"
+) -> str:
     """
     Computes the GitHub Web UI URL for a given path:
     If the path is empty or ends with a slash, it will be interpreted as a folder,
@@ -177,4 +179,3 @@ def get_html_report_url(github_host: str, repository: str, branch: str) -> str:
     if github_host.endswith("github.com"):
         return f"https://htmlpreview.github.io/?{readme_url}"
     return readme_url
-

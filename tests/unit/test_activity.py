@@ -19,7 +19,9 @@ from coverage_comment import activity
 )
 def test_find_activity(event_name, event_action, is_default_branch, expected_activity):
     result = activity.find_activity(
-        event_name=event_name, event_action=event_action, is_default_branch=is_default_branch
+        event_name=event_name,
+        event_action=event_action,
+        is_default_branch=is_default_branch,
     )
     assert result == expected_activity
 

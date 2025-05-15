@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import functools
+import json
 import logging
 import os
 import sys
-import json
 
 import httpx
 
@@ -74,7 +74,7 @@ def action(
     event_action = None
 
     if event_path and os.path.exists(event_path):
-        with open(event_path, "r") as event_file:
+        with open(event_path) as event_file:
             event_payload = json.load(event_file)
         is_merged_pr_action = event_payload.get("pull_request", {}).get("merged", False)
         if is_merged_pr_action:
