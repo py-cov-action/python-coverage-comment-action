@@ -227,20 +227,35 @@ def test_get_repo_file_url__no_path(github_host):
 
 
 @pytest.mark.parametrize(
-    "github_host, expected",
+    "github_host,use_gh_pages_html_url,expected",
     [
         (
             "https://github.com",
+            True,
+            "https://foo.github.io/bar/htmlcov/index.html",
+        ),
+        (
+            "https://github.com",
+            False,
             "https://htmlpreview.github.io/?https://github.com/foo/bar/blob/baz/htmlcov/index.html",
         ),
         (
             "https://github.mycompany.com",
+            True,
+            "https://github.mycompany.com/pages/foo/bar/htmlcov/index.html",
+        ),
+        (
+            "https://github.mycompany.com",
+            False,
             "https://github.mycompany.com/foo/bar/blob/baz/htmlcov/index.html",
         ),
     ],
 )
-def test_get_html_report_url(github_host, expected):
+def test_get_html_report_url(github_host, use_gh_pages_html_url, expected):
     result = storage.get_html_report_url(
-        github_host=github_host, repository="foo/bar", branch="baz"
+        github_host=github_host,
+        repository="foo/bar",
+        branch="baz",
+        use_gh_pages_html_url=use_gh_pages_html_url,
     )
     assert result == expected

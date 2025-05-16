@@ -430,6 +430,7 @@ def save_coverage_data_files(
         github_host=github_host,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
+        use_gh_pages_html_url=config.USE_GH_PAGES_HTML_URL,
     )
     readme_file, log_message = communication.get_readme_and_log(
         is_public=is_public,

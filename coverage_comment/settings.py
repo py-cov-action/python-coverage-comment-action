@@ -63,6 +63,7 @@ class Config:
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
     MAX_FILES_IN_COMMENT: int = 25
+    USE_GH_PAGES_HTML_URL: bool = False
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False

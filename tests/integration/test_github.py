@@ -45,19 +45,27 @@ def test_get_repository_info(gh, session):
 
     assert info == github.RepositoryInfo(default_branch="baz", visibility="public")
 
+
 @pytest.mark.parametrize(
     "api_url, expected",
     [
         ("https://api.github.com/repos/foo/bar", "https://github.com"),
         ("https://api.github.com:8080/repos/foo/bar", "https://github.com:8080"),
         ("https://api.github.com/repos/foo/bar/issues", "https://github.com"),
-        ("https://my-ghe.company.com/api/v3/repos/foo/bar", "https://my-ghe.company.com"),
-        ("https://my-ghe.company.com/api/v3/repos/foo/bar/issues", "https://my-ghe.company.com"),
-    ]
+        (
+            "https://my-ghe.company.com/api/v3/repos/foo/bar",
+            "https://my-ghe.company.com",
+        ),
+        (
+            "https://my-ghe.company.com/api/v3/repos/foo/bar/issues",
+            "https://my-ghe.company.com",
+        ),
+    ],
 )
 def test_extract_github_host(api_url, expected):
     result = github.extract_github_host(api_url=api_url)
     assert result == expected
+
 
 def test_download_artifact(gh, session, zip_bytes):
     artifacts = [

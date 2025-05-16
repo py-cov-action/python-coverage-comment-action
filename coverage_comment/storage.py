@@ -172,10 +172,36 @@ def get_repo_file_url(
     return f"{github_host}/{repository}/{part}/{branch}{path}".rstrip("/")
 
 
-def get_html_report_url(github_host: str, repository: str, branch: str) -> str:
+def get_html_report_url(
+    github_host: str,
+    repository: str,
+    branch: str,
+    use_gh_pages_html_url: bool = False,
+) -> str:
+    """
+    Computes the URL for an HTML report:
+    - If use_gh_pages_html_url is True:
+        * GitHub.com => https://<user_or_org>.github.io/<repo>/<pages_path>
+        * GitHub Enterprise => https://<host>/pages/<user_or_org>/<repo>/<pages_path>
+    - If use_gh_pages_html_url is False:
+        * GitHub.com => https://htmlpreview.github.io/?<readme_url>
+        * GitHub Enterprise => <readme_url>
+    """
+    html_report_path = "htmlcov/index.html"
     readme_url = get_repo_file_url(
-        github_host, repository=repository, branch=branch, path="/htmlcov/index.html"
+        github_host, repository=repository, branch=branch, path=html_report_path
     )
+
     if github_host.endswith("github.com"):
-        return f"https://htmlpreview.github.io/?{readme_url}"
+        if use_gh_pages_html_url:
+            user, repo = repository.split("/", 1)
+            return f"https://{user}.github.io/{repo}/{html_report_path}"
+        else:
+            return f"https://htmlpreview.github.io/?{readme_url}"
+    else:
+        # Assume GitHub Enterprise
+        if use_gh_pages_html_url:
+            return f"{github_host}/pages/{repository}/{html_report_path}"
+
+    # Always fallback to the raw readme_url
     return readme_url
