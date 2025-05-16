@@ -59,29 +59,25 @@ def extract_github_host(api_url: str) -> str:
       The base GitHub web host URL (e.g., 'https://github.com',
       'https://my-ghe.company.com').
     """
-    try:
-        parsed_url = urlparse(api_url)
-        scheme = parsed_url.scheme
-        netloc = parsed_url.netloc  # This includes the domain and potentially the port
+    parsed_url = urlparse(api_url)
+    scheme = parsed_url.scheme
+    netloc = parsed_url.netloc  # This includes the domain and potentially the port
 
-        # Special case for GitHub.com API
-        if netloc == "api.github.com":
-            host_domain = "github.com"
-        # Special case for GitHub.com with port (less common but good practice)
-        elif netloc.startswith("api.github.com:"):
-            # Remove 'api.' prefix but keep the port
-            host_domain = netloc.replace("api.", "", 1)
-        # General case for GitHub Enterprise (netloc is already the host:port)
-        else:
-            host_domain = netloc
+    # Special case for GitHub.com API
+    if netloc == "api.github.com":
+        host_domain = "github.com"
+    # Special case for GitHub.com with port (less common but good practice)
+    elif netloc.startswith("api.github.com:"):
+        # Remove 'api.' prefix but keep the port
+        host_domain = netloc.replace("api.", "", 1)
+    # General case for GitHub Enterprise (netloc is already the host:port)
+    else:
+        host_domain = netloc
 
-        # Reconstruct the host URL
-        host_url = f"{scheme}://{host_domain}"
+    # Reconstruct the host URL
+    host_url = f"{scheme}://{host_domain}"
 
-        return host_url
-    except Exception as e:
-        log.error(f"Error parsing URL {api_url}: {e}")
-        return ""
+    return host_url
 
 
 def download_artifact(
