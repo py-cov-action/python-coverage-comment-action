@@ -132,16 +132,17 @@ def get_datafile_contents(
 
 
 def get_raw_file_url(
+    github_host: str,
     repository: str,
     branch: str,
     path: pathlib.Path,
     is_public: bool,
 ):
-    if not is_public:
-        # If the repository is private, then the real links to raw.githubusercontents.com
-        # will be short-lived. In this case, it's better to keep an URL that will
-        # redirect to the correct URL just when asked.
-        return f"https://github.com/{repository}/raw/{branch}/{path}"
+    if (not is_public) or (not github_host.endswith("github.com")):
+        # If the repository is private or hosted on a github enterprise instance,
+        # then the real links to raw.githubusercontents.com will be short-lived.
+        # In this case, it's better to keep an URL that will  redirect to the correct URL just when asked.
+        return f"{github_host}/{repository}/raw/{branch}/{path}"
 
     # Otherwise, we can access the file directly. (shields.io doesn't like the
     # github.com domain)
@@ -154,7 +155,9 @@ def get_raw_file_url(
     # seconds.
 
 
-def get_repo_file_url(repository: str, branch: str, path: str = "/") -> str:
+def get_repo_file_url(
+    github_host: str, repository: str, branch: str, path: str = "/"
+) -> str:
     """
     Computes the GitHub Web UI URL for a given path:
     If the path is empty or ends with a slash, it will be interpreted as a folder,
@@ -166,11 +169,39 @@ def get_repo_file_url(repository: str, branch: str, path: str = "/") -> str:
     # See test_get_repo_file_url for precise specifications
     path = "/" + path.lstrip("/")
     part = "tree" if path.endswith("/") else "blob"
-    return f"https://github.com/{repository}/{part}/{branch}{path}".rstrip("/")
+    return f"{github_host}/{repository}/{part}/{branch}{path}".rstrip("/")
 
 
-def get_html_report_url(repository: str, branch: str) -> str:
+def get_html_report_url(
+    github_host: str,
+    repository: str,
+    branch: str,
+    use_gh_pages_html_url: bool = False,
+) -> str:
+    """
+    Computes the URL for an HTML report:
+    - If use_gh_pages_html_url is True:
+        * GitHub.com => https://<user_or_org>.github.io/<repo>/<pages_path>
+        * GitHub Enterprise => https://<host>/pages/<user_or_org>/<repo>/<pages_path>
+    - If use_gh_pages_html_url is False:
+        * GitHub.com => https://htmlpreview.github.io/?<readme_url>
+        * GitHub Enterprise => <readme_url>
+    """
+    html_report_path = "htmlcov/index.html"
     readme_url = get_repo_file_url(
-        repository=repository, branch=branch, path="/htmlcov/index.html"
+        github_host, repository=repository, branch=branch, path=html_report_path
     )
-    return f"https://htmlpreview.github.io/?{readme_url}"
+
+    if github_host.endswith("github.com"):
+        if use_gh_pages_html_url:
+            user, repo = repository.split("/", 1)
+            return f"https://{user}.github.io/{repo}/{html_report_path}"
+        else:
+            return f"https://htmlpreview.github.io/?{readme_url}"
+    else:
+        # Assume GitHub Enterprise
+        if use_gh_pages_html_url:
+            return f"{github_host}/pages/{repository}/{html_report_path}"
+
+    # Always fallback to the raw readme_url
+    return readme_url
