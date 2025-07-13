@@ -254,3 +254,27 @@ def append_to_file(content: str, filepath: pathlib.Path):
 
 def add_job_summary(content: str, github_step_summary: pathlib.Path):
     append_to_file(content=content, filepath=github_step_summary)
+
+
+def get_pr_diff(github: github_client.GitHub, repository: str, pr_number: int) -> str:
+    """
+    Get the diff of a pull request.
+    """
+    return (
+        github.repos(repository)
+        .pulls(pr_number)
+        .get(headers={"Accept": "application/vnd.github.v3.diff"})
+    )
+
+
+def get_branch_diff(
+    github: github_client.GitHub, repository: str, base_branch: str, head_branch: str
+) -> str:
+    """
+    Get the diff of branch.
+    """
+    return (
+        github.repos(repository)
+        .compare(f"{base_branch}...{head_branch}")
+        .get(headers={"Accept": "application/vnd.github.v3.diff"})
+    )

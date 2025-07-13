@@ -132,7 +132,20 @@ def process_pr(
     )
     base_ref = config.GITHUB_BASE_REF or repo_info.default_branch
 
-    added_lines = coverage_module.get_added_lines(git=git, base_ref=base_ref)
+    if config.GITHUB_BRANCH_NAME:
+        diff = github.get_branch_diff(
+            github=gh,
+            repository=config.GITHUB_REPOSITORY,
+            base_branch=base_ref,
+            head_branch=config.GITHUB_BRANCH_NAME,
+        )
+    elif config.GITHUB_PR_NUMBER:
+        diff = github.get_pr_diff(
+            github=gh,
+            repository=config.GITHUB_REPOSITORY,
+            pr_number=config.GITHUB_PR_NUMBER,
+        )
+    added_lines = coverage_module.get_added_lines(diff=diff)
     diff_coverage = coverage_module.get_diff_coverage_info(
         coverage=coverage, added_lines=added_lines
     )

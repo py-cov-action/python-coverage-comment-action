@@ -83,10 +83,7 @@ class GitHub:
             **header_kwargs,
             **requests_kwargs,
         )
-        if bytes:
-            contents = response.content
-        else:
-            contents = response_contents(response)
+        contents = response_contents(response=response, bytes=bytes)
 
         try:
             response.raise_for_status()
@@ -103,14 +100,15 @@ class GitHub:
 
 def response_contents(
     response: httpx.Response,
+    bytes: bool,
 ) -> JsonObject | str | bytes:
+    if bytes:
+        return response.content
+
     if response.headers.get("content-type", "").startswith("application/json"):
         return response.json(object_hook=JsonObject)
-    if response.headers.get("content-type", "").startswith(
-        "application/vnd.github.raw+json"
-    ):
-        return response.text
-    return response.content
+
+    return response.text
 
 
 class JsonObject(dict):
