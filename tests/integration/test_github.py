@@ -444,3 +444,29 @@ def test_annotations(capsys):
 ::endgroup::"""
     output = capsys.readouterr()
     assert output.err.strip() == expected
+
+
+def test_get_pr_diff(gh, session):
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls/123",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(text="diff --git a/foo.py b/foo.py...")
+
+    result = github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
+
+    assert result == "diff --git a/foo.py b/foo.py..."
+
+
+def test_get_branch_diff(gh, session):
+    session.register(
+        "GET",
+        "/repos/foo/bar/compare/main...feature",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(text="diff --git a/foo.py b/foo.py...")
+
+    result = github.get_branch_diff(
+        github=gh, repository="foo/bar", base_branch="main", head_branch="feature"
+    )
+
+    assert result == "diff --git a/foo.py b/foo.py..."

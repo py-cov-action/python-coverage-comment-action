@@ -304,17 +304,6 @@ def test_get_diff_coverage_info(make_coverage_obj, added_lines, update_obj, expe
     assert result == expected
 
 
-def test_get_added_lines(git):
-    diff = (
-        """+++ b/README.md\n@@ -1,2 +1,3 @@\n-# coverage-comment\n+coverage-comment\n"""
-    )
-    git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
-    assert coverage.get_added_lines(git=git, base_ref="main") == {
-        pathlib.Path("README.md"): [1, 2, 3]
-    }
-
-
 @pytest.mark.parametrize(
     "line_number_diff_line, expected",
     [
@@ -327,7 +316,7 @@ def test_parse_line_number_diff_line(git, line_number_diff_line, expected):
     assert result == expected
 
 
-def test_parse_diff_output(git):
+def test_get_added_lines(git):
     diff = """diff --git a/action.yml b/action.yml
 deleted file mode 100644
 index 42249d1..0000000
@@ -365,13 +354,13 @@ rename to coverage_comment/annotations2.py
 """
     git.register("git fetch origin main --depth=1000")()
     git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
-    assert coverage.parse_diff_output(diff=diff) == {
+    assert coverage.get_added_lines(diff=diff) == {
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
     }
 
 
-def test_parse_diff_output__error(git):
+def test_get_added_lines__error(git):
     diff = """
 @@ -0,0 +1,1 @@
 +name: Python Coverage Comment
@@ -381,4 +370,4 @@ index 1f1d9a4..e69de29 100644
     git.register("git fetch origin main --depth=1000")()
     git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
     with pytest.raises(ValueError):
-        coverage.parse_diff_output(diff=diff)
+        coverage.get_added_lines(diff=diff)
