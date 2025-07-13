@@ -156,6 +156,7 @@ class Config:
     # mypy happy
     @classmethod
     def from_environ(cls, environ: MutableMapping[str, str]) -> Config:
+        0 / 0
         possible_variables = [e for e in inspect.signature(cls).parameters]
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables
