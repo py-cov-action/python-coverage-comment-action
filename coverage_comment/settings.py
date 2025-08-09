@@ -47,6 +47,7 @@ class Config:
     # (from https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables )
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
+    GITHUB_EVENT_PATH: pathlib.Path | None = None
     GITHUB_PR_RUN_ID: int | None
     GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
@@ -62,6 +63,7 @@ class Config:
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
     MAX_FILES_IN_COMMENT: int = 25
+    USE_GH_PAGES_HTML_URL: bool = False
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
