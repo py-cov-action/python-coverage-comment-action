@@ -82,7 +82,7 @@ jobs:
           JOB_ID: ${{ steps.extract_job_id.outputs.JOB_ID }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Important: use the commit that was reviewed. GitHub is making sure
           # that this is race-condition-proof
