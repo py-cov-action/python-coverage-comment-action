@@ -35,7 +35,7 @@ def test_config__from_environ__ok():
             "GITHUB_REF": "master",
             "GITHUB_OUTPUT": "foo.txt",
             "GITHUB_EVENT_NAME": "pull",
-            "GITHUB_EVENT_PATH": pathlib.Path("test_event_path"),
+            "GITHUB_EVENT_PATH": "test_event_path",
             "GITHUB_PR_RUN_ID": "123",
             "GITHUB_STEP_SUMMARY": "step_summary",
             "COMMENT_ARTIFACT_NAME": "baz",

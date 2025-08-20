@@ -127,6 +127,10 @@ class Config:
     def clean_github_output(cls, value: str) -> pathlib.Path:
         return pathlib.Path(value)
 
+    @classmethod
+    def clean_github_event_path(cls, value: str) -> pathlib.Path:
+        return pathlib.Path(value)
+
     @property
     def GITHUB_PR_NUMBER(self) -> int | None:
         # "refs/pull/2/merge"
