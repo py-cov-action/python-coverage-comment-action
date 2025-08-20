@@ -4,6 +4,7 @@ import dataclasses
 import io
 import json
 import pathlib
+import re
 import sys
 import zipfile
 from urllib.parse import urlparse
@@ -63,13 +64,10 @@ def extract_github_host(api_url: str) -> str:
     scheme = parsed_url.scheme
     netloc = parsed_url.netloc  # This includes the domain and potentially the port
 
-    # Special case for GitHub.com API
-    if netloc == "api.github.com":
-        host_domain = "github.com"
-    # Special case for GitHub.com with port (less common but good practice)
-    elif netloc.startswith("api.github.com:"):
+    # Special case for GitHub.com API (including possible port)
+    if re.match(r"api\.github\.com(:|$)", netloc):
         # Remove 'api.' prefix but keep the port
-        host_domain = netloc.replace("api.", "", 1)
+        host_domain = netloc.removeprefix("api.")
     # General case for GitHub Enterprise (netloc is already the host:port)
     else:
         host_domain = netloc
