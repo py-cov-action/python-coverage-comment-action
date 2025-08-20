@@ -391,6 +391,35 @@ the `push` events instead. This is most likely only useful for setups not
 accepting external PRs and you will not have the best user experience.
 If that's something you need to do, please have a look at [this issue](https://github.com/py-cov-action/python-coverage-comment-action/issues/234).
 
+### Updating the coverage information on the `pull_request/closed` event
+
+Usually, the coverage data for the repository is updated on `push` events to the default
+branch, but it can also work to do it on `pull_request/closed` events, especially if
+you require all changes to go through a pull request.
+
+In this case, your workflow's `on:` clause should look like this:
+
+```yaml
+on:
+  pull_request:
+    # opened, synchronize, reopened are the default value
+    # closed will trigger when the PR is closed (merged or not)
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  build:
+    # Optional: if you want to avoid doing the whole build on PRs closed without
+    # merging, add the following clause. Note that this action won't update the
+    # coverage data even if you don't specify this (it will raise an error instead),
+    # but it can help you avoid a useless build.
+    if: github.event.action != "closed" || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    ...
+```
+
+> [!TIP]
+> The action will also save repository coverage data on `schedule` workflows.
+
 ## Overriding the template
 
 By default, comments are generated from a

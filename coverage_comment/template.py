@@ -130,6 +130,7 @@ def get_comment_markdown(
     count_files: int,
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
+    github_host: str,
     repo_name: str,
     pr_number: int,
     base_template: str,
@@ -148,7 +149,7 @@ def get_comment_markdown(
     env.filters["pluralize"] = pluralize
     env.filters["compact"] = compact
     env.filters["file_url"] = functools.partial(
-        get_file_url, repo_name=repo_name, pr_number=pr_number
+        get_file_url, github_host=github_host, repo_name=repo_name, pr_number=pr_number
     )
     env.filters["get_badge_color"] = functools.partial(
         badge.get_badge_color,
@@ -304,11 +305,12 @@ def get_file_url(
     filename: pathlib.Path,
     lines: tuple[int, int] | None = None,
     *,
+    github_host: str,
     repo_name: str,
     pr_number: int,
 ) -> str:
     # To link to a file in a PR, GitHub uses the link to the file overview combined with a SHA256 hash of the file path
-    s = f"https://github.com/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
+    s = f"{github_host}/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
 
     if lines is not None:
         # R stands for Right side of the diff. But since we generate these links for new code we only need the right side.

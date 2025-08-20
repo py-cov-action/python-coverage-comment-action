@@ -581,6 +581,55 @@ See more details and ready-to-copy-paste-markdown at:
     assert "Missing" in summary_content
 
 
+def test_action__pull_request_closed_merged(
+    pull_request_config,
+    session,
+    in_integration_env,
+    get_logs,
+    git,
+    summary_file,
+    pull_request_event_payload,
+):
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+    session.register(
+        "GET",
+        "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
+    )(text="<this is a svg badge>")
+
+    git.register("git branch --show-current")(stdout="foo")
+    git.register("git reset --hard")()
+    git.register("git fetch origin python-coverage-comment-action-data")()
+    git.register("git switch python-coverage-comment-action-data")()
+    git.register("git add endpoint.json")()
+    git.register("git add data.json")()
+    git.register("git add badge.svg")()
+    git.register("git add htmlcov")()
+    git.register("git add README.md")()
+    git.register("git diff --staged --exit-code")(exit_code=1)
+    git.register("git commit --message Update coverage data")()
+    git.register("git push origin python-coverage-comment-action-data")()
+    git.register("git switch foo")()
+
+    pull_request_event_payload.write_text(
+        """{"action": "closed", "pull_request": {"merged": true}}"""
+    )
+
+    result = main.action(
+        config=pull_request_config(
+            GITHUB_STEP_SUMMARY=summary_file,
+            GITHUB_EVENT_PATH=pull_request_event_payload,
+        ),
+        github_session=session,
+        http_session=session,
+        git=git,
+    )
+    assert result == 0
+
+    assert get_logs("INFO", "Saving coverage files")
+
+
 def test_action__push__default_branch__private(
     push_config, session, in_integration_env, get_logs, git
 ):

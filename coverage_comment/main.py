@@ -69,6 +69,7 @@ def action(
     log.debug(f"Operating on {config.GITHUB_REF}")
     gh = github_client.GitHub(session=github_session)
     event_name = config.GITHUB_EVENT_NAME
+
     repo_info = github.get_repository_info(
         github=gh, repository=config.GITHUB_REPOSITORY
     )
@@ -76,6 +77,8 @@ def action(
         activity = activity_module.find_activity(
             event_name=event_name,
             is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
+            event_type=config.GITHUB_EVENT_TYPE,
+            is_pr_merged=config.IS_PR_MERGED,
         )
     except activity_module.ActivityNotFound:
         log.error(
@@ -189,6 +192,7 @@ def process_pr(
             max_files=config.MAX_FILES_IN_COMMENT,
             minimum_green=config.MINIMUM_GREEN,
             minimum_orange=config.MINIMUM_ORANGE,
+            github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),
@@ -208,6 +212,7 @@ def process_pr(
             max_files=None,
             minimum_green=config.MINIMUM_GREEN,
             minimum_orange=config.MINIMUM_ORANGE,
+            github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),
@@ -399,19 +404,24 @@ def save_coverage_data_files(
         github_step_summary=config.GITHUB_STEP_SUMMARY,
     )
 
+    github_host = github.extract_github_host(config.GITHUB_BASE_URL)
     url_getter = functools.partial(
         storage.get_raw_file_url,
+        github_host=github_host,
         is_public=is_public,
         repository=config.GITHUB_REPOSITORY,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
     )
     readme_url = storage.get_repo_file_url(
+        github_host=github_host,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
     )
     html_report_url = storage.get_html_report_url(
+        github_host=github_host,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
         repository=config.GITHUB_REPOSITORY,
+        use_gh_pages_html_url=config.USE_GH_PAGES_HTML_URL,
     )
     readme_file, log_message = communication.get_readme_and_log(
         is_public=is_public,

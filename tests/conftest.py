@@ -7,6 +7,7 @@ import io
 import os
 import pathlib
 import zipfile
+from collections.abc import Callable
 
 import httpx
 import pytest
@@ -47,7 +48,7 @@ def push_config(base_config):
 
 
 @pytest.fixture
-def pull_request_config(base_config):
+def pull_request_config(base_config) -> Callable[..., settings.Config]:
     def _(**kwargs):
         defaults = {
             # GitHub stuff
@@ -245,6 +246,14 @@ def output_file(tmp_path):
 @pytest.fixture
 def summary_file(tmp_path):
     file = tmp_path / "step_summary.txt"
+    file.touch()
+
+    return file
+
+
+@pytest.fixture
+def pull_request_event_payload(tmp_path):
+    file = tmp_path / "event.json"
     file.touch()
 
     return file

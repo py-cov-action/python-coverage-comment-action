@@ -16,12 +16,20 @@ class ActivityNotFound(Exception):
 def find_activity(
     event_name: str,
     is_default_branch: bool,
+    event_type: str,
+    is_pr_merged: bool,
 ) -> str:
     """Find the activity to perform based on the event type and payload."""
     if event_name == "workflow_run":
         return "post_comment"
 
-    if (event_name == "push" and is_default_branch) or event_name == "schedule":
+    if (
+        (event_name == "push" and is_default_branch)
+        or event_name == "schedule"
+        or (event_name == "pull_request" and event_type == "closed")
+    ):
+        if event_name == "pull_request" and event_type == "closed" and not is_pr_merged:
+            raise ActivityNotFound
         return "save_coverage_data_files"
 
     if event_name not in {"pull_request", "push"}:

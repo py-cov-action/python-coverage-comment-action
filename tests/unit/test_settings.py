@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import decimal
+import json
 import pathlib
+from collections.abc import Callable
 
 import pytest
 
@@ -33,6 +35,7 @@ def test_config__from_environ__ok():
             "GITHUB_REF": "master",
             "GITHUB_OUTPUT": "foo.txt",
             "GITHUB_EVENT_NAME": "pull",
+            "GITHUB_EVENT_PATH": "test_event_path",
             "GITHUB_PR_RUN_ID": "123",
             "GITHUB_STEP_SUMMARY": "step_summary",
             "COMMENT_ARTIFACT_NAME": "baz",
@@ -56,6 +59,7 @@ def test_config__from_environ__ok():
         GITHUB_REF="master",
         GITHUB_OUTPUT=pathlib.Path("foo.txt"),
         GITHUB_EVENT_NAME="pull",
+        GITHUB_EVENT_PATH=pathlib.Path("test_event_path"),
         GITHUB_PR_RUN_ID=123,
         GITHUB_STEP_SUMMARY=pathlib.Path("step_summary"),
         COMMENT_ARTIFACT_NAME="baz",
@@ -82,6 +86,7 @@ def test_config__verbose_deprecated(get_logs):
             "GITHUB_REPOSITORY": "owner/repo",
             "GITHUB_REF": "master",
             "GITHUB_EVENT_NAME": "pull",
+            "GITHUB_EVENT_PATH": pathlib.Path("test_event_path"),
             "GITHUB_PR_RUN_ID": "123",
             "GITHUB_STEP_SUMMARY": "step_summary",
             "VERBOSE": "true",
@@ -92,6 +97,7 @@ def test_config__verbose_deprecated(get_logs):
         GITHUB_REPOSITORY="owner/repo",
         GITHUB_REF="master",
         GITHUB_EVENT_NAME="pull",
+        GITHUB_EVENT_PATH=pathlib.Path("test_event_path"),
         GITHUB_PR_RUN_ID=123,
         GITHUB_STEP_SUMMARY=pathlib.Path("step_summary"),
         VERBOSE=False,
@@ -100,13 +106,14 @@ def test_config__verbose_deprecated(get_logs):
 
 
 @pytest.fixture
-def config():
+def config() -> Callable[..., settings.Config]:
     defaults = {
         "GITHUB_BASE_REF": "master",
         "GITHUB_TOKEN": "foo",
         "GITHUB_REPOSITORY": "owner/repo",
         "GITHUB_REF": "master",
         "GITHUB_EVENT_NAME": "pull",
+        "GITHUB_EVENT_PATH": pathlib.Path("test_event_path"),
         "GITHUB_PR_RUN_ID": 123,
         "GITHUB_STEP_SUMMARY": pathlib.Path("step_summary"),
         "COMMENT_ARTIFACT_NAME": "baz",
@@ -117,7 +124,7 @@ def config():
         "MERGE_COVERAGE_FILES": True,
     }
 
-    def _(**kwargs):
+    def _(**kwargs) -> settings.Config:
         return settings.Config(**(defaults | kwargs))
 
     return _
@@ -191,3 +198,22 @@ def test_final_coverage_data_branch(config):
         SUBPROJECT_ID="bar",
     )
     assert config_obj.FINAL_COVERAGE_DATA_BRANCH == "foo-bar"
+
+
+@pytest.mark.parametrize("merged", [True, False])
+def test_is_pr_merged(tmp_path, config, merged):
+    path = tmp_path / "event.json"
+    path.write_text(
+        json.dumps({"action": "closed", "pull_request": {"merged": merged}})
+    )
+    config_obj = config(GITHUB_EVENT_PATH=path)
+
+    assert config_obj.IS_PR_MERGED is merged
+
+
+def test_is_pr_merged__other_payload(tmp_path, config):
+    path = tmp_path / "event.json"
+    path.write_text(json.dumps({"action": "other"}))
+    config_obj = config(GITHUB_EVENT_PATH=path)
+
+    assert config_obj.IS_PR_MERGED is False

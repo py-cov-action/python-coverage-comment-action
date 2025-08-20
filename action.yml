@@ -102,6 +102,10 @@ inputs:
       notice, warning and error as annotation type. For more information look here:
       https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
     default: warning
+  USE_GH_PAGES_HTML_URL:
+    description: >
+      If true, will use the GitHub Pages URL for the coverage report instead of the raw URL or an htmlpreview.github.io link.
+    default: false
   VERBOSE:
     description: >
       Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging

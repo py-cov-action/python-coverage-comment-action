@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 import decimal
+import functools
 import inspect
+import json
 import pathlib
 from collections.abc import MutableMapping
 from typing import Any
@@ -47,6 +49,7 @@ class Config:
     # (from https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables )
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
+    GITHUB_EVENT_PATH: pathlib.Path | None = None
     GITHUB_PR_RUN_ID: int | None
     GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
@@ -62,6 +65,7 @@ class Config:
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
     MAX_FILES_IN_COMMENT: int = 25
+    USE_GH_PAGES_HTML_URL: bool = False
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
@@ -123,6 +127,10 @@ class Config:
     def clean_github_output(cls, value: str) -> pathlib.Path:
         return pathlib.Path(value)
 
+    @classmethod
+    def clean_github_event_path(cls, value: str) -> pathlib.Path:
+        return pathlib.Path(value)
+
     @property
     def GITHUB_PR_NUMBER(self) -> int | None:
         # "refs/pull/2/merge"
@@ -136,6 +144,23 @@ class Config:
         if self.GITHUB_REF.startswith("refs/heads"):
             return self.GITHUB_REF.split("/", 2)[2]
         return None
+
+    @functools.cached_property
+    def GITHUB_EVENT_PAYLOAD(self) -> dict:
+        if not self.GITHUB_EVENT_PATH:
+            return {}
+        return json.loads(self.GITHUB_EVENT_PATH.read_text())
+
+    @property
+    def GITHUB_EVENT_TYPE(self) -> str | None:
+        return self.GITHUB_EVENT_PAYLOAD.get("action")
+
+    @property
+    def IS_PR_MERGED(self) -> bool:
+        try:
+            return self.GITHUB_EVENT_PAYLOAD["pull_request"]["merged"]
+        except KeyError:
+            return False
 
     @property
     def FINAL_COMMENT_FILENAME(self):

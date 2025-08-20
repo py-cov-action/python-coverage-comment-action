@@ -4,8 +4,10 @@ import dataclasses
 import io
 import json
 import pathlib
+import re
 import sys
 import zipfile
+from urllib.parse import urlparse
 
 from coverage_comment import github_client, log
 
@@ -44,6 +46,36 @@ def get_repository_info(
     return RepositoryInfo(
         default_branch=response.default_branch, visibility=response.visibility
     )
+
+
+def extract_github_host(api_url: str) -> str:
+    """
+    Extracts the base GitHub web host URL from a GitHub API URL.
+
+    Args:
+      api_url: The GitHub API URL (e.g., 'https://api.github.com/...',
+               'https://my-ghe.company.com/api/v3/...').
+
+    Returns:
+      The base GitHub web host URL (e.g., 'https://github.com',
+      'https://my-ghe.company.com').
+    """
+    parsed_url = urlparse(api_url)
+    scheme = parsed_url.scheme
+    netloc = parsed_url.netloc  # This includes the domain and potentially the port
+
+    # Special case for GitHub.com API (including possible port)
+    if re.match(r"api\.github\.com(:|$)", netloc):
+        # Remove 'api.' prefix but keep the port
+        host_domain = netloc.removeprefix("api.")
+    # General case for GitHub Enterprise (netloc is already the host:port)
+    else:
+        host_domain = netloc
+
+    # Reconstruct the host URL
+    host_url = f"{scheme}://{host_domain}"
+
+    return host_url
 
 
 def download_artifact(
