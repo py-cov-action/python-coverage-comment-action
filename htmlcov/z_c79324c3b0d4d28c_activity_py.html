@@ -16,21 +16,25 @@
   "g": "tests/integration/test_main.py::test_action__pull_request__post_comment|run",
   "h": "tests/integration/test_main.py::test_action__pull_request__store_comment_not_targeting_default|run",
   "i": "tests/integration/test_main.py::test_action__pull_request__store_comment|run",
-  "j": "tests/integration/test_main.py::test_action__push__no_branch|run",
-  "k": "tests/integration/test_main.py::test_action__push__non_default_branch__no_pr|run",
-  "l": "tests/integration/test_main.py::test_action__push__non_default_branch|run",
-  "m": "tests/unit/test_activity.py::test_find_activity[pull_request-False-process_pr]|run",
-  "n": "tests/unit/test_activity.py::test_find_activity[pull_request-True-process_pr]|run",
-  "o": "tests/unit/test_activity.py::test_find_activity[push-False-process_pr]|run",
-  "p": "tests/unit/test_activity.py::test_find_activity_not_found|run",
-  "q": "tests/integration/test_main.py::test_action__push__default_branch__private|run",
-  "r": "tests/integration/test_main.py::test_action__push__default_branch|run",
-  "s": "tests/unit/test_activity.py::test_find_activity[push-True-save_coverage_data_files]|run",
-  "t": "tests/integration/test_main.py::test_action__workflow_run__no_artifact|run",
-  "u": "tests/integration/test_main.py::test_action__workflow_run__no_pr_number|run",
-  "v": "tests/integration/test_main.py::test_action__workflow_run__no_pr|run",
-  "w": "tests/integration/test_main.py::test_action__workflow_run__post_comment|run",
-  "x": "tests/unit/test_activity.py::test_find_activity[workflow_run-True-post_comment]|run"
+  "j": "tests/integration/test_main.py::test_action__pull_request_closed_merged|run",
+  "k": "tests/integration/test_main.py::test_action__push__default_branch__private|run",
+  "l": "tests/integration/test_main.py::test_action__push__default_branch|run",
+  "m": "tests/integration/test_main.py::test_action__push__no_branch|run",
+  "n": "tests/integration/test_main.py::test_action__push__non_default_branch__no_pr|run",
+  "o": "tests/integration/test_main.py::test_action__push__non_default_branch|run",
+  "p": "tests/unit/test_activity.py::test_find_activity[pull_request-False-None-False-process_pr]|run",
+  "q": "tests/unit/test_activity.py::test_find_activity[pull_request-True-None-False-process_pr]|run",
+  "r": "tests/unit/test_activity.py::test_find_activity[pull_request-True-closed-True-save_coverage_data_files]|run",
+  "s": "tests/unit/test_activity.py::test_find_activity[push-False-None-False-process_pr]|run",
+  "t": "tests/unit/test_activity.py::test_find_activity[push-True-None-False-save_coverage_data_files]|run",
+  "u": "tests/unit/test_activity.py::test_find_activity[schedule-False-None-False-save_coverage_data_files]|run",
+  "v": "tests/unit/test_activity.py::test_find_activity_not_found|run",
+  "w": "tests/unit/test_activity.py::test_find_activity_pr_closed_not_merged|run",
+  "x": "tests/integration/test_main.py::test_action__workflow_run__no_artifact|run",
+  "y": "tests/integration/test_main.py::test_action__workflow_run__no_pr_number|run",
+  "z": "tests/integration/test_main.py::test_action__workflow_run__no_pr|run",
+  "A": "tests/integration/test_main.py::test_action__workflow_run__post_comment|run",
+  "B": "tests/unit/test_activity.py::test_find_activity[workflow_run-True-None-False-post_comment]|run"
 }
     </script>
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -83,8 +87,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">11 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">11<span class="text"> run</span></button>
+            <span class="text">13 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">13<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
             <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">0<span class="text"> partial</span></button>
@@ -95,7 +99,7 @@
             <a id="nextFileLink" class="nav" href="z_c79324c3b0d4d28c_badge_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
-            created at 2025-08-20 19:15 +0000
+            created at 2025-08-20 22:02 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -128,18 +132,26 @@
     <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">def</span> <span class="nam">find_activity</span><span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">    <span class="nam">event_name</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">is_default_branch</span><span class="op">:</span> <span class="nam">bool</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="str">"""Find the activity to perform based on the event type and payload."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"workflow_run"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">23 ctx</label></span><span class="ctxs">1bcdefghiqrjkltuvwmnosxp</span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="key">return</span> <span class="str">"post_comment"</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">5 ctx</label></span><span class="ctxs">1tuvwx</span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="key">if</span> <span class="op">(</span><span class="nam">event_name</span> <span class="op">==</span> <span class="str">"push"</span> <span class="key">and</span> <span class="nam">is_default_branch</span><span class="op">)</span> <span class="key">or</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"schedule"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">18 ctx</label></span><span class="ctxs">1bcdefghiqrjklmnosp</span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="key">return</span> <span class="str">"save_coverage_data_files"</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">3 ctx</label></span><span class="ctxs">1qrs</span></p>
-    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="key">not</span> <span class="key">in</span> <span class="op">{</span><span class="str">"pull_request"</span><span class="op">,</span> <span class="str">"push"</span><span class="op">}</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghijklmnop</span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ActivityNotFound</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">2 ctx</label></span><span class="ctxs">1bp</span></p>
-    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">return</span> <span class="str">"process_pr"</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">13 ctx</label></span><span class="ctxs">1cdefghijklmno</span></p>
+    <p class="run run2"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">event_type</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="nam">is_pr_merged</span><span class="op">:</span> <span class="nam">bool</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="str">"""Find the activity to perform based on the event type and payload."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"workflow_run"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">27 ctx</label></span><span class="ctxs">1bcdefghijklmnoxyzApqrstuBvw</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">        <span class="key">return</span> <span class="str">"post_comment"</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">5 ctx</label></span><span class="ctxs">1xyzAB</span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="key">if</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="op">(</span><span class="nam">event_name</span> <span class="op">==</span> <span class="str">"push"</span> <span class="key">and</span> <span class="nam">is_default_branch</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="key">or</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"schedule"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">or</span> <span class="op">(</span><span class="nam">event_name</span> <span class="op">==</span> <span class="str">"pull_request"</span> <span class="key">and</span> <span class="nam">event_type</span> <span class="op">==</span> <span class="str">"closed"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">if</span> <span class="nam">event_name</span> <span class="op">==</span> <span class="str">"pull_request"</span> <span class="key">and</span> <span class="nam">event_type</span> <span class="op">==</span> <span class="str">"closed"</span> <span class="key">and</span> <span class="key">not</span> <span class="nam">is_pr_merged</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">7 ctx</label></span><span class="ctxs">1jklrtuw</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ActivityNotFound</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">return</span> <span class="str">"save_coverage_data_files"</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">6 ctx</label></span><span class="ctxs">1jklrtu</span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="key">if</span> <span class="nam">event_name</span> <span class="key">not</span> <span class="key">in</span> <span class="op">{</span><span class="str">"pull_request"</span><span class="op">,</span> <span class="str">"push"</span><span class="op">}</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghimnopqsv</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ActivityNotFound</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">2 ctx</label></span><span class="ctxs">1bv</span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">    <span class="key">return</span> <span class="str">"process_pr"</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">13 ctx</label></span><span class="ctxs">1cdefghimnopqs</span></p>
 </main>
 <footer>
     <div class="content">
@@ -149,7 +161,7 @@
             <a class="nav" href="z_c79324c3b0d4d28c_badge_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
-            created at 2025-08-20 19:15 +0000
+            created at 2025-08-20 22:02 +0000
         </p>
     </div>
 </footer>
