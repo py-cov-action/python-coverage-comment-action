@@ -9,11 +9,9 @@ import pytest
 
 
 @pytest.fixture
-def in_integration_env(integration_env, integration_dir):
-    curdir = os.getcwd()
-    os.chdir(integration_dir)
+def in_integration_env(integration_env, integration_dir, monkeypatch):
+    monkeypatch.chdir(integration_dir)
     yield integration_dir
-    os.chdir(curdir)
 
 
 @pytest.fixture

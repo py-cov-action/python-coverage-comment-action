@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 import decimal
+import functools
 import inspect
+import json
 import pathlib
 from collections.abc import MutableMapping
 from typing import Any
@@ -138,6 +140,23 @@ class Config:
         if self.GITHUB_REF.startswith("refs/heads"):
             return self.GITHUB_REF.split("/", 2)[2]
         return None
+
+    @functools.cached_property
+    def GITHUB_EVENT_PAYLOAD(self) -> dict:
+        if not self.GITHUB_EVENT_PATH:
+            return {}
+        return json.loads(self.GITHUB_EVENT_PATH.read_text())
+
+    @property
+    def GITHUB_EVENT_TYPE(self) -> str | None:
+        return self.GITHUB_EVENT_PAYLOAD.get("action")
+
+    @property
+    def IS_PR_MERGED(self) -> bool:
+        try:
+            return self.GITHUB_EVENT_PAYLOAD["pull_request"]["merged"]
+        except KeyError:
+            return False
 
     @property
     def FINAL_COMMENT_FILENAME(self):

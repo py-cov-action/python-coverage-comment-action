@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import httpx
+import pytest
 
 from coverage_comment import main, settings, subprocess
 
@@ -14,7 +15,6 @@ def test_main(mocker, get_logs):
     # We could also accept not to test this function but if we've come this
     # far and have 98% coverage, we can as well have 100%.
 
-    exit = mocker.patch("sys.exit")
     action = mocker.patch("coverage_comment.main.action")
 
     os.environ.update(
@@ -26,11 +26,14 @@ def test_main(mocker, get_logs):
             "GITHUB_BASE_REF": "",
             "GITHUB_EVENT_NAME": "push",
             "GITHUB_STEP_SUMMARY": "step_summary",
+            "GITHUB_EVENT_PATH": "foo/bar",
         }
     )
-    main.main()
 
-    exit.assert_called_with(action.return_value)
+    with pytest.raises(SystemExit) as exc_data:
+        main.main()
+
+    assert exc_data.value.code == action.return_value
     kwargs = action.call_args_list[0].kwargs
     assert isinstance(kwargs["config"], settings.Config)
     assert isinstance(kwargs["git"], subprocess.Git)

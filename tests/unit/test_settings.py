@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import decimal
+import json
 import pathlib
+from collections.abc import Callable
 
 import pytest
 
@@ -104,7 +106,7 @@ def test_config__verbose_deprecated(get_logs):
 
 
 @pytest.fixture
-def config():
+def config() -> Callable[..., settings.Config]:
     defaults = {
         "GITHUB_BASE_REF": "master",
         "GITHUB_TOKEN": "foo",
@@ -122,7 +124,7 @@ def config():
         "MERGE_COVERAGE_FILES": True,
     }
 
-    def _(**kwargs):
+    def _(**kwargs) -> settings.Config:
         return settings.Config(**(defaults | kwargs))
 
     return _
@@ -196,3 +198,22 @@ def test_final_coverage_data_branch(config):
         SUBPROJECT_ID="bar",
     )
     assert config_obj.FINAL_COVERAGE_DATA_BRANCH == "foo-bar"
+
+
+@pytest.mark.parametrize("merged", [True, False])
+def test_is_pr_merged(tmp_path, config, merged):
+    path = tmp_path / "event.json"
+    path.write_text(
+        json.dumps({"action": "closed", "pull_request": {"merged": merged}})
+    )
+    config_obj = config(GITHUB_EVENT_PATH=path)
+
+    assert config_obj.IS_PR_MERGED is merged
+
+
+def test_is_pr_merged__other_payload(tmp_path, config):
+    path = tmp_path / "event.json"
+    path.write_text(json.dumps({"action": "other"}))
+    config_obj = config(GITHUB_EVENT_PATH=path)
+
+    assert config_obj.IS_PR_MERGED is False
