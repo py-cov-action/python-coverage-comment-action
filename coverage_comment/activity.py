@@ -27,12 +27,13 @@ def find_activity(
         (event_name == "push" and is_default_branch)
         or event_name == "schedule"
         or (event_name == "pull_request" and event_type == "closed")
+        or event_name == "merge_group"
     ):
         if event_name == "pull_request" and event_type == "closed" and not is_pr_merged:
             raise ActivityNotFound
         return "save_coverage_data_files"
 
-    if event_name not in {"pull_request", "push"}:
+    if event_name not in {"pull_request", "push", "merge_group"}:
         raise ActivityNotFound
 
     return "process_pr"

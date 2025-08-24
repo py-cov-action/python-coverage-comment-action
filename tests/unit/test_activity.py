@@ -15,6 +15,7 @@ from coverage_comment import activity
         ("pull_request", True, None, False, "process_pr"),
         ("pull_request", False, None, False, "process_pr"),
         ("schedule", False, None, False, "save_coverage_data_files"),
+        ("merge_group", False, None, False, "save_coverage_data_files"),
     ],
 )
 def test_find_activity(

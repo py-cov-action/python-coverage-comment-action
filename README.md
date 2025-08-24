@@ -215,6 +215,46 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 ```
 
+### Using with merge queues
+
+If you are using merge queues, you will need to add the `merge_group` event to your workflow's `on:` clause. This will ensure that the action is triggered when a pull request is added to the merge queue.
+
+You will need to ensure the action is run only _after_ all the actual merge checks have run. Otherwise, coverage data will be incorrectly updated.
+
+For instance
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install everything, run the tests, produce the .coverage file
+        run: make test # This is the part where you put your own test command
+
+      - name: Coverage comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
 ### Merging multiple coverage reports
 
 In case you have a job matrix and you want the report to be on the global
