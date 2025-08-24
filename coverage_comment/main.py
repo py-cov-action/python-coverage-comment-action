@@ -83,7 +83,7 @@ def action(
     except activity_module.ActivityNotFound:
         log.error(
             'This action has only been designed to work for "pull_request", "push", '
-            f'"workflow_run" or "schedule" actions, not "{event_name}". Because there '
+            f'"workflow_run", "schedule" or "merge_group" actions, not "{event_name}". Because there '
             "are security implications. If you have a different usecase, please open an issue, "
             "we'll be glad to add compatibility."
         )
