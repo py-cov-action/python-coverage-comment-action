@@ -118,6 +118,12 @@ outputs:
       you'll need to run the action in workflow_run mode to post it. If
       "false", no comment file was written (likely because the comment was
       already posted to the PR).
+  COVERAGE_PERCENTAGE:
+    description: >
+      The coverage percentage of the pull request.
+  REFERENCE_COVERAGE_PERCENTAGE:
+    description: >
+      The coverage percentage of the base branch.
 runs:
   using: docker
   image: Dockerfile

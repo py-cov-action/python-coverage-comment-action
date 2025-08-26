@@ -268,6 +268,11 @@ def process_pr(
             ],
         )
 
+    outputs = {
+        "COVERAGE_PERCENTAGE": coverage.info.percent_covered,
+        "REFERENCE_COVERAGE_PERCENTAGE": previous_coverage_rate,
+    }
+
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:
             raise github.CannotPostComment
@@ -292,14 +297,16 @@ def process_pr(
             filename=config.FINAL_COMMENT_FILENAME,
             content=comment,
         )
-        github.set_output(github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=True)
+        outputs |= {"COMMENT_FILE_WRITTEN": True}
         log.debug("Comment stored locally on disk")
     else:
-        github.set_output(
-            github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=False
-        )
+        outputs |= {"COMMENT_FILE_WRITTEN": False}
         log.debug("Comment not generated")
 
+    github.set_output(
+        github_output=config.GITHUB_OUTPUT,
+        **outputs,
+    )
     return 0
 
 
