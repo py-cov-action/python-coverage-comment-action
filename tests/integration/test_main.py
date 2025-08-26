@@ -111,9 +111,13 @@ def test_action__pull_request__store_comment(
         in comment
     )
 
-    expected_output = "COMMENT_FILE_WRITTEN=true\n"
-
-    assert output_file.read_text() == expected_output
+    expected_output = [
+        "COMMENT_FILE_WRITTEN=true",
+        "COVERAGE_PERCENTAGE=0.7777777777777778",
+        "REFERENCE_COVERAGE_PERCENTAGE=null",
+    ]
+    # The order of keys is not guaranteed, so we'll sort the lines
+    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
 
 
 @pytest.mark.add_branches("foo")
@@ -238,9 +242,13 @@ def test_action__pull_request__post_comment(
     assert comment.count("<img") == 10
     assert comment == summary_file.read_text()
 
-    expected_output = "COMMENT_FILE_WRITTEN=false\n"
-
-    assert output_file.read_text() == expected_output
+    expected_output = [
+        "COMMENT_FILE_WRITTEN=false",
+        "COVERAGE_PERCENTAGE=0.7777777777777778",
+        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
+    ]
+    # The order of keys is not guaranteed, so we'll sort the lines
+    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
 
 
 def test_action__push__non_default_branch(
@@ -311,9 +319,13 @@ def test_action__push__non_default_branch(
     assert "Coverage for the whole project went from 30% to 77.77%" in comment
     assert comment == summary_file.read_text()
 
-    expected_output = "COMMENT_FILE_WRITTEN=false\n"
-
-    assert output_file.read_text() == expected_output
+    expected_output = [
+        "COMMENT_FILE_WRITTEN=false",
+        "COVERAGE_PERCENTAGE=0.7777777777777778",
+        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
+    ]
+    # The order of keys is not guaranteed, so we'll sort the lines
+    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
 
 
 def test_action__push__no_branch(
@@ -388,9 +400,13 @@ def test_action__push__non_default_branch__no_pr(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_output = "COMMENT_FILE_WRITTEN=true\n"
-
-    assert output_file.read_text() == expected_output
+    expected_output = [
+        "COMMENT_FILE_WRITTEN=true",
+        "COVERAGE_PERCENTAGE=0.7777777777777778",
+        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
+    ]
+    # The order of keys is not guaranteed, so we'll sort the lines
+    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
 
 
 def test_action__pull_request__force_store_comment(
@@ -420,9 +436,13 @@ def test_action__pull_request__force_store_comment(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_output = "COMMENT_FILE_WRITTEN=true\n"
-
-    assert output_file.read_text() == expected_output
+    expected_output = [
+        "COMMENT_FILE_WRITTEN=true",
+        "COVERAGE_PERCENTAGE=0.7777777777777778",
+        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
+    ]
+    # The order of keys is not guaranteed, so we'll sort the lines
+    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
 
 
 def test_action__pull_request__post_comment__no_marker(
