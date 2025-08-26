@@ -269,8 +269,10 @@ def process_pr(
         )
 
     outputs = {
-        "COVERAGE_PERCENTAGE": coverage.info.percent_covered,
-        "REFERENCE_COVERAGE_PERCENTAGE": previous_coverage_rate,
+        "COVERAGE_PERCENTAGE": float(coverage.info.percent_covered),
+        "REFERENCE_COVERAGE_PERCENTAGE": float(previous_coverage_rate)
+        if previous_coverage_rate is not None
+        else None,
     }
 
     try:
