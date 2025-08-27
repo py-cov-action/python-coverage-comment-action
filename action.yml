@@ -113,17 +113,16 @@ inputs:
 outputs:
   COMMENT_FILE_WRITTEN:
     description: >
-      This output is only set when running in PR mode. It's a boolean indicating
-      whether a comment file was written to COMMENT_FILENAME or not. If so,
-      you'll need to run the action in workflow_run mode to post it. If
-      "false", no comment file was written (likely because the comment was
-      already posted to the PR).
+      A boolean indicating whether a comment file was written to COMMENT_FILENAME or not.
+      If so, you'll need to run the action in workflow_run mode to post it. If "false",
+      no comment file was written (likely because the comment was already posted to the PR).
+      Only available when running in PR mode.
   COVERAGE_PERCENTAGE:
     description: >
-      The coverage percentage of the pull request.
+      The coverage percentage of the pull request (Only available when running in PR mode).
   REFERENCE_COVERAGE_PERCENTAGE:
     description: >
-      The coverage percentage of the base branch.
+      The coverage percentage of the base branch (Only available when running in PR mode).
 runs:
   using: docker
   image: Dockerfile

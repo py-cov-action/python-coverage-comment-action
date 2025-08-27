@@ -346,6 +346,28 @@ jobs:
           path: python-coverage-comment-action.txt
 ```
 
+### Outputs
+
+The action makes available some data for downstream processing (Only available when running in PR mode):
+
+ - COMMENT_FILE_WRITTEN: A boolean indicating whether a comment file was written to COMMENT_FILENAME or not. 
+ - COVERAGE_PERCENTAGE: The coverage percentage of the pull request.
+ - REFERENCE_COVERAGE_PERCENTAGE: The coverage percentage of the base branch.
+
+Usage may look like this
+
+```yaml
+- name: Coverage comment
+  id: coverage_comment
+  uses: py-cov-action/python-coverage-comment-action@v3
+  with:
+    GITHUB_TOKEN: ${{ github.token }}
+
+- name: Enforce coverage
+  if: ${{ steps.coverage_comment.outputs.COVERAGE_PERCENTAGE < steps.coverage_comment.outputs.REFERENCE_COVERAGE_PERCENTAGE }}
+  run: echo "Coverage decreased." && exit 1
+```
+
 ### All options
 
 ```yaml
