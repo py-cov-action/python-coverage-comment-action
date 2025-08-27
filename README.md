@@ -350,7 +350,7 @@ jobs:
 
 The action makes available some data for downstream processing (Only available when running in PR mode):
 
- - COMMENT_FILE_WRITTEN: A boolean indicating whether a comment file was written to COMMENT_FILENAME or not. 
+ - COMMENT_FILE_WRITTEN: A boolean indicating whether a comment file was written to COMMENT_FILENAME or not.
  - COVERAGE_PERCENTAGE: The coverage percentage of the pull request.
  - REFERENCE_COVERAGE_PERCENTAGE: The coverage percentage of the base branch.
 
