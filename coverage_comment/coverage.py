@@ -33,6 +33,16 @@ class CoverageInfo:
     covered_branches: int = 0
     missing_branches: int = 0
 
+    def as_output(self, prefix: str) -> dict:
+        data = dataclasses.asdict(self)
+        output = {}
+        for key, value in data.items():
+            if value is not None:
+                output[f"{prefix}_{key.upper()}"] = (
+                    float(value) if isinstance(value, decimal.Decimal) else value
+                )
+        return output
+
 
 @dataclasses.dataclass(kw_only=True)
 class FileCoverage:
@@ -82,6 +92,16 @@ class DiffCoverage:
     total_percent_covered: decimal.Decimal
     num_changed_lines: int
     files: dict[pathlib.Path, FileDiffCoverage]
+
+    def as_output(self, prefix: str) -> dict:
+        data = dataclasses.asdict(self)
+        output = {}
+        for key, value in data.items():
+            if value is not None and not isinstance(value, dict):
+                output[f"{prefix}_{key.upper()}"] = (
+                    float(value) if isinstance(value, decimal.Decimal) else value
+                )
+        return output
 
 
 def compute_coverage(

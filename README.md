@@ -348,11 +348,33 @@ jobs:
 
 ### Outputs
 
-The action makes available some data for downstream processing (Only available when running in PR mode):
+The action makes available some data for downstream processing. All outputs are only available when running in PR mode.
 
- - COMMENT_FILE_WRITTEN: A boolean indicating whether a comment file was written to COMMENT_FILENAME or not.
- - COVERAGE_PERCENTAGE: The coverage percentage of the pull request.
- - REFERENCE_COVERAGE_PERCENTAGE: The coverage percentage of the base branch.
+| Name | Description |
+| --- | --- |
+| `COMMENT_FILE_WRITTEN` | A boolean indicating whether a comment file was written to `COMMENT_FILENAME` or not. |
+| `NEW_COVERED_LINES` | The number of covered lines in the pull request. |
+| `NEW_NUM_STATEMENTS` | The number of statements in the pull request. |
+| `NEW_PERCENT_COVERED` | The coverage percentage of the pull request. |
+| `NEW_MISSING_LINES` | The number of lines with missing coverage in the pull request. |
+| `NEW_EXCLUDED_LINES` | The number of excluded lines in the pull request. |
+| `NEW_NUM_BRANCHES` | The number of branches in the pull request. |
+| `NEW_NUM_PARTIAL_BRANCHES` | The number of partial branches in the pull request. |
+| `NEW_COVERED_BRANCHES` | The number of covered branches in the pull request. |
+| `NEW_MISSING_BRANCHES` | The number of branches with missing coverage in the pull request. |
+| `REFERENCE_COVERED_LINES` | The number of covered lines in the base branch. |
+| `REFERENCE_NUM_STATEMENTS` | The number of statements in the base branch. |
+| `REFERENCE_PERCENT_COVERED` | The coverage percentage of the base branch. |
+| `REFERENCE_MISSING_LINES` | The number of lines with missing coverage in the base branch. |
+| `REFERENCE_EXCLUDED_LINES` | The number of excluded lines in the base branch. |
+| `REFERENCE_NUM_BRANCHES` | The number of branches in the base branch. |
+| `REFERENCE_NUM_PARTIAL_BRANCHES` | The number of partial branches in the base branch. |
+| `REFERENCE_COVERED_BRANCHES` | The number of covered branches in the base branch. |
+| `REFERENCE_MISSING_BRANCHES` | The number of branches with missing coverage in the base branch. |
+| `DIFF_TOTAL_NUM_LINES` | The total number of lines in the diff. |
+| `DIFF_TOTAL_NUM_VIOLATIONS` | The total number of lines with missing coverage in the diff. |
+| `DIFF_TOTAL_PERCENT_COVERED` | The coverage percentage of the diff. |
+| `DIFF_NUM_CHANGED_LINES` | The number of changed lines in the diff. |
 
 Usage may look like this
 
@@ -364,7 +386,7 @@ Usage may look like this
     GITHUB_TOKEN: ${{ github.token }}
 
 - name: Enforce coverage
-  if: ${{ steps.coverage_comment.outputs.COVERAGE_PERCENTAGE < steps.coverage_comment.outputs.REFERENCE_COVERAGE_PERCENTAGE }}
+  if: ${{ steps.coverage_comment.outputs.NEW_PERCENT_COVERED < steps.coverage_comment.outputs.REFERENCE_PERCENT_COVERED }}
   run: echo "Coverage decreased." && exit 1
 ```
 

@@ -37,6 +37,42 @@ def test_action__invalid_event_name(session, push_config, in_integration_env, ge
     assert get_logs("ERROR", "This action has only been designed to work for")
 
 
+def get_expected_output(
+    comment_written: bool, reference_coverage: bool
+) -> dict[str, str]:
+    output = {
+        "COMMENT_FILE_WRITTEN": str(comment_written).lower(),
+        "NEW_COVERED_LINES": "7",
+        "NEW_NUM_STATEMENTS": "9",
+        "NEW_PERCENT_COVERED": "0.7777777777777778",
+        "NEW_MISSING_LINES": "2",
+        "NEW_EXCLUDED_LINES": "0",
+        "NEW_NUM_BRANCHES": "0",
+        "NEW_NUM_PARTIAL_BRANCHES": "0",
+        "NEW_COVERED_BRANCHES": "0",
+        "NEW_MISSING_BRANCHES": "0",
+        "DIFF_TOTAL_NUM_LINES": "4",
+        "DIFF_TOTAL_NUM_VIOLATIONS": "1",
+        "DIFF_TOTAL_PERCENT_COVERED": "0.75",
+        "DIFF_NUM_CHANGED_LINES": "6",
+    }
+    if reference_coverage:
+        output.update(
+            {
+                "REFERENCE_COVERED_LINES": "3",
+                "REFERENCE_NUM_STATEMENTS": "10",
+                "REFERENCE_PERCENT_COVERED": "0.3",
+                "REFERENCE_MISSING_LINES": "7",
+                "REFERENCE_EXCLUDED_LINES": "0",
+                "REFERENCE_NUM_BRANCHES": "0",
+                "REFERENCE_NUM_PARTIAL_BRANCHES": "0",
+                "REFERENCE_COVERED_BRANCHES": "0",
+                "REFERENCE_MISSING_BRANCHES": "0",
+            }
+        )
+    return output
+
+
 def test_action__pull_request__store_comment(
     pull_request_config,
     session,
@@ -111,13 +147,13 @@ def test_action__pull_request__store_comment(
         in comment
     )
 
-    expected_output = [
-        "COMMENT_FILE_WRITTEN=true",
-        "COVERAGE_PERCENTAGE=0.7777777777777778",
-        "REFERENCE_COVERAGE_PERCENTAGE=null",
-    ]
-    # The order of keys is not guaranteed, so we'll sort the lines
-    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(comment_written=True, reference_coverage=False)
 
 
 @pytest.mark.add_branches("foo")
@@ -242,13 +278,15 @@ def test_action__pull_request__post_comment(
     assert comment.count("<img") == 10
     assert comment == summary_file.read_text()
 
-    expected_output = [
-        "COMMENT_FILE_WRITTEN=false",
-        "COVERAGE_PERCENTAGE=0.7777777777777778",
-        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
-    ]
-    # The order of keys is not guaranteed, so we'll sort the lines
-    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(
+        comment_written=False, reference_coverage=False
+    )
 
 
 def test_action__push__non_default_branch(
@@ -319,13 +357,15 @@ def test_action__push__non_default_branch(
     assert "Coverage for the whole project went from 30% to 77.77%" in comment
     assert comment == summary_file.read_text()
 
-    expected_output = [
-        "COMMENT_FILE_WRITTEN=false",
-        "COVERAGE_PERCENTAGE=0.7777777777777778",
-        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
-    ]
-    # The order of keys is not guaranteed, so we'll sort the lines
-    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(
+        comment_written=False, reference_coverage=False
+    )
 
 
 def test_action__push__no_branch(
@@ -400,13 +440,13 @@ def test_action__push__non_default_branch__no_pr(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_output = [
-        "COMMENT_FILE_WRITTEN=true",
-        "COVERAGE_PERCENTAGE=0.7777777777777778",
-        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
-    ]
-    # The order of keys is not guaranteed, so we'll sort the lines
-    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(comment_written=True, reference_coverage=False)
 
 
 def test_action__pull_request__force_store_comment(
@@ -436,13 +476,13 @@ def test_action__pull_request__force_store_comment(
 
     assert pathlib.Path("python-coverage-comment-action.txt").exists()
 
-    expected_output = [
-        "COMMENT_FILE_WRITTEN=true",
-        "COVERAGE_PERCENTAGE=0.7777777777777778",
-        "REFERENCE_COVERAGE_PERCENTAGE=0.3",
-    ]
-    # The order of keys is not guaranteed, so we'll sort the lines
-    assert sorted(output_file.read_text().strip().splitlines()) == expected_output
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(comment_written=True, reference_coverage=False)
 
 
 def test_action__pull_request__post_comment__no_marker(

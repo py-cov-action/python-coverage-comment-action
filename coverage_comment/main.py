@@ -268,12 +268,10 @@ def process_pr(
             ],
         )
 
-    outputs = {
-        "COVERAGE_PERCENTAGE": float(coverage.info.percent_covered),
-        "REFERENCE_COVERAGE_PERCENTAGE": float(previous_coverage_rate)
-        if previous_coverage_rate is not None
-        else None,
-    }
+    outputs = coverage.info.as_output(prefix="NEW")
+    outputs |= diff_coverage.as_output(prefix="DIFF")
+    if previous_coverage:
+        outputs |= previous_coverage.info.as_output(prefix="REFERENCE")
 
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:
