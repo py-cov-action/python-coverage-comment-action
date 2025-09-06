@@ -21,6 +21,31 @@ index 6c08c94..b65c612 100644
 """
 
 
+@pytest.fixture
+def payload():
+    RAW_DATA = {
+        "meta": {
+            "version": "0.0",
+            "timestamp": "2021-12-26T22:27:40.683570",
+            "branch_coverage": False,
+            "show_contexts": False,
+        },
+        "files": {},
+        "totals": {
+            "covered_lines": 3,
+            "num_statements": 10,
+            "percent_covered": 30.0,
+            "missing_lines": 7,
+            "excluded_lines": 0,
+            "num_branches": 0,
+            "num_partial_branches": 0,
+            "covered_branches": 0,
+            "missing_branches": 0,
+        },
+    }
+    return json.dumps({"coverage": 30.0, "raw_data": RAW_DATA, "coverage_path": "."})
+
+
 def test_action__invalid_event_name(session, push_config, in_integration_env, get_logs):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -165,11 +190,11 @@ def test_action__pull_request__store_comment_not_targeting_default(
     summary_file,
     capsys,
     git,
+    payload,
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
-    payload = json.dumps({"coverage": 30.00})
 
     session.register(
         "GET",
@@ -224,13 +249,18 @@ def test_action__pull_request__store_comment_not_targeting_default(
 
 
 def test_action__pull_request__post_comment(
-    pull_request_config, session, in_integration_env, output_file, summary_file, git
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    git,
+    payload,
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
 
-    payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
@@ -284,13 +314,11 @@ def test_action__pull_request__post_comment(
             line.split("=") for line in output_file.read_text().strip().splitlines()
         )
     }
-    assert output == get_expected_output(
-        comment_written=False, reference_coverage=False
-    )
+    assert output == get_expected_output(comment_written=False, reference_coverage=True)
 
 
 def test_action__push__non_default_branch(
-    push_config, session, in_integration_env, output_file, summary_file, git
+    push_config, session, in_integration_env, output_file, summary_file, git, payload
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -301,7 +329,6 @@ def test_action__push__non_default_branch(
         text=DIFF_STDOUT
     )
 
-    payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
@@ -363,9 +390,7 @@ def test_action__push__non_default_branch(
             line.split("=") for line in output_file.read_text().strip().splitlines()
         )
     }
-    assert output == get_expected_output(
-        comment_written=False, reference_coverage=False
-    )
+    assert output == get_expected_output(comment_written=False, reference_coverage=True)
 
 
 def test_action__push__no_branch(
@@ -388,7 +413,7 @@ def test_action__push__no_branch(
 
 
 def test_action__push__non_default_branch__no_pr(
-    push_config, session, in_integration_env, output_file, summary_file, git
+    push_config, session, in_integration_env, output_file, summary_file, git, payload
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
@@ -398,7 +423,6 @@ def test_action__push__non_default_branch__no_pr(
         text=DIFF_STDOUT
     )
 
-    payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
@@ -446,17 +470,16 @@ def test_action__push__non_default_branch__no_pr(
             line.split("=") for line in output_file.read_text().strip().splitlines()
         )
     }
-    assert output == get_expected_output(comment_written=True, reference_coverage=False)
+    assert output == get_expected_output(comment_written=True, reference_coverage=True)
 
 
 def test_action__pull_request__force_store_comment(
-    pull_request_config, session, in_integration_env, output_file, git
+    pull_request_config, session, in_integration_env, output_file, git, payload
 ):
     session.register("GET", "/repos/py-cov-action/foobar")(
         json={"default_branch": "main", "visibility": "public"}
     )
 
-    payload = json.dumps({"coverage": 30.00})
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
@@ -482,7 +505,7 @@ def test_action__pull_request__force_store_comment(
             line.split("=") for line in output_file.read_text().strip().splitlines()
         )
     }
-    assert output == get_expected_output(comment_written=True, reference_coverage=False)
+    assert output == get_expected_output(comment_written=True, reference_coverage=True)
 
 
 def test_action__pull_request__post_comment__no_marker(
