@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import shutil
 import subprocess
 import uuid
 
@@ -50,16 +51,22 @@ def run_coverage(file_path, integration_dir):
 
 
 @pytest.fixture
-def commit(integration_dir):
+def git():
+    return shutil.which("git")
+
+
+@pytest.fixture
+def commit(integration_dir, git):
     def _():
         subprocess.check_call(
-            ["git", "add", "."],
+            [git, "add", "."],
             cwd=integration_dir,
         )
         subprocess.check_call(
-            ["git", "commit", "-m", str(uuid.uuid4())],
+            [git, "commit", "-m", str(uuid.uuid4())],
             cwd=integration_dir,
-            env={
+            env=os.environ
+            | {
                 "GIT_AUTHOR_NAME": "foo",
                 "GIT_AUTHOR_EMAIL": "foo",
                 "GIT_COMMITTER_NAME": "foo",
@@ -73,22 +80,22 @@ def commit(integration_dir):
 
 
 @pytest.fixture
-def integration_env(integration_dir, write_file, run_coverage, commit, request):
-    subprocess.check_call(["git", "init", "-b", "main"], cwd=integration_dir)
+def integration_env(integration_dir, write_file, run_coverage, commit, request, git):
+    subprocess.check_call([git, "init", "-b", "main"], cwd=integration_dir)
     # diff coverage reads the "origin/{...}" branch so we simulate an origin remote
-    subprocess.check_call(["git", "remote", "add", "origin", "."], cwd=integration_dir)
+    subprocess.check_call([git, "remote", "add", "origin", "."], cwd=integration_dir)
     write_file("A", "B")
     commit()
 
     add_branch_mark = request.node.get_closest_marker("add_branches")
     for additional_branch in add_branch_mark.args if add_branch_mark else []:
         subprocess.check_call(
-            ["git", "switch", "-c", additional_branch],
+            [git, "switch", "-c", additional_branch],
             cwd=integration_dir,
         )
 
     subprocess.check_call(
-        ["git", "switch", "-c", "branch"],
+        [git, "switch", "-c", "branch"],
         cwd=integration_dir,
     )
 
@@ -96,4 +103,4 @@ def integration_env(integration_dir, write_file, run_coverage, commit, request):
     commit()
 
     run_coverage("A", "C")
-    subprocess.check_call(["git", "fetch", "origin"], cwd=integration_dir)
+    subprocess.check_call([git, "fetch", "origin"], cwd=integration_dir)
