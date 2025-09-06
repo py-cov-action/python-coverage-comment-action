@@ -348,7 +348,13 @@ jobs:
 
 ### Outputs
 
-The action makes available some data for downstream processing. All outputs are only available when running in PR mode.
+The action makes available some data for downstream processing.
+
+| Name | Description |
+| --- | --- |
+| `ACTIVITY_RUN` | The type of activity that was run. One of `process_pr`, `post_comment`, `save_coverage_data_files`. |
+
+All the following outputs are only available when running in PR mode.
 
 | Name | Description |
 | --- | --- |

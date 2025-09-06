@@ -111,6 +111,9 @@ inputs:
       Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     default: false
 outputs:
+  ACTIVITY_RUN:
+    description: >
+      The type of activity that was run. One of `process_pr`, `post_comment`, `save_coverage_data_files`.
   COMMENT_FILE_WRITTEN:
     description: >
       A boolean indicating whether a comment file was written to COMMENT_FILENAME or not.

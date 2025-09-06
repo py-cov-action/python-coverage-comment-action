@@ -66,6 +66,7 @@ def get_expected_output(
     comment_written: bool, reference_coverage: bool
 ) -> dict[str, str]:
     output = {
+        "ACTIVITY_RUN": '"process_pr"',
         "COMMENT_FILE_WRITTEN": str(comment_written).lower(),
         "NEW_COVERED_LINES": "7",
         "NEW_NUM_STATEMENTS": "9",

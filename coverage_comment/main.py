@@ -268,7 +268,8 @@ def process_pr(
             ],
         )
 
-    outputs = coverage.info.as_output(prefix="NEW")
+    outputs = {"ACTIVITY_RUN": "process_pr"}
+    outputs |= coverage.info.as_output(prefix="NEW")
     outputs |= diff_coverage.as_output(prefix="DIFF")
     if previous_coverage:
         outputs |= previous_coverage.info.as_output(prefix="REFERENCE")
@@ -370,6 +371,7 @@ def post_comment(
     )
     log.info("Comment posted in PR")
 
+    github.set_output(github_output=config.GITHUB_OUTPUT, ACTIVITY_RUN="post_comment")
     return 0
 
 
@@ -446,5 +448,9 @@ def save_coverage_data_files(
     )
 
     log.info(log_message)
+
+    github.set_output(
+        github_output=config.GITHUB_OUTPUT, ACTIVITY_RUN="save_coverage_data_files"
+    )
 
     return 0
