@@ -71,7 +71,7 @@ def test_git_env(mocker, environ):
 
     git.commit(env={"C": "E", "F": "G"})
 
-    _, kwargs = run.call_args_list[0]
+    _, _kwargs = run.call_args_list[0]
 
     env = run.call_args_list[0].kwargs["env"]
     assert env["A"] == "B"
