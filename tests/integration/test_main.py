@@ -66,34 +66,34 @@ def get_expected_output(
     comment_written: bool, reference_coverage: bool
 ) -> dict[str, str]:
     output = {
-        "ACTIVITY_RUN": '"process_pr"',
-        "COMMENT_FILE_WRITTEN": str(comment_written).lower(),
-        "NEW_COVERED_LINES": "7",
-        "NEW_NUM_STATEMENTS": "9",
-        "NEW_PERCENT_COVERED": "0.7777777777777778",
-        "NEW_MISSING_LINES": "2",
-        "NEW_EXCLUDED_LINES": "0",
-        "NEW_NUM_BRANCHES": "0",
-        "NEW_NUM_PARTIAL_BRANCHES": "0",
-        "NEW_COVERED_BRANCHES": "0",
-        "NEW_MISSING_BRANCHES": "0",
-        "DIFF_TOTAL_NUM_LINES": "4",
-        "DIFF_TOTAL_NUM_VIOLATIONS": "1",
-        "DIFF_TOTAL_PERCENT_COVERED": "0.75",
-        "DIFF_NUM_CHANGED_LINES": "6",
+        "activity_run": '"process_pr"',
+        "comment_file_written": str(comment_written).lower(),
+        "new_covered_lines": "7",
+        "new_num_statements": "9",
+        "new_percent_covered": "0.7777777777777778",
+        "new_missing_lines": "2",
+        "new_excluded_lines": "0",
+        "new_num_branches": "0",
+        "new_num_partial_branches": "0",
+        "new_covered_branches": "0",
+        "new_missing_branches": "0",
+        "diff_total_num_lines": "4",
+        "diff_total_num_violations": "1",
+        "diff_total_percent_covered": "0.75",
+        "diff_num_changed_lines": "6",
     }
     if reference_coverage:
         output.update(
             {
-                "REFERENCE_COVERED_LINES": "3",
-                "REFERENCE_NUM_STATEMENTS": "10",
-                "REFERENCE_PERCENT_COVERED": "0.3",
-                "REFERENCE_MISSING_LINES": "7",
-                "REFERENCE_EXCLUDED_LINES": "0",
-                "REFERENCE_NUM_BRANCHES": "0",
-                "REFERENCE_NUM_PARTIAL_BRANCHES": "0",
-                "REFERENCE_COVERED_BRANCHES": "0",
-                "REFERENCE_MISSING_BRANCHES": "0",
+                "reference_covered_lines": "3",
+                "reference_num_statements": "10",
+                "reference_percent_covered": "0.3",
+                "reference_missing_lines": "7",
+                "reference_excluded_lines": "0",
+                "reference_num_branches": "0",
+                "reference_num_partial_branches": "0",
+                "reference_covered_branches": "0",
+                "reference_missing_branches": "0",
             }
         )
     return output
