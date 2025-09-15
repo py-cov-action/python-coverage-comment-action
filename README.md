@@ -10,20 +10,20 @@
 | coverage\_comment/badge.py          |       31 |        0 |       10 |        0 |    100% |           |
 | coverage\_comment/comment\_file.py  |        4 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/communication.py  |        8 |        0 |        0 |        0 |    100% |           |
-| coverage\_comment/coverage.py       |      122 |        0 |       18 |        0 |    100% |           |
+| coverage\_comment/coverage.py       |      130 |        0 |       22 |        0 |    100% |           |
 | coverage\_comment/diff\_grouper.py  |       12 |        0 |        4 |        0 |    100% |           |
 | coverage\_comment/files.py          |       59 |        0 |        2 |        0 |    100% |           |
-| coverage\_comment/github.py         |      132 |        0 |       18 |        0 |    100% |           |
+| coverage\_comment/github.py         |      133 |        0 |       18 |        0 |    100% |           |
 | coverage\_comment/github\_client.py |       65 |        0 |       12 |        0 |    100% |           |
 | coverage\_comment/groups.py         |       35 |        0 |        6 |        0 |    100% |           |
 | coverage\_comment/log.py            |        5 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/log\_utils.py     |        9 |        0 |        0 |        0 |    100% |           |
-| coverage\_comment/main.py           |      135 |        0 |       24 |        1 |     99% |  145->151 |
+| coverage\_comment/main.py           |      143 |        0 |       26 |        1 |     99% |  145->151 |
 | coverage\_comment/settings.py       |      141 |        0 |       16 |        0 |    100% |           |
 | coverage\_comment/storage.py        |       77 |        0 |       12 |        0 |    100% |           |
 | coverage\_comment/subprocess.py     |       26 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/template.py       |      117 |        0 |       22 |        0 |    100% |           |
-|                           **TOTAL** |  **997** |    **0** |  **154** |    **1** | **99%** |           |
+|                           **TOTAL** | **1014** |    **0** |  **160** |    **1** | **99%** |           |
 
 
 ## Setup coverage badge
