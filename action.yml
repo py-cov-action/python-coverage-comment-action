@@ -111,13 +111,59 @@ inputs:
       Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     default: false
 outputs:
-  COMMENT_FILE_WRITTEN:
+  activity_run:
     description: >
-      This output is only set when running in PR mode. It's a boolean indicating
-      whether a comment file was written to COMMENT_FILENAME or not. If so,
-      you'll need to run the action in workflow_run mode to post it. If
-      "false", no comment file was written (likely because the comment was
-      already posted to the PR).
+      The type of activity that was run. One of `process_pr`, `post_comment`, `save_coverage_data_files`.
+  comment_file_written:
+    description: >
+      A boolean indicating whether a comment file was written to COMMENT_FILENAME or not.
+      If so, you'll need to run the action in workflow_run mode to post it. If "false",
+      no comment file was written (likely because the comment was already posted to the PR).
+      Only available when running in PR mode.
+  new_covered_lines:
+    description: The number of covered lines in the pull request. (Only available in PR mode)
+  new_num_statements:
+    description: The number of statements in the pull request. (Only available in PR mode)
+  new_percent_covered:
+    description: The coverage percentage of the pull request. (Only available in PR mode)
+  new_missing_lines:
+    description: The number of lines with missing coverage in the pull request. (Only available in PR mode)
+  new_excluded_lines:
+    description: The number of excluded lines in the pull request. (Only available in PR mode)
+  new_num_branches:
+    description: The number of branches in the pull request. (Only available in PR mode)
+  new_num_partial_branches:
+    description: The number of partial branches in the pull request. (Only available in PR mode)
+  new_covered_branches:
+    description: The number of covered branches in the pull request. (Only available in PR mode)
+  new_missing_branches:
+    description: The number of branches with missing coverage in the pull request. (Only available in PR mode)
+  reference_covered_lines:
+    description: The number of covered lines in the base branch. (Only available in PR mode)
+  reference_num_statements:
+    description: The number of statements in the base branch. (Only available in PR mode)
+  reference_percent_covered:
+    description: The coverage percentage of the base branch. (Only available in PR mode)
+  reference_missing_lines:
+    description: The number of lines with missing coverage in the base branch. (Only available in PR mode)
+  reference_excluded_lines:
+    description: The number of excluded lines in the base branch. (Only available in PR mode)
+  reference_num_branches:
+    description: The number of branches in the base branch. (Only available in PR mode)
+  reference_num_partial_branches:
+    description: The number of partial branches in the base branch. (Only available in PR mode)
+  reference_covered_branches:
+    description: The number of covered branches in the base branch. (Only available in PR mode)
+  reference_missing_branches:
+    description: The number of branches with missing coverage in the base branch. (Only available in PR mode)
+  diff_total_num_lines:
+    description: The total number of lines in the diff. (Only available in PR mode)
+  diff_total_num_violations:
+    description: The total number of lines with missing coverage in the diff. (Only available in PR mode)
+  diff_total_percent_covered:
+    description: The coverage percentage of the diff. (Only available in PR mode)
+  diff_num_changed_lines:
+    description: The number of changed lines in the diff. (Only available in PR mode)
 runs:
   using: docker
   image: Dockerfile

@@ -268,6 +268,12 @@ def process_pr(
             ],
         )
 
+    outputs = {"activity_run": "process_pr"}
+    outputs |= coverage.info.as_output(prefix="new")
+    outputs |= diff_coverage.as_output(prefix="diff")
+    if previous_coverage:
+        outputs |= previous_coverage.info.as_output(prefix="reference")
+
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:
             raise github.CannotPostComment
@@ -292,14 +298,16 @@ def process_pr(
             filename=config.FINAL_COMMENT_FILENAME,
             content=comment,
         )
-        github.set_output(github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=True)
+        outputs["comment_file_written"] = True
         log.debug("Comment stored locally on disk")
     else:
-        github.set_output(
-            github_output=config.GITHUB_OUTPUT, COMMENT_FILE_WRITTEN=False
-        )
+        outputs["comment_file_written"] = False
         log.debug("Comment not generated")
 
+    github.set_output(
+        github_output=config.GITHUB_OUTPUT,
+        **outputs,
+    )
     return 0
 
 
@@ -363,6 +371,7 @@ def post_comment(
     )
     log.info("Comment posted in PR")
 
+    github.set_output(github_output=config.GITHUB_OUTPUT, activity_run="post_comment")
     return 0
 
 
@@ -439,5 +448,9 @@ def save_coverage_data_files(
     )
 
     log.info(log_message)
+
+    github.set_output(
+        github_output=config.GITHUB_OUTPUT, activity_run="save_coverage_data_files"
+    )
 
     return 0

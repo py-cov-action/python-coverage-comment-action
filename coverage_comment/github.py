@@ -7,6 +7,7 @@ import pathlib
 import re
 import sys
 import zipfile
+from typing import Any
 from urllib.parse import urlparse
 
 from coverage_comment import github_client, log
@@ -209,7 +210,7 @@ def post_comment(
             raise CannotPostComment from exc
 
 
-def set_output(github_output: pathlib.Path | None, **kwargs: bool) -> None:
+def set_output(github_output: pathlib.Path | None, **kwargs: Any) -> None:
     if github_output:
         with github_output.open("a") as f:
             for key, value in kwargs.items():

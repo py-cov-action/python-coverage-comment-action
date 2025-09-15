@@ -346,6 +346,56 @@ jobs:
           path: python-coverage-comment-action.txt
 ```
 
+### Outputs
+
+The action makes available some data for downstream processing.
+
+| Name | Description |
+| --- | --- |
+| `activity_run` | The type of activity that was run. One of `process_pr`, `post_comment`, `save_coverage_data_files`. |
+
+All the following outputs are only available when running in PR mode.
+
+| Name | Description |
+| --- | --- |
+| `comment_file_written` | A boolean indicating whether a comment file was written to `COMMENT_FILENAME` or not. |
+| `new_covered_lines` | The number of covered lines in the pull request. |
+| `new_num_statements` | The number of statements in the pull request. |
+| `new_percent_covered` | The coverage percentage of the pull request. |
+| `new_missing_lines` | The number of lines with missing coverage in the pull request. |
+| `new_excluded_lines` | The number of excluded lines in the pull request. |
+| `new_num_branches` | The number of branches in the pull request. |
+| `new_num_partial_branches` | The number of partial branches in the pull request. |
+| `new_covered_branches` | The number of covered branches in the pull request. |
+| `new_missing_branches` | The number of branches with missing coverage in the pull request. |
+| `reference_covered_lines` | The number of covered lines in the base branch. |
+| `reference_num_statements` | The number of statements in the base branch. |
+| `reference_percent_covered` | The coverage percentage of the base branch. |
+| `reference_missing_lines` | The number of lines with missing coverage in the base branch. |
+| `reference_excluded_lines` | The number of excluded lines in the base branch. |
+| `reference_num_branches` | The number of branches in the base branch. |
+| `reference_num_partial_branches` | The number of partial branches in the base branch. |
+| `reference_covered_branches` | The number of covered branches in the base branch. |
+| `reference_missing_branches` | The number of branches with missing coverage in the base branch. |
+| `diff_total_num_lines` | The total number of lines in the diff. |
+| `diff_total_num_violations` | The total number of lines with missing coverage in the diff. |
+| `diff_total_percent_covered` | The coverage percentage of the diff. |
+| `diff_num_changed_lines` | The number of changed lines in the diff. |
+
+Usage may look like this
+
+```yaml
+- name: Coverage comment
+  id: coverage_comment
+  uses: py-cov-action/python-coverage-comment-action@v3
+  with:
+    GITHUB_TOKEN: ${{ github.token }}
+
+- name: Enforce coverage
+  if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
+  run: echo "Coverage decreased." && exit 1
+```
+
 ### All options
 
 ```yaml
