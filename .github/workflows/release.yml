@@ -66,8 +66,8 @@ jobs:
             org.opencontainers.image.description='Publish coverage report as PR comment, and create a coverage badge & dashboard to display on the Readme for Python projects, all inside GitHub without third party servers'
             org.opencontainers.image.licenses='MIT'
           tags: |
-            ewjoachim/python-coverage-comment-action-base:v6
-            ghcr.io/py-cov-action/python-coverage-comment-action-base:v6
+            ewjoachim/python-coverage-comment-action-base:v7
+            ghcr.io/py-cov-action/python-coverage-comment-action-base:v7
             ${{ steps.docker_meta.outputs.tags }}
             ghcr.io/${{ github.repository }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}:latest
