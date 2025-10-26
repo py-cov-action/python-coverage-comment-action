@@ -104,6 +104,7 @@ jobs:
       - name: Run end-to-end tests
         run: uv run pytest tests/end_to_end
         env:
+          PY_COLORS: 1
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
           COVERAGE_COMMENT_E2E_ACTION_REF: ${{ steps.extract_commit.outputs.COMMIT_ID }}

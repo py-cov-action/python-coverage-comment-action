@@ -38,19 +38,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Poetry caches
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/
-          key: ${{ hashFiles('uv.lock') }}
-
       - name: Install deps
         run: uv sync --all-groups
 
       - name: Run tests
         run: uv run pytest
         env:
+          PY_COLORS: 1
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
           COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
           COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.sha }}
