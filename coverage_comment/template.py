@@ -335,6 +335,5 @@ def get_file_url(
             link += f"#L{lines[0]}-L{lines[1]}"
 
         return link
-
     else:
-        raise ValueError("Cannot use both pr_number and branch_name")
+        raise ValueError("Need either pr_number or branch_name")

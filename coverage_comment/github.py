@@ -44,6 +44,7 @@ def get_repository_info(
     github: github_client.GitHub, repository: str
 ) -> RepositoryInfo:
     response = github.repos(repository).get()
+    assert response is not None
 
     return RepositoryInfo(
         default_branch=response.default_branch, visibility=response.visibility
@@ -132,6 +133,7 @@ def get_branch_from_workflow_run(
 ) -> tuple[str, str]:
     repo_path = github.repos(repository)
     run = repo_path.actions.runs(run_id).get()
+    assert run is not None
     branch = run.head_branch
     owner = run.head_repository.owner.login
     return owner, branch
@@ -147,9 +149,11 @@ def find_pr_for_branch(
     full_branch = f"{owner}:{branch}"
 
     for state in ["open", "all"]:
-        for pr in github.repos(repository).pulls.get(
+        prs = github.repos(repository).pulls.get(
             state=state, head=full_branch, sort="updated", direction="desc"
-        ):
+        )
+        assert prs is not None
+        for pr in prs:
             return pr.number  # pyright: ignore
 
     raise CannotDeterminePR(f"No open PR found for branch {branch}")
@@ -165,6 +169,7 @@ def get_my_login(github: github_client.GitHub) -> str:
         return GITHUB_ACTIONS_LOGIN
 
     else:
+        assert response is not None
         return response.login
 
 
@@ -179,7 +184,9 @@ def post_comment(
     issue_comments_path = github.repos(repository).issues(pr_number).comments
     comments_path = github.repos(repository).issues.comments
 
-    for comment in issue_comments_path.get():
+    comments = issue_comments_path.get()
+    assert comments is not None
+    for comment in comments:
         login: str = comment.user.login  # pyright: ignore
         body: str = comment.body  # pyright: ignore
         comment_id: int = comment.id  # pyright: ignore

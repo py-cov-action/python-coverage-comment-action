@@ -38,7 +38,7 @@ class HttpCall:
         bytes: Literal[False] = False,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
-    ) -> JsonObject: ...
+    ) -> JsonObject | None: ...
 
     @overload
     def __call__(
@@ -66,10 +66,10 @@ class HttpCall:
         bytes: bool = False,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
-    ) -> JsonObject | str | bytes:
+    ) -> JsonObject | str | bytes | None:
         return self.gh.http(
-            self.method,
-            self.path,
+            method=self.method,
+            path=self.path,
             text=text,
             bytes=bytes,
             headers=headers,
@@ -85,8 +85,8 @@ class Endpoint:
     def __call__(self, *args: Any):
         if len(args) == 0:
             return self
-        name = "{}/{}".format(self._name, "/".join([str(arg) for arg in args]))
-        return Endpoint(self.gh, name)
+        name = "{}/{}".format(self.name, "/".join([str(arg) for arg in args]))
+        return Endpoint(gh=self.gh, name=name)
 
     @property
     def get(self) -> HttpCall:
@@ -127,21 +127,21 @@ class GitHub:
     @overload
     def http(
         self,
+        *,
         method: Method,
         path: str,
-        *,
         text: Literal[False] = False,
         bytes: Literal[False] = False,
         headers: dict[str, str] | None,
         **kwargs: Any,
-    ) -> JsonObject: ...
+    ) -> JsonObject | None: ...
 
     @overload
     def http(
         self,
+        *,
         method: Method,
         path: str,
-        *,
         text: Literal[True],
         bytes: Literal[False] = False,
         headers: dict[str, str] | None,
@@ -151,9 +151,9 @@ class GitHub:
     @overload
     def http(
         self,
+        *,
         method: Method,
         path: str,
-        *,
         text: Literal[False] = False,
         bytes: Literal[True],
         headers: dict[str, str] | None,
@@ -163,25 +163,25 @@ class GitHub:
     @overload
     def http(
         self,
+        *,
         method: Method,
         path: str,
-        *,
         text: bool,
         bytes: bool,
         headers: dict[str, str] | None,
         **kwargs: Any,
-    ) -> JsonObject | str | bytes: ...
+    ) -> JsonObject | str | bytes | None: ...
 
     def http(
         self,
+        *,
         method: Method,
         path: str,
-        *,
         text: bool = False,
         bytes: bool = False,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
-    ) -> JsonObject | str | bytes:
+    ) -> JsonObject | str | bytes | None:
         _method = method.lower()
         params: dict[str, Any] | None = None
         json: dict[str, Any] | None = None
@@ -257,14 +257,22 @@ def response_contents(
     *,
     text: bool,
     bytes: bool,
-) -> JsonObject | str | bytes:
+) -> JsonObject | str | bytes | None:
     if bytes:
         return response.content
 
     if text:
         return response.text
 
-    if not response.headers.get("content-type", "").startswith("application/json"):
+    if not response.text:
+        return None
+
+    # Assume that missing content type (which should only happen in tests) isn't
+    # indicative that the content isn't json. If it's not json, then .json() will fail
+    # later on.
+    if not response.headers.get("content-type", "application/json").startswith(
+        "application/json"
+    ):
         raise InvalidResponseType(
             f"Response is requested as JSON but doesn't have proper content type. "
             f"Response: {response.text}"
