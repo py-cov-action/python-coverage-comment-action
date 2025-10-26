@@ -81,6 +81,8 @@ required-imports = ["from __future__ import annotations"]
 
 [tool.sync-pre-commit-with-uv.basedpyright-prek-mirror]
 pypi_package_name = "basedpyright"
+additional_dependencies_uv_params = ["--no-group=dev"]
+
 
 [tool.basedpyright]
 exclude = ["tests", "**/.*"]
