@@ -9,6 +9,22 @@ concurrency:
   group: ${{ github.event_name }}-${{ github.ref }}
 
 jobs:
+  typing:
+    name: Run type checking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install deps
+        run: uv sync --all-groups
+
+      - name: Run type checker
+        run: uv run basedpyright
+
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest

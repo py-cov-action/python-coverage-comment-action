@@ -7,6 +7,7 @@ ci:
   # Renovate updates the file. We can't disable pre-commit CI's autoupdate entirely
   # but this is the least frequent we can make it.
   autoupdate_schedule: quarterly
+  skip: [basedpyright]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
