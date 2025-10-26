@@ -90,8 +90,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
-        with:
-          python-version: "3.12"
 
       - name: Poetry caches
         uses: actions/cache@v4

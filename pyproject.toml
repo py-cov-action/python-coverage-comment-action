@@ -3,7 +3,7 @@ name = "coverage-comment"
 version = "0.0.0"
 description = "Publish diff coverage report as PR comment, and create a coverage badge to display on the readme, for Python projects."
 authors = [{ name = "Joachim Jablon", email = "ewjoachim@gmail.com" }]
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 license = { file = "LICENSE" }
 dependencies = ["coverage[toml]", "httpx[http2]", "Jinja2"]
 

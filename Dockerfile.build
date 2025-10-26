@@ -2,7 +2,7 @@
 # - Dockerfile
 # - .github/workflows/release.yml
 
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 RUN set -eux; \
     apt-get update; \
