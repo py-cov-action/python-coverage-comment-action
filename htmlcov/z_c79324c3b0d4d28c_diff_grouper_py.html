@@ -8,26 +8,7 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/integration/test_main.py::test_action__pull_request__annotations|run",
-  "c": "tests/integration/test_main.py::test_action__pull_request__force_store_comment|run",
-  "d": "tests/integration/test_main.py::test_action__pull_request__post_comment__no_marker|run",
-  "e": "tests/integration/test_main.py::test_action__pull_request__post_comment__template_error|run",
-  "f": "tests/integration/test_main.py::test_action__pull_request__post_comment|run",
-  "g": "tests/integration/test_main.py::test_action__pull_request__store_comment_not_targeting_default|run",
-  "h": "tests/integration/test_main.py::test_action__pull_request__store_comment|run",
-  "i": "tests/integration/test_main.py::test_action__push__non_default_branch__no_pr|run",
-  "j": "tests/integration/test_main.py::test_action__push__non_default_branch|run",
-  "k": "tests/unit/test_diff_grouper.py::test_group_annotations_more_files|run",
-  "l": "tests/unit/test_diff_grouper.py::test_group_annotations|run",
-  "m": "tests/unit/test_template.py::test_get_comment_markdown|run",
-  "n": "tests/unit/test_template.py::test_template__broken_template|run",
-  "o": "tests/unit/test_template.py::test_template__max_files|run",
-  "p": "tests/unit/test_template.py::test_template__no_marker|run",
-  "q": "tests/unit/test_template.py::test_template__no_max_files|run",
-  "r": "tests/unit/test_template.py::test_template__no_previous|run",
-  "s": "tests/unit/test_template.py::test_template_full|run",
-  "t": "tests/unit/test_template.py::test_template|run",
-  "u": "tests/unit/test_template.py::test_template__no_files|run"
+  "b": "tests/unit/test_diff_grouper.py::test_group_annotations|run"
 }
     </script>
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -91,8 +72,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_c79324c3b0d4d28c_files_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.7">coverage.py v7.10.7</a>,
-            created at 2025-10-26 12:26 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.11.0">coverage.py v7.11.0</a>,
+            created at 2025-10-26 21:34 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -121,28 +102,28 @@
     <p class="run run2"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="nam">coverage</span><span class="op">:</span> <span class="nam">coverage_module</span><span class="op">.</span><span class="nam">Coverage</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="nam">diff_coverage</span><span class="op">:</span> <span class="nam">coverage_module</span><span class="op">.</span><span class="nam">DiffCoverage</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">Iterable</span><span class="op">[</span><span class="nam">groups</span><span class="op">.</span><span class="nam">Group</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="key">for</span> <span class="nam">path</span><span class="op">,</span> <span class="nam">diff_file</span> <span class="key">in</span> <span class="nam">diff_coverage</span><span class="op">.</span><span class="nam">files</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">20 ctx</label></span><span class="ctxs">1bcdefghijklmnoupqrst</span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="nam">coverage_file</span> <span class="op">=</span> <span class="nam">coverage</span><span class="op">.</span><span class="nam">files</span><span class="op">[</span><span class="nam">path</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">19 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrst</span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="key">for</span> <span class="nam">path</span><span class="op">,</span> <span class="nam">diff_file</span> <span class="key">in</span> <span class="nam">diff_coverage</span><span class="op">.</span><span class="nam">files</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="nam">coverage_file</span> <span class="op">=</span> <span class="nam">coverage</span><span class="op">.</span><span class="nam">files</span><span class="op">[</span><span class="nam">path</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="com"># Lines that are covered or excluded should not be considered for</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">        <span class="com"># filling a gap between violation groups.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">        <span class="com"># (so, lines that can appear in a gap are lines that are missing, or</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="com"># lines that do not contain code: blank lines or lines containing comments)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="nam">separators</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">19 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrst</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="nam">separators</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="run run2"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">            <span class="op">*</span><span class="nam">coverage_file</span><span class="op">.</span><span class="nam">executed_lines</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">            <span class="op">*</span><span class="nam">coverage_file</span><span class="op">.</span><span class="nam">excluded_lines</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="com"># Lines that are added should be considered for filling a gap, unless</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="com"># they are separators.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">joiners</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">diff_file</span><span class="op">.</span><span class="nam">added_lines</span><span class="op">)</span> <span class="op">-</span> <span class="nam">separators</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">19 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrst</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">joiners</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">diff_file</span><span class="op">.</span><span class="nam">added_lines</span><span class="op">)</span> <span class="op">-</span> <span class="nam">separators</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="key">for</span> <span class="nam">start</span><span class="op">,</span> <span class="nam">end</span> <span class="key">in</span> <span class="nam">groups</span><span class="op">.</span><span class="nam">compute_contiguous_groups</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">19 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrst</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="key">for</span> <span class="nam">start</span><span class="op">,</span> <span class="nam">end</span> <span class="key">in</span> <span class="nam">groups</span><span class="op">.</span><span class="nam">compute_contiguous_groups</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="run run2"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">            <span class="nam">values</span><span class="op">=</span><span class="nam">diff_file</span><span class="op">.</span><span class="nam">missing_statements</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="nam">separators</span><span class="op">=</span><span class="nam">separators</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">            <span class="nam">joiners</span><span class="op">=</span><span class="nam">joiners</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">            <span class="nam">max_gap</span><span class="op">=</span><span class="nam">MAX_ANNOTATION_GAP</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">            <span class="key">yield</span> <span class="nam">groups</span><span class="op">.</span><span class="nam">Group</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">19 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrst</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">            <span class="key">yield</span> <span class="nam">groups</span><span class="op">.</span><span class="nam">Group</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="run run2"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">                <span class="nam">file</span><span class="op">=</span><span class="nam">path</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">                <span class="nam">line_start</span><span class="op">=</span><span class="nam">start</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">                <span class="nam">line_end</span><span class="op">=</span><span class="nam">end</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -155,8 +136,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_c79324c3b0d4d28c_files_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.7">coverage.py v7.10.7</a>,
-            created at 2025-10-26 12:26 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.11.0">coverage.py v7.11.0</a>,
+            created at 2025-10-26 21:34 +0000
         </p>
     </div>
 </footer>
