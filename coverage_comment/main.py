@@ -102,7 +102,6 @@ def action(
             config=config,
             gh=gh,
             repo_info=repo_info,
-            git=git,
         )
 
     else:
@@ -117,7 +116,6 @@ def process_pr(
     config: settings.Config,
     gh: github_client.GitHub,
     repo_info: github.RepositoryInfo,
-    git: subprocess.Git,
 ) -> int:
     log.info("Generating comment for PR")
 
@@ -148,6 +146,9 @@ def process_pr(
             repository=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
         )
+    else:  # pragma: no cover
+        raise Exception("Unreachable code")
+
     added_lines = coverage_module.get_added_lines(diff=diff)
     diff_coverage = coverage_module.get_diff_coverage_info(
         coverage=coverage, added_lines=added_lines
@@ -181,6 +182,23 @@ def process_pr(
         previous_coverage=previous_coverage,
         max_files=config.MAX_FILES_IN_COMMENT,
     )
+    pr_number: int | None = config.GITHUB_PR_NUMBER
+    branch: str | None = config.GITHUB_BRANCH_NAME
+    if pr_number is None:
+        assert branch is not None
+        # If we don't have a PR number, we're launched from a push event,
+        # so we need to find the PR number from the branch name
+        try:
+            pr_number = github.find_pr_for_branch(
+                github=gh,
+                # A push event cannot be initiated from a forked repository
+                repository=config.GITHUB_REPOSITORY,
+                owner=config.GITHUB_REPOSITORY.split("/")[0],
+                branch=branch,
+            )
+        except github.CannotDeterminePR:
+            pr_number = None
+
     try:
         comment = template.get_comment_markdown(
             coverage=coverage,
@@ -194,7 +212,8 @@ def process_pr(
             minimum_orange=config.MINIMUM_ORANGE,
             github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
-            pr_number=config.GITHUB_PR_NUMBER,
+            pr_number=pr_number,
+            branch_name=branch,
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
             pr_targets_default_branch=pr_targets_default_branch,
@@ -214,7 +233,8 @@ def process_pr(
             minimum_orange=config.MINIMUM_ORANGE,
             github_host=github.extract_github_host(config.GITHUB_BASE_URL),
             repo_name=config.GITHUB_REPOSITORY,
-            pr_number=config.GITHUB_PR_NUMBER,
+            pr_number=pr_number,
+            branch_name=branch,
             base_template=template.read_template_file("comment.md.j2"),
             custom_template=config.COMMENT_TEMPLATE,
             pr_targets_default_branch=pr_targets_default_branch,
@@ -241,20 +261,6 @@ def process_pr(
     github.add_job_summary(
         content=summary_comment, github_step_summary=config.GITHUB_STEP_SUMMARY
     )
-    pr_number: int | None = config.GITHUB_PR_NUMBER
-    if pr_number is None:
-        # If we don't have a PR number, we're launched from a push event,
-        # so we need to find the PR number from the branch name
-        try:
-            pr_number = github.find_pr_for_branch(
-                github=gh,
-                # A push event cannot be initiated from a forked repository
-                repository=config.GITHUB_REPOSITORY,
-                owner=config.GITHUB_REPOSITORY.split("/")[0],
-                branch=config.GITHUB_BRANCH_NAME,
-            )
-        except github.CannotDeterminePR:
-            pr_number = None
 
     if pr_number is not None and config.ANNOTATE_MISSING_LINES:
         annotations = diff_grouper.get_diff_missing_groups(
@@ -268,11 +274,13 @@ def process_pr(
             ],
         )
 
-    outputs = {"activity_run": "process_pr"}
-    outputs |= coverage.info.as_output(prefix="new")
-    outputs |= diff_coverage.as_output(prefix="diff")
+    outputs: dict[str, str | bool] = {"activity_run": "process_pr"}
+    outputs |= coverage_module.as_output(obj=coverage.info, prefix="new")
+    outputs |= coverage_module.as_output(obj=diff_coverage, prefix="diff")
     if previous_coverage:
-        outputs |= previous_coverage.info.as_output(prefix="reference")
+        outputs |= coverage_module.as_output(
+            obj=previous_coverage.info, prefix="reference"
+        )
 
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:

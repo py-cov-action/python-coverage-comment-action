@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import override
 
 from coverage_comment import github
 
@@ -14,7 +15,8 @@ LEVEL_MAPPING = {
 
 
 class GitHubFormatter(logging.Formatter):
-    def format(self, record):
+    @override
+    def format(self, record: logging.LogRecord):
         log = super().format(record)
         level = LEVEL_MAPPING[record.levelno]
 

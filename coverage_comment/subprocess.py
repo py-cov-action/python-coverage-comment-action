@@ -17,7 +17,7 @@ class GitError(SubProcessError):
     pass
 
 
-def run(*args, path: pathlib.Path, **kwargs) -> str:
+def run(*args: str, path: pathlib.Path, **kwargs: Any) -> str:
     try:
         return subprocess.run(
             args,
@@ -51,9 +51,9 @@ class Git:
     >>> git.rev_parse("--short", "HEAD")
     """
 
-    cwd = pathlib.Path(".")
+    cwd: pathlib.Path = pathlib.Path(".")
 
-    def _git(self, *args: str, env: dict[str, str] | None = None, **kwargs) -> str:
+    def _git(self, *args: str, env: dict[str, str] | None = None, **kwargs: Any) -> str:
         # When setting the `env` argument to run, instead of inheriting env
         # vars from the current process, the whole environment of the
         # subprocess is whatever we pass. In other words, we can either

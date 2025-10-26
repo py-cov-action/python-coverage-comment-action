@@ -13,12 +13,42 @@ def test_github_client__get(session, gh):
     assert gh.repos("a/b").issues().get(a=1) == {"foo": "bar"}
 
 
+def test_github_client__post(session, gh):
+    session.register("POST", "/repos/a/b/issues", timeout=60, json={"a": 1})(
+        json={"foo": "bar"}
+    )
+
+    assert gh.repos("a/b").issues().post(a=1) == {"foo": "bar"}
+
+
+def test_github_client__put(session, gh):
+    session.register("PUT", "/repos/a/b/issues", timeout=60, json={"a": 1})(
+        json={"foo": "bar"}
+    )
+
+    assert gh.repos("a/b").issues().put(a=1) == {"foo": "bar"}
+
+
+def test_github_client__patch(session, gh):
+    session.register("PATCH", "/repos/a/b/issues", timeout=60, json={"a": 1})(
+        json={"foo": "bar"}
+    )
+
+    assert gh.repos("a/b").issues().patch(a=1) == {"foo": "bar"}
+
+
+def test_github_client__delete(session, gh):
+    session.register("DELETE", "/repos/a/b/issues", timeout=60)(json={"foo": "bar"})
+
+    assert gh.repos("a/b").issues().delete() == {"foo": "bar"}
+
+
 def test_github_client__get_text(session, gh):
     session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
         text="foobar", headers={"content-type": "application/vnd.github.raw+json"}
     )
 
-    assert gh.repos("a/b").issues().get(a=1) == "foobar"
+    assert gh.repos("a/b").issues().get(a=1, text=True) == "foobar"
 
 
 def test_github_client__get_bytes(session, gh):
@@ -27,6 +57,15 @@ def test_github_client__get_bytes(session, gh):
     )
 
     assert gh.repos("a/b").issues().get(a=1, bytes=True) == b"foobar"
+
+
+def test_github_client__incorrect(session, gh):
+    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
+        text="foobar", headers={"content-type": "text/plain"}
+    )
+
+    with pytest.raises(github_client.InvalidResponseType):
+        assert gh.repos("a/b").issues().get(a=1)
 
 
 def test_github_client__get_headers(session, gh):
@@ -79,4 +118,7 @@ def test_github_client__get_error_non_json(session, gh):
     with pytest.raises(github_client.ApiError) as exc_info:
         gh.repos.get()
 
-    assert str(exc_info.value) == "{foobar"
+    assert str(exc_info.value) == (
+        "Response is requested as JSON but doesn't have proper content type. "
+        "Response: {foobar"
+    )

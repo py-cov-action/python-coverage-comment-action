@@ -30,6 +30,7 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
             github_host="https://github.com",
             repo_name="org/repo",
             pr_number=1,
+            branch_name=None,
             base_template="""
         {{ previous_coverage_rate | pct }}
         {{ coverage.info.percent_covered | pct }}
@@ -70,6 +71,7 @@ def test_template(coverage_obj, diff_coverage_obj):
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=5,
+        branch_name=None,
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
         subproject_id="foo",
@@ -200,6 +202,7 @@ def test_template_full(make_coverage, make_coverage_and_diff):
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=12,
+        branch_name=None,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -263,6 +266,7 @@ def test_template__no_previous(coverage_obj_no_branch, diff_coverage_obj):
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=3,
+        branch_name=None,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -316,6 +320,7 @@ def test_template__max_files(coverage_obj_more_files, diff_coverage_obj_more_fil
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=5,
+        branch_name=None,
         max_files=1,
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
@@ -348,6 +353,7 @@ def test_template__no_max_files(coverage_obj_more_files, diff_coverage_obj_more_
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=5,
+        branch_name=None,
         max_files=None,
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
@@ -383,6 +389,7 @@ def test_template__no_files(coverage_obj, diff_coverage_obj_more_files):
         github_host="https://github.com",
         repo_name="org/repo",
         pr_number=5,
+        branch_name=None,
         max_files=25,
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
@@ -422,6 +429,7 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
             github_host="https://github.com",
             repo_name="org/repo",
             pr_number=1,
+            branch_name=None,
             base_template=template.read_template_file("comment.md.j2"),
             marker="<!-- foo -->",
             custom_template="""foo bar""",
@@ -443,6 +451,7 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
             github_host="https://github.com",
             repo_name="org/repo",
             pr_number=1,
+            branch_name=None,
             base_template=template.read_template_file("comment.md.j2"),
             marker="<!-- foo -->",
             custom_template="""{% extends "foo" %}""",
@@ -482,34 +491,67 @@ def test_pluralize(number, singular, plural, expected):
 
 
 @pytest.mark.parametrize(
-    "filepath, lines, expected",
+    "filepath, lines, pr_number, branch_name, expected",
     [
         (
             pathlib.Path("tests/conftest.py"),
+            None,
+            33,
             None,
             "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-e52e4ddd58b7ef887ab03c04116e676f6280b824ab7469d5d3080e5cba4f2128",
         ),
         (
             pathlib.Path("main.py"),
             (12, 15),
+            33,
+            None,
             "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-b10564ab7d2c520cdd0243874879fb0a782862c3c902ab535faabe57d5a505e1R12-R15",
         ),
         (
             pathlib.Path("codebase/other.py"),
             (22, 22),
+            33,
+            None,
             "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-30cad827f61772ec66bb9ef8887058e6d8443a2afedb331d800feaa60228a26eR22-R22",
+        ),
+        (
+            pathlib.Path("tests/conftest.py"),
+            None,
+            None,
+            "mybranch",
+            "https://github.com/py-cov-action/python-coverage-comment-action/blob/mybranch/tests/conftest.py",
+        ),
+        (
+            pathlib.Path("main.py"),
+            (12, 15),
+            None,
+            "mybranch",
+            "https://github.com/py-cov-action/python-coverage-comment-action/blob/mybranch/main.py#L12-L15",
         ),
     ],
 )
-def test_get_file_url(filepath, lines, expected):
+def test_get_file_url(filepath, lines, pr_number, branch_name, expected):
     result = template.get_file_url(
         filename=filepath,
         lines=lines,
         github_host="https://github.com",
         repo_name="py-cov-action/python-coverage-comment-action",
-        pr_number=33,
+        pr_number=pr_number,
+        branch_name=branch_name,
     )
     assert result == expected
+
+
+def test_get_file_url__neither_pr_number_nor_branch_name():
+    with pytest.raises(Exception):
+        template.get_file_url(
+            filename=pathlib.Path("main.py"),
+            lines=None,
+            github_host="https://github.com",
+            repo_name="py-cov-action/python-coverage-comment-action",
+            pr_number=None,
+            branch_name=None,
+        )
 
 
 def test_uptodate():

@@ -7,6 +7,7 @@ import pathlib
 import re
 import sys
 import zipfile
+from collections.abc import Iterable
 from typing import Any
 from urllib.parse import urlparse
 
@@ -43,6 +44,7 @@ def get_repository_info(
     github: github_client.GitHub, repository: str
 ) -> RepositoryInfo:
     response = github.repos(repository).get()
+    assert response is not None
 
     return RepositoryInfo(
         default_branch=response.default_branch, visibility=response.visibility
@@ -106,7 +108,9 @@ def download_artifact(
         raise NoArtifact(f"File named {filename} not found in artifact {artifact_name}")
 
 
-def _fetch_artifacts(repo_path, run_id):
+def _fetch_artifacts(
+    repo_path: github_client.Endpoint, run_id: int
+) -> Iterable[github_client.JsonObject]:
     page = 1
     total_fetched = 0
 
@@ -129,6 +133,7 @@ def get_branch_from_workflow_run(
 ) -> tuple[str, str]:
     repo_path = github.repos(repository)
     run = repo_path.actions.runs(run_id).get()
+    assert run is not None
     branch = run.head_branch
     owner = run.head_repository.owner.login
     return owner, branch
@@ -143,31 +148,15 @@ def find_pr_for_branch(
 
     full_branch = f"{owner}:{branch}"
 
-    common_kwargs = {"head": full_branch, "sort": "updated", "direction": "desc"}
-    try:
-        return next(
-            iter(
-                pr.number
-                for pr in github.repos(repository).pulls.get(
-                    state="open", **common_kwargs
-                )
-            )
+    for state in ["open", "all"]:
+        prs = github.repos(repository).pulls.get(
+            state=state, head=full_branch, sort="updated", direction="desc"
         )
-    except StopIteration:
-        pass
-    log.info(f"No open PR found for branch {branch}, defaulting to all PRs")
+        assert prs is not None
+        for pr in prs:
+            return pr.number  # pyright: ignore
 
-    try:
-        return next(
-            iter(
-                pr.number
-                for pr in github.repos(repository).pulls.get(
-                    state="all", **common_kwargs
-                )
-            )
-        )
-    except StopIteration:
-        raise CannotDeterminePR(f"No open PR found for branch {branch}")
+    raise CannotDeterminePR(f"No open PR found for branch {branch}")
 
 
 def get_my_login(github: github_client.GitHub) -> str:
@@ -180,6 +169,7 @@ def get_my_login(github: github_client.GitHub) -> str:
         return GITHUB_ACTIONS_LOGIN
 
     else:
+        assert response is not None
         return response.login
 
 
@@ -194,11 +184,17 @@ def post_comment(
     issue_comments_path = github.repos(repository).issues(pr_number).comments
     comments_path = github.repos(repository).issues.comments
 
-    for comment in issue_comments_path.get():
-        if comment.user.login == me and marker in comment.body:
+    comments = issue_comments_path.get()
+    assert comments is not None
+    for comment in comments:
+        login: str = comment.user.login  # pyright: ignore
+        body: str = comment.body  # pyright: ignore
+        comment_id: int = comment.id  # pyright: ignore
+
+        if login == me and marker in body:
             log.info("Update previous comment")
             try:
-                comments_path(comment.id).patch(body=contents)
+                comments_path(comment_id).patch(body=contents)
             except github_client.Forbidden as exc:
                 raise CannotPostComment from exc
             break
@@ -296,7 +292,7 @@ def get_pr_diff(github: github_client.GitHub, repository: str, pr_number: int) -
     return (
         github.repos(repository)
         .pulls(pr_number)
-        .get(headers={"Accept": "application/vnd.github.v3.diff"})
+        .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
     )
 
 
@@ -309,5 +305,5 @@ def get_branch_diff(
     return (
         github.repos(repository)
         .compare(f"{base_branch}...{head_branch}")
-        .get(headers={"Accept": "application/vnd.github.v3.diff"})
+        .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
     )

@@ -4,7 +4,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 
 ### Things to know:
 
-- Python3.12
+- Python3.14
 - Use [uv](https://docs.astral.sh/uv/)
 - Launch tests with `pytest`, config is in setup.cfg
 - `ruff` runs through `pre-commit`, so you can install hooks with `pre-commit install`.
@@ -78,6 +78,7 @@ In case "branch coverage" is enabled, the coverage rate is
 `(covered_lines + covered_branches) / (total_lines + total_branches)`.
 In order to display coverage rates, we need to round the values. Depending on
 the situation, we either round to 0 or 2 decimal places. Rounding rules are:
+
 - We always round down (truncate) the value.
 - We don't display the trailing zeros in the decimal part (nor the decimal point
   if the decimal part is 0).
