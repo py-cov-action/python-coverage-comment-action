@@ -83,4 +83,9 @@ required-imports = ["from __future__ import annotations"]
 pypi_package_name = "basedpyright"
 
 [tool.basedpyright]
-exclude = ["tests"]
+exclude = ["tests", "**/.*"]
+reportAny = false
+reportExplicitAny = false
+reportUnusedCallResult = false
+reportImplicitStringConcatenation = false
+reportIgnoreCommentWithoutRule = false

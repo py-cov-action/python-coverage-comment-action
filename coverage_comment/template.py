@@ -8,6 +8,7 @@ import itertools
 import pathlib
 from collections.abc import Callable
 from importlib import resources
+from typing import Any, override
 
 import jinja2
 from jinja2.sandbox import SandboxedEnvironment
@@ -28,9 +29,10 @@ class CommentLoader(jinja2.BaseLoader):
     def __init__(
         self, base_template: str, custom_template: str | None, debug: bool = False
     ):
-        self.base_template = base_template
-        self.custom_template = custom_template
+        self.base_template: str = base_template
+        self.custom_template: str | None = custom_template
 
+    @override
     def get_source(
         self, environment: jinja2.Environment, template: str
     ) -> tuple[str, str | None, Callable[..., bool]]:
@@ -59,7 +61,7 @@ def get_marker(marker_id: str | None):
     return MARKER.format(id_part=f" (id: {marker_id})" if marker_id else "")
 
 
-def pluralize(number, singular="", plural="s"):
+def pluralize(number: int, singular: str = "", plural: str = "s") -> str:
     if number == 1:
         return singular
     else:
@@ -132,7 +134,8 @@ def get_comment_markdown(
     minimum_orange: decimal.Decimal,
     github_host: str,
     repo_name: str,
-    pr_number: int,
+    pr_number: int | None,
+    branch_name: str | None,
     base_template: str,
     marker: str,
     subproject_id: str | None = None,
@@ -141,21 +144,27 @@ def get_comment_markdown(
 ):
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
-    env.filters["pct"] = pct
-    env.filters["delta"] = delta
-    env.filters["x100"] = x100
-    env.filters["get_evolution_color"] = badge.get_evolution_badge_color
-    env.filters["generate_badge"] = badge.get_static_badge_url
-    env.filters["pluralize"] = pluralize
-    env.filters["compact"] = compact
-    env.filters["file_url"] = functools.partial(
-        get_file_url, github_host=github_host, repo_name=repo_name, pr_number=pr_number
+    filters: dict[str, Callable[..., Any]] = {}
+    filters["pct"] = pct
+    filters["delta"] = delta
+    filters["x100"] = x100
+    filters["get_evolution_color"] = badge.get_evolution_badge_color
+    filters["generate_badge"] = badge.get_static_badge_url
+    filters["pluralize"] = pluralize
+    filters["compact"] = compact
+    filters["file_url"] = functools.partial(
+        get_file_url,
+        github_host=github_host,
+        repo_name=repo_name,
+        pr_number=pr_number,
+        branch_name=branch_name,
     )
-    env.filters["get_badge_color"] = functools.partial(
+    filters["get_badge_color"] = functools.partial(
         badge.get_badge_color,
         minimum_green=minimum_green,
         minimum_orange=minimum_orange,
     )
+    env.filters.update(filters)
 
     missing_diff_lines = {
         key: list(value)
@@ -202,7 +211,7 @@ def select_files(
     """
     previous_coverage_files = previous_coverage.files if previous_coverage else {}
 
-    files = []
+    files: list[FileInfo] = []
     for path, coverage_file in coverage.files.items():
         diff_coverage_file = diff_coverage.files.get(path)
         previous_coverage_file = previous_coverage_files.get(path)
@@ -307,13 +316,25 @@ def get_file_url(
     *,
     github_host: str,
     repo_name: str,
-    pr_number: int,
+    pr_number: int | None,
+    branch_name: str | None,
 ) -> str:
-    # To link to a file in a PR, GitHub uses the link to the file overview combined with a SHA256 hash of the file path
-    s = f"{github_host}/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
+    if pr_number is not None:
+        # To link to a file in a PR, GitHub uses the link to the file overview combined with a SHA256 hash of the file path
+        link = f"{github_host}/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
 
-    if lines is not None:
-        # R stands for Right side of the diff. But since we generate these links for new code we only need the right side.
-        s += f"R{lines[0]}-R{lines[1]}"
+        if lines is not None:
+            # R stands for Right side of the diff. But since we generate these links for new code we only need the right side.
+            link += f"R{lines[0]}-R{lines[1]}"
 
-    return s
+        return link
+    elif branch_name is not None:
+        link = f"{github_host}/{repo_name}/blob/{branch_name}/{filename}"
+
+        if lines is not None:
+            link += f"#L{lines[0]}-L{lines[1]}"
+
+        return link
+
+    else:
+        raise ValueError("Cannot use both pr_number and branch_name")

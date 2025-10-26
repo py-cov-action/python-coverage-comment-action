@@ -18,7 +18,7 @@ def test_github_client__get_text(session, gh):
         text="foobar", headers={"content-type": "application/vnd.github.raw+json"}
     )
 
-    assert gh.repos("a/b").issues().get(a=1) == "foobar"
+    assert gh.repos("a/b").issues().get(a=1, text=True) == "foobar"
 
 
 def test_github_client__get_bytes(session, gh):
@@ -27,6 +27,15 @@ def test_github_client__get_bytes(session, gh):
     )
 
     assert gh.repos("a/b").issues().get(a=1, bytes=True) == b"foobar"
+
+
+def test_github_client__incorrect(session, gh):
+    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
+        text="foobar", headers={"content-type": "text/plain"}
+    )
+
+    with pytest.raises(github_client.InvalidResponseType):
+        assert gh.repos("a/b").issues().get(a=1)
 
 
 def test_github_client__get_headers(session, gh):

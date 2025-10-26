@@ -146,7 +146,7 @@ class Config:
         return None
 
     @functools.cached_property
-    def GITHUB_EVENT_PAYLOAD(self) -> dict:
+    def GITHUB_EVENT_PAYLOAD(self) -> dict[str, Any]:
         if not self.GITHUB_EVENT_PATH:
             return {}
         return json.loads(self.GITHUB_EVENT_PATH.read_text())

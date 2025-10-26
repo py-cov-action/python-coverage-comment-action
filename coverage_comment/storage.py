@@ -124,6 +124,7 @@ def get_datafile_contents(
             # If we don't pass this header, the format of the answer will depend on
             # the size of the file. With the header, we're sure to get the raw content.
             headers={"Accept": "application/vnd.github.raw+json"},
+            text=True,
         )
     except github_client.NotFound:
         return None
@@ -149,7 +150,7 @@ def get_raw_file_url(
     return f"https://raw.githubusercontent.com/{repository}/{branch}/{path}"
 
     # Another way of accessing the URL would be
-    # github.repos(repository).contents(str(path)).get(ref=branch).download_url
+    # github.repos(repository).contents(str(path)).get(ref=branch, text=True).download_url
     # but this would only work if the file already exists when generating this URL,
     # and for private repos, it would create URLs that become inactive after a few
     # seconds.

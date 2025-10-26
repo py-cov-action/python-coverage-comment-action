@@ -11,8 +11,7 @@ import json
 import pathlib
 import shutil
 import tempfile
-from collections.abc import Callable
-from typing import Protocol, TypedDict
+from typing import Any, Protocol, TypedDict
 
 import httpx
 
@@ -60,7 +59,7 @@ class ReplaceDir:
 
 def compute_files(
     line_rate: decimal.Decimal,
-    raw_coverage_data: dict,
+    raw_coverage_data: dict[str, Any],
     coverage_path: pathlib.Path,
     minimum_green: decimal.Decimal,
     minimum_orange: decimal.Decimal,
@@ -97,7 +96,9 @@ def compute_files(
 
 
 def compute_datafile(
-    raw_coverage_data: dict, line_rate: decimal.Decimal, coverage_path: pathlib.Path
+    raw_coverage_data: dict[str, Any],
+    line_rate: decimal.Decimal,
+    coverage_path: pathlib.Path,
 ) -> str:
     return json.dumps(
         {
@@ -108,7 +109,7 @@ def compute_datafile(
     )
 
 
-def parse_datafile(contents) -> tuple[coverage.Coverage | None, decimal.Decimal]:
+def parse_datafile(contents: str) -> tuple[coverage.Coverage | None, decimal.Decimal]:
     file_contents = json.loads(contents)
     coverage_rate = decimal.Decimal(str(file_contents["coverage"])) / decimal.Decimal(
         "100"
@@ -128,7 +129,11 @@ class ImageURLs(TypedDict):
     dynamic: str
 
 
-def get_urls(url_getter: Callable) -> ImageURLs:
+class URLGetter(Protocol):
+    def __call__(self, path: pathlib.Path) -> str: ...
+
+
+def get_urls(url_getter: URLGetter) -> ImageURLs:
     return {
         "direct": url_getter(path=BADGE_PATH),
         "endpoint": badge.get_endpoint_url(endpoint_url=url_getter(path=ENDPOINT_PATH)),
@@ -137,7 +142,9 @@ def get_urls(url_getter: Callable) -> ImageURLs:
 
 
 def get_coverage_html_files(
-    *, coverage_path: pathlib.Path, gen_dir: pathlib.Path = pathlib.Path("/tmp")
+    *,
+    coverage_path: pathlib.Path,
+    gen_dir: pathlib.Path | None = None,
 ) -> ReplaceDir:
     html_dir = pathlib.Path(tempfile.mkdtemp(dir=gen_dir))
     coverage.generate_coverage_html_files(

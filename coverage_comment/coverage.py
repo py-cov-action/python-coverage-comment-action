@@ -6,6 +6,7 @@ import decimal
 import json
 import pathlib
 from collections.abc import Sequence
+from typing import Any
 
 from coverage_comment import log, subprocess
 
@@ -21,20 +22,19 @@ class CoverageMetadata:
     show_contexts: bool
 
 
-class OutputMixin:
-    def as_output(self, prefix: str) -> dict:
-        data = dataclasses.asdict(self)
-        output = {}
-        for key, value in data.items():
-            if value is not None and not isinstance(value, dict):
-                output[f"{prefix}_{key}"] = (
-                    float(value) if isinstance(value, decimal.Decimal) else value
-                )
-        return output
+def as_output(obj: Any, prefix: str) -> dict[str, Any]:
+    data = dataclasses.asdict(obj)
+    output: dict[str, Any] = {}
+    for key, value in data.items():
+        if value is not None and not isinstance(value, dict):
+            output[f"{prefix}_{key}"] = (
+                float(value) if isinstance(value, decimal.Decimal) else value
+            )
+    return output
 
 
 @dataclasses.dataclass(kw_only=True)
-class CoverageInfo(OutputMixin):
+class CoverageInfo:
     covered_lines: int
     num_statements: int
     percent_covered: decimal.Decimal
@@ -88,7 +88,7 @@ class FileDiffCoverage:
 
 
 @dataclasses.dataclass(kw_only=True)
-class DiffCoverage(OutputMixin):
+class DiffCoverage:
     total_num_lines: int
     total_num_violations: int
     total_percent_covered: decimal.Decimal
@@ -112,7 +112,7 @@ def compute_coverage(
 
 def get_coverage_info(
     merge: bool, coverage_path: pathlib.Path
-) -> tuple[dict, Coverage]:
+) -> tuple[dict[str, Any], Coverage]:
     try:
         if merge:
             subprocess.run("coverage", "combine", path=coverage_path)
@@ -160,7 +160,7 @@ def generate_coverage_markdown(coverage_path: pathlib.Path) -> str:
     )
 
 
-def _make_coverage_info(data: dict) -> CoverageInfo:
+def _make_coverage_info(data: dict[str, Any]) -> CoverageInfo:
     """Build a CoverageInfo object from a "summary" or "totals" key."""
     return CoverageInfo(
         covered_lines=data["covered_lines"],
@@ -180,7 +180,7 @@ def _make_coverage_info(data: dict) -> CoverageInfo:
     )
 
 
-def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
+def extract_info(data: dict[str, Any], coverage_path: pathlib.Path) -> Coverage:
     """
     {
         "meta": {
@@ -246,7 +246,7 @@ def extract_info(data: dict, coverage_path: pathlib.Path) -> Coverage:
 def get_diff_coverage_info(
     added_lines: dict[pathlib.Path, list[int]], coverage: Coverage
 ) -> DiffCoverage:
-    files = {}
+    files: dict[pathlib.Path, FileDiffCoverage] = {}
     total_num_lines = 0
     total_num_violations = 0
     num_changed_lines = 0

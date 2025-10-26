@@ -16,7 +16,7 @@ class ActivityNotFound(Exception):
 def find_activity(
     event_name: str,
     is_default_branch: bool,
-    event_type: str,
+    event_type: str | None,
     is_pr_merged: bool,
 ) -> str:
     """Find the activity to perform based on the event type and payload."""
