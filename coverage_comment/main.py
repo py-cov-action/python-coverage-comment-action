@@ -74,22 +74,27 @@ def action(
         github=gh, repository=config.GITHUB_REPOSITORY
     )
     try:
-        activity = activity_module.find_activity(
-            event_name=event_name,
-            is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
-            event_type=config.GITHUB_EVENT_TYPE,
-            is_pr_merged=config.IS_PR_MERGED,
-        )
+        if config.ACTIVITY:
+            activity = activity_module.validate_activity(config.ACTIVITY)
+        else:
+            activity = activity_module.find_activity(
+                event_name=event_name,
+                is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
+                event_type=config.GITHUB_EVENT_TYPE,
+                is_pr_merged=config.IS_PR_MERGED,
+            )
     except activity_module.ActivityNotFound:
         log.error(
-            'This action has only been designed to work for "pull_request", "push", '
-            f'"workflow_run", "schedule" or "merge_group" actions, not "{event_name}". Because there '
-            "are security implications. If you have a different usecase, please open an issue, "
-            "we'll be glad to add compatibility."
+            'This action\'s default behavior is to determine the appropriate '
+            'mode based on the current branch, whether or not it\'s in a pull '
+            'request, and if that pull request is open or closed. This '
+            'frequently results in the correct action taking place, but is '
+            'only a heuristic. If you need more precise control, you should '
+            'specify the "ACTIVITY" parameter as described in the documentation.'
         )
         return 1
 
-    if activity == "save_coverage_data_files":
+    if activity == activity_module.Activity.SAVE_COVERAGE_DATA_FILES:
         return save_coverage_data_files(
             config=config,
             git=git,
@@ -97,7 +102,7 @@ def action(
             repo_info=repo_info,
         )
 
-    elif activity == "process_pr":
+    elif activity == activity_module.Activity.PROCESS_PR:
         return process_pr(
             config=config,
             gh=gh,
@@ -105,7 +110,7 @@ def action(
         )
 
     else:
-        # activity == "post_comment":
+        # activity == activity_module.Activity.POST_COMMENT:
         return post_comment(
             config=config,
             gh=gh,
