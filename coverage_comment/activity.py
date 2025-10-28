@@ -16,18 +16,20 @@ class Activity(Enum):
     POST_COMMENT = "post_comment"
     SAVE_COVERAGE_DATA_FILES = "save_coverage_data_files"
 
+
 class ActivityNotFound(Exception):
     pass
+
 
 class ActivityConfigError(Exception):
     pass
 
-def validate_activity(
-    activity: str
-) -> Activity:
+
+def validate_activity(activity: str) -> Activity:
     if activity not in [a.value for a in Activity]:
         raise ActivityConfigError(f"Invalid activity: {activity}")
     return Activity(activity)
+
 
 def find_activity(
     event_name: str,

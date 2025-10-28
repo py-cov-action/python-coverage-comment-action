@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 
 from coverage_comment import activity
-from coverage_comment.settings import Config
 
 
 @pytest.mark.parametrize(
@@ -12,7 +11,13 @@ from coverage_comment.settings import Config
         ("workflow_run", True, None, False, activity.Activity.POST_COMMENT),
         ("push", True, None, False, activity.Activity.SAVE_COVERAGE_DATA_FILES),
         ("push", False, None, False, activity.Activity.PROCESS_PR),
-        ("pull_request", True, "closed", True, activity.Activity.SAVE_COVERAGE_DATA_FILES),
+        (
+            "pull_request",
+            True,
+            "closed",
+            True,
+            activity.Activity.SAVE_COVERAGE_DATA_FILES,
+        ),
         ("pull_request", True, None, False, activity.Activity.PROCESS_PR),
         ("pull_request", False, None, False, activity.Activity.PROCESS_PR),
         ("schedule", False, None, False, activity.Activity.SAVE_COVERAGE_DATA_FILES),
@@ -50,9 +55,11 @@ def test_find_activity_pr_closed_not_merged():
             is_pr_merged=False,
         )
 
+
 def test_validate_activity__invalid():
     with pytest.raises(activity.ActivityConfigError):
         activity.validate_activity("invalid")
+
 
 def test_validate_activity__valid():
     result = activity.validate_activity("process_pr")
