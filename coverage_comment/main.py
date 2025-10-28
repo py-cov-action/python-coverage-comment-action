@@ -85,11 +85,11 @@ def action(
             )
     except activity_module.ActivityNotFound:
         log.error(
-            'This action\'s default behavior is to determine the appropriate '
-            'mode based on the current branch, whether or not it\'s in a pull '
-            'request, and if that pull request is open or closed. This '
-            'frequently results in the correct action taking place, but is '
-            'only a heuristic. If you need more precise control, you should '
+            "This action's default behavior is to determine the appropriate "
+            "mode based on the current branch, whether or not it's in a pull "
+            "request, and if that pull request is open or closed. This "
+            "frequently results in the correct action taking place, but is "
+            "only a heuristic. If you need more precise control, you should "
             'specify the "ACTIVITY" parameter as described in the documentation.'
         )
         return 1
