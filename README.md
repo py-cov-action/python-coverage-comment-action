@@ -205,6 +205,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # This is optional since by default it's to true. The git
+          # operations in python-coverage-comment-action utilize the token
+          # stored by actions/checkout.
+          persist-credentials: true
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
@@ -245,6 +250,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # This is optional since by default it's to true. The git
+          # operations in python-coverage-comment-action utilize the token
+          # stored by actions/checkout.
+          persist-credentials: true
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
@@ -287,6 +297,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # This is optional since by default it's to true. The git
+          # operations in python-coverage-comment-action utilize the token
+          # stored by actions/checkout.
+          persist-credentials: true
 
       - name: Set up Python
         id: setup-python
@@ -324,6 +339,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # This is optional since by default it's to true. The git
+          # operations in python-coverage-comment-action utilize the token
+          # stored by actions/checkout.
+          persist-credentials: true
 
       - uses: actions/download-artifact@v4
         id: download
