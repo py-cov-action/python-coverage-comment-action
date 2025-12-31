@@ -82,7 +82,7 @@ jobs:
           JOB_ID: ${{ steps.extract_job_id.outputs.JOB_ID }}
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # Important: use the commit that was reviewed. GitHub is making sure
           # that this is race-condition-proof
@@ -92,7 +92,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Poetry caches
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/
