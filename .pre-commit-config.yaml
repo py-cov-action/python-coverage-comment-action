@@ -26,13 +26,13 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/DetachHead/basedpyright-prek-mirror
-    rev: 1.36.2
+    rev: 1.37.0
     hooks:
       - id: basedpyright
 
         additional_dependencies:
           - anyio==4.12.0
-          - certifi==2025.11.12
+          - certifi==2026.1.4
           - coverage==7.13.1
           - h11==0.16.0
           - h2==4.3.0
