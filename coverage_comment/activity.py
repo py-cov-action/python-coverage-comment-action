@@ -8,9 +8,27 @@ the branching logic to this module.
 
 from __future__ import annotations
 
+from enum import Enum
+
+
+class Activity(Enum):
+    PROCESS_PR = "process_pr"
+    POST_COMMENT = "post_comment"
+    SAVE_COVERAGE_DATA_FILES = "save_coverage_data_files"
+
 
 class ActivityNotFound(Exception):
     pass
+
+
+class ActivityConfigError(Exception):
+    pass
+
+
+def validate_activity(activity: str) -> Activity:
+    if activity not in [a.value for a in Activity]:
+        raise ActivityConfigError(f"Invalid activity: {activity}")
+    return Activity(activity)
 
 
 def find_activity(
@@ -18,10 +36,10 @@ def find_activity(
     is_default_branch: bool,
     event_type: str | None,
     is_pr_merged: bool,
-) -> str:
+) -> Activity:
     """Find the activity to perform based on the event type and payload."""
     if event_name == "workflow_run":
-        return "post_comment"
+        return Activity.POST_COMMENT
 
     if (
         (event_name == "push" and is_default_branch)
@@ -31,9 +49,9 @@ def find_activity(
     ):
         if event_name == "pull_request" and event_type == "closed" and not is_pr_merged:
             raise ActivityNotFound
-        return "save_coverage_data_files"
+        return Activity.SAVE_COVERAGE_DATA_FILES
 
     if event_name not in {"pull_request", "push", "merge_group"}:
         raise ActivityNotFound
 
-    return "process_pr"
+    return Activity.PROCESS_PR

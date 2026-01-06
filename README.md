@@ -59,6 +59,36 @@ These files include:
 
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
+### Determining the mode
+
+By default, the action will attempt to pick the appropriate mode based on the
+current branch, whether or not it's in a pull request, and if that pull request
+is open or closed. This frequently results in the correct action taking place,
+but is only a heuristic. If you need more precise control, you should specify
+the `ACTIVITY` parameter to directly choose the mode. It may be one of:
+
+- `process_pr`, to select [PR mode](#pr-mode)
+- `save_coverage_data_files`, to select [Default branch mode](#default-branch-mode)
+- `post_comment`, to select [Commenting on the PR on the `push` event](#commenting-on-the-pr-on-the-push-event)
+
+Combining this with [Github's Expressions]
+(https://docs.github.com/en/actions/reference/workflows-and-actions/expressions) you can
+build out the the custom handling needed. For example:
+
+```yaml
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          activity: "${{ github.event_name == 'push' && 'save_coverage_data_files' || 'process_pr' }}"
+
+        # or
+
+        with:
+          activity: "${{ (github.event_name == 'push' && github.ref_name == 'main') && 'save_coverage_data_files' || 'process_pr' }}"
+```
+
 ## Usage
 
 ### Setup
@@ -489,6 +519,10 @@ Usage may look like this
 
     # Deprecated, see https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
     VERBOSE: false
+
+    # The specific activity that should be taken on this event, see
+    # [Determining the mode](#determining-the-mode) above.
+    ACTIVITY: ""
 ```
 
 ### Commenting on the PR on the `push` event
