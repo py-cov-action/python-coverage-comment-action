@@ -17,7 +17,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -40,7 +40,7 @@ jobs:
           SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
