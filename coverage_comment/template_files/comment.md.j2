@@ -19,12 +19,25 @@
 {#- Coverage diff badge -#}
 {#- space #} {# space -#}
 {%- block diff_coverage_badge -%}
+{%- if failure_msg -%}
+<img title="Diff coverage unavailable" src="{{ 'PR Coverage' | generate_badge(message='N/A', color='grey') }}">
+
+{%- else -%}
 {%- set text = (diff_coverage.total_percent_covered | pct) ~ " of the statement lines added by this PR are covered" -%}
 <img title="{{ text }}" src="{{ 'PR Coverage' | generate_badge(message=diff_coverage.total_percent_covered | pct(precision=0), color=diff_coverage.total_percent_covered | x100 | get_badge_color) }}">
 
+{%- endif -%}
 {%- endblock diff_coverage_badge -%}
 {%- endblock coverage_badges -%}
 
+{%- block diff_coverage_failure_message -%}
+{%- if failure_msg %}
+
+> [!WARNING]
+> {{ failure_msg }}
+
+{% endif -%}
+{%- endblock diff_coverage_failure_message -%}
 
 {%- macro statements_badge(path, statements_count, previous_statements_count) -%}
 {% if previous_statements_count is not none -%}

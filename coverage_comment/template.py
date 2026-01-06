@@ -141,6 +141,7 @@ def get_comment_markdown(
     subproject_id: str | None = None,
     custom_template: str | None = None,
     pr_targets_default_branch: bool = True,
+    failure_msg: str | None = None,
 ):
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
@@ -188,6 +189,7 @@ def get_comment_markdown(
             subproject_id=subproject_id,
             marker=marker,
             pr_targets_default_branch=pr_targets_default_branch,
+            failure_msg=failure_msg,
         )
     except jinja2.exceptions.TemplateError as exc:
         raise TemplateError from exc

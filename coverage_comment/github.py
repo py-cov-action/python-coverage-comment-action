@@ -28,6 +28,12 @@ class NoArtifact(Exception):
     pass
 
 
+class CannotGetDiff(Exception):
+    """Raised when the diff cannot be fetched from GitHub."""
+
+    pass
+
+
 @dataclasses.dataclass
 class RepositoryInfo:
     default_branch: str
@@ -289,11 +295,19 @@ def get_pr_diff(github: github_client.GitHub, repository: str, pr_number: int) -
     """
     Get the diff of a pull request.
     """
-    return (
-        github.repos(repository)
-        .pulls(pr_number)
-        .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
-    )
+    try:
+        return (
+            github.repos(repository)
+            .pulls(pr_number)
+            .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
+        )
+    except github_client.ApiError as exc:
+        if _is_too_large_error(exc):
+            raise CannotGetDiff(
+                "The diff for this PR is too large to be retrieved from GitHub's API "
+                "(maximum 300 files). Diff coverage is not available for this PR."
+            ) from exc
+        raise
 
 
 def get_branch_diff(
@@ -302,8 +316,31 @@ def get_branch_diff(
     """
     Get the diff of branch.
     """
-    return (
-        github.repos(repository)
-        .compare(f"{base_branch}...{head_branch}")
-        .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
-    )
+    try:
+        return (
+            github.repos(repository)
+            .compare(f"{base_branch}...{head_branch}")
+            .get(headers={"Accept": "application/vnd.github.v3.diff"}, text=True)
+        )
+    except github_client.ApiError as exc:
+        if _is_too_large_error(exc):
+            raise CannotGetDiff(
+                "The diff for this branch is too large to be retrieved from GitHub's API "
+                "(maximum 300 files). Diff coverage is not available for this branch."
+            ) from exc
+        raise
+
+
+def _is_too_large_error(exc: github_client.ApiError) -> bool:
+    """
+    Check if the error is a "too_large" error from GitHub API.
+
+    GitHub returns this error when the diff exceeds the maximum number of files (300).
+    The error response body is JSON from GitHub's API.
+    """
+    try:
+        error_data: dict[str, Any] = json.loads(str(exc))
+        errors: list[dict[str, Any]] = error_data.get("errors", [])
+        return any(error.get("code") == "too_large" for error in errors)
+    except (json.JSONDecodeError, TypeError):
+        return False

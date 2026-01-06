@@ -4,7 +4,7 @@ import pathlib
 
 import pytest
 
-from coverage_comment import github
+from coverage_comment import github, github_client
 
 
 @pytest.mark.parametrize(
@@ -491,3 +491,99 @@ def test_get_branch_diff(gh, session):
     )
 
     assert result == "diff --git a/foo.py b/foo.py..."
+
+
+def test_get_pr_diff__too_large(gh, session):
+    error_response = {
+        "message": "Sorry, the diff exceeded the maximum number of files (300).",
+        "errors": [{"resource": "PullRequest", "field": "diff", "code": "too_large"}],
+        "documentation_url": "https://docs.github.com/rest/pulls/pulls#list-pull-requests-files",
+        "status": "406",
+    }
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls/123",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(json=error_response, status_code=406)
+
+    with pytest.raises(github.CannotGetDiff) as exc_info:
+        github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
+
+    assert "too large" in str(exc_info.value)
+    assert "maximum 300 files" in str(exc_info.value)
+
+
+def test_get_branch_diff__too_large(gh, session):
+    error_response = {
+        "message": "Sorry, the diff exceeded the maximum number of files (300).",
+        "errors": [{"resource": "PullRequest", "field": "diff", "code": "too_large"}],
+        "documentation_url": "https://docs.github.com/rest/pulls/pulls#list-pull-requests-files",
+        "status": "406",
+    }
+    session.register(
+        "GET",
+        "/repos/foo/bar/compare/main...feature",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(json=error_response, status_code=406)
+
+    with pytest.raises(github.CannotGetDiff) as exc_info:
+        github.get_branch_diff(
+            github=gh, repository="foo/bar", base_branch="main", head_branch="feature"
+        )
+
+    assert "too large" in str(exc_info.value)
+    assert "maximum 300 files" in str(exc_info.value)
+
+
+def test_get_pr_diff__other_error(gh, session):
+    error_response = {"message": "Some other error", "errors": []}
+    session.register(
+        "GET",
+        "/repos/foo/bar/pulls/123",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(json=error_response, status_code=500)
+
+    with pytest.raises(github_client.ApiError):
+        github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
+
+
+def test_get_branch_diff__other_error(gh, session):
+    error_response = {"message": "Some other error", "errors": []}
+    session.register(
+        "GET",
+        "/repos/foo/bar/compare/main...feature",
+        headers={"Accept": "application/vnd.github.v3.diff"},
+    )(json=error_response, status_code=500)
+
+    with pytest.raises(github_client.ApiError):
+        github.get_branch_diff(
+            github=gh, repository="foo/bar", base_branch="main", head_branch="feature"
+        )
+
+
+@pytest.mark.parametrize(
+    "error_str,expected",
+    [
+        # Valid JSON with too_large error
+        ('{"errors": [{"code": "too_large"}]}', True),
+        # Valid JSON with too_large error and extra fields
+        (
+            '{"message": "Diff too large", "errors": [{"resource": "PR", "code": "too_large"}]}',
+            True,
+        ),
+        # Valid JSON without too_large error
+        ('{"errors": [{"code": "other"}]}', False),
+        # Valid JSON with empty errors
+        ('{"errors": []}', False),
+        # Valid JSON with no errors key
+        ('{"message": "error"}', False),
+        # Non-JSON string (returns False, not a fallback match)
+        ("not valid json", False),
+        # Empty string
+        ("", False),
+    ],
+)
+def test__is_too_large_error(error_str, expected):
+    """Test the _is_too_large_error helper function with various inputs."""
+    exc = github_client.ApiError(error_str)
+    assert github._is_too_large_error(exc) is expected

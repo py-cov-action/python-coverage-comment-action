@@ -927,3 +927,76 @@ def test_action__workflow_run__post_comment(
     assert get_logs("INFO", "Comment file found in artifact, posting to PR")
     assert get_logs("INFO", "Comment posted in PR")
     assert summary_file.read_text() == ""
+
+
+def test_action__pull_request__diff_too_large(
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    git,
+    get_logs,
+):
+    """Test that when the diff is too large, a warning is shown in the comment."""
+    session.register("GET", "/repos/py-cov-action/foobar")(
+        json={"default_branch": "main", "visibility": "public"}
+    )
+    # No existing badge in this test
+    session.register("GET", "/repos/py-cov-action/foobar/contents/data.json")(
+        status_code=404
+    )
+
+    # Who am I
+    session.register("GET", "/user")(json={"login": "foo"})
+    # Are there already comments
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+
+    comment = None
+
+    def checker(payload):
+        body = payload["body"]
+        assert "## Coverage report" in body
+        nonlocal comment
+        comment = body
+        return True
+
+    # Post a new comment
+    session.register(
+        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
+    )(status_code=200)
+
+    # The diff is too large - returns 406 with error
+    error_response = {
+        "message": "Sorry, the diff exceeded the maximum number of files (300).",
+        "errors": [{"resource": "PullRequest", "field": "diff", "code": "too_large"}],
+        "documentation_url": "https://docs.github.com/rest/pulls/pulls#list-pull-requests-files",
+        "status": "406",
+    }
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(
+        json=error_response, status_code=406
+    )
+
+    result = main.action(
+        config=pull_request_config(
+            GITHUB_OUTPUT=output_file, GITHUB_STEP_SUMMARY=summary_file
+        ),
+        github_session=session,
+        http_session=session,
+        git=git,
+    )
+    assert result == 0
+
+    # Check that a warning was logged
+    assert get_logs("WARNING", "too large")
+
+    # Comment was posted successfully, no fallback file should exist
+    assert not pathlib.Path("python-coverage-comment-action.txt").exists()
+
+    # Check that the error message is in the comment
+    assert "too large" in comment
+    assert "maximum 300 files" in comment
+    # Check that the warning block is in the comment
+    assert "[!WARNING]" in comment
+    # Check the N/A badge is shown for PR coverage (URL-encoded in badge URL)
+    assert "PR%20Coverage-N/A-grey" in comment

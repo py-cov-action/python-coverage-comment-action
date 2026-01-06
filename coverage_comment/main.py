@@ -133,21 +133,27 @@ def process_pr(
     )
     base_ref = config.GITHUB_BASE_REF or repo_info.default_branch
 
-    if config.GITHUB_BRANCH_NAME:
-        diff = github.get_branch_diff(
-            github=gh,
-            repository=config.GITHUB_REPOSITORY,
-            base_branch=base_ref,
-            head_branch=config.GITHUB_BRANCH_NAME,
-        )
-    elif config.GITHUB_PR_NUMBER:
-        diff = github.get_pr_diff(
-            github=gh,
-            repository=config.GITHUB_REPOSITORY,
-            pr_number=config.GITHUB_PR_NUMBER,
-        )
-    else:  # pragma: no cover
-        raise Exception("Unreachable code")
+    failure_msg: str | None = None
+    try:
+        if config.GITHUB_BRANCH_NAME:
+            diff = github.get_branch_diff(
+                github=gh,
+                repository=config.GITHUB_REPOSITORY,
+                base_branch=base_ref,
+                head_branch=config.GITHUB_BRANCH_NAME,
+            )
+        elif config.GITHUB_PR_NUMBER:
+            diff = github.get_pr_diff(
+                github=gh,
+                repository=config.GITHUB_REPOSITORY,
+                pr_number=config.GITHUB_PR_NUMBER,
+            )
+        else:  # pragma: no cover
+            raise Exception("Unreachable code")
+    except github.CannotGetDiff as exc:
+        failure_msg = str(exc)
+        log.warning(failure_msg, exc_info=True)
+        diff = ""
 
     added_lines = coverage_module.get_added_lines(diff=diff)
     diff_coverage = coverage_module.get_diff_coverage_info(
@@ -219,6 +225,7 @@ def process_pr(
             pr_targets_default_branch=pr_targets_default_branch,
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
+            failure_msg=failure_msg,
         )
         # Same as above except `max_files` is None
         summary_comment = template.get_comment_markdown(
@@ -240,6 +247,7 @@ def process_pr(
             pr_targets_default_branch=pr_targets_default_branch,
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
+            failure_msg=failure_msg,
         )
     except template.MissingMarker:
         log.error(
