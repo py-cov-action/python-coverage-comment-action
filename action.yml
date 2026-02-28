@@ -96,6 +96,11 @@ inputs:
     description: >
       If true, will create an annotation on every line with missing coverage on a pull request.
     default: false
+  INCLUDE_PLAIN_TEXT_REPORT:
+    description: >
+      If true, will include a plain-text markdown coverage table in the job summary,
+      suitable for pasting into text-based tools. Only applies in PR mode.
+    default: false
   ANNOTATION_TYPE:
     description: >
       Only relevant if ANNOTATE_MISSING_LINES is set to true. This parameter allows you to choose between
@@ -182,4 +187,5 @@ runs:
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
     ANNOTATE_MISSING_LINES: ${{ inputs.ANNOTATE_MISSING_LINES }}
     ANNOTATION_TYPE: ${{ inputs.ANNOTATION_TYPE }}
+    INCLUDE_PLAIN_TEXT_REPORT: ${{ inputs.INCLUDE_PLAIN_TEXT_REPORT }}
     VERBOSE: ${{ inputs.VERBOSE }}

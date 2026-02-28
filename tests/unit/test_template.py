@@ -408,6 +408,200 @@ def test_template__no_files(coverage_obj, diff_coverage_obj_more_files):
     assert "other.py" not in result
 
 
+def test_get_plain_text_markdown(make_coverage, make_coverage_and_diff):
+    previous_cov = make_coverage(
+        """
+        # file: codebase/code.py
+        1 covered
+        2 covered
+        3
+        4 missing
+        5 covered
+        6 covered
+        7
+        8
+        9 covered
+        # file: codebase/other.py
+        1 covered
+        2 covered
+        3 covered
+        4 covered
+        5 covered
+        6 covered
+        # file: codebase/third.py
+        1 covered
+        2 covered
+        3 covered
+        4 covered
+        5 covered
+        6 missing
+        7 missing
+        """
+    )
+    cov, diff_cov = make_coverage_and_diff(
+        """
+        # file: codebase/code.py
+        1 covered
+        2 covered
+        3
+        4
+        5 covered
+        6 covered
+        7
+        8
+        9 covered
+        10
+        11
+        + 12 missing
+        + 13 missing
+        + 14 missing
+        + 15 covered
+        + 16 covered
+        + 17
+        + 18
+        + 19
+        + 20
+        + 21
+        + 22 missing
+        # file: codebase/other.py
+        1 covered
+        2 covered
+        3 covered
+        # file: codebase/third.py
+        1 covered
+        2 covered
+        3 covered
+        4 covered
+        5 covered
+        6 covered
+        7 covered
+        """
+    )
+
+    files, total = template.select_files(
+        coverage=cov,
+        diff_coverage=diff_cov,
+        previous_coverage=previous_cov,
+        max_files=25,
+    )
+
+    result = template.get_plain_text_markdown(
+        coverage=cov,
+        diff_coverage=diff_cov,
+        previous_coverage=previous_cov,
+        previous_coverage_rate=decimal.Decimal("11") / decimal.Decimal("12"),
+        files=files,
+        count_files=total,
+        max_files=25,
+    )
+    print(result)
+    # No HTML anywhere
+    assert "<img" not in result
+    assert "<table" not in result
+    assert "<td" not in result
+    assert "<tr" not in result
+    assert "<a " not in result
+    # Has markdown table
+    assert "| File" in result or "| ---- |" in result
+    # Contains key data
+    assert "code.py" in result
+    assert "other.py" in result
+    assert "third.py" in result
+    assert "80.95%" in result  # overall coverage
+    assert "91.66%" in result  # previous coverage rate
+    assert "33.33%" in result  # diff coverage
+    assert "12-14" in result  # missing line range
+    assert "22" in result  # missing single line
+    assert "**Total**" in result
+
+
+def test_get_plain_text_markdown__no_files(coverage_obj):
+    diff_cov = coverage.DiffCoverage(
+        total_num_lines=0,
+        total_num_violations=0,
+        total_percent_covered=decimal.Decimal("1"),
+        num_changed_lines=0,
+        files={},
+    )
+    result = template.get_plain_text_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_cov,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=[],
+        count_files=0,
+        max_files=25,
+    )
+    print(result)
+    assert "does not seem to contain any modification" in result
+    assert "<img" not in result
+    assert "| File" not in result
+
+
+def test_get_plain_text_markdown__with_failure_msg(coverage_obj, diff_coverage_obj):
+    files, total = template.select_files(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        max_files=25,
+    )
+    result = template.get_plain_text_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=files,
+        count_files=total,
+        max_files=25,
+        failure_msg="The diff is too large to process",
+    )
+    print(result)
+    assert "WARNING: The diff is too large to process" in result
+    assert "N/A" in result  # diff coverage should show N/A
+
+
+def test_get_plain_text_markdown__no_previous(coverage_obj, diff_coverage_obj):
+    files, total = template.select_files(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        max_files=25,
+    )
+    result = template.get_plain_text_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=files,
+        count_files=total,
+        max_files=25,
+    )
+    print(result)
+    # Should not contain "was" or "->" for coverage evolution
+    assert "(was " not in result
+    assert "-> " not in result
+
+
+def test_get_plain_text_markdown__subproject(coverage_obj, diff_coverage_obj):
+    files, total = template.select_files(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        max_files=25,
+    )
+    result = template.get_plain_text_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=files,
+        count_files=total,
+        max_files=25,
+        subproject_id="mylib",
+    )
+    assert "(mylib)" in result
+
+
 def test_read_template_file():
     assert template.read_template_file("comment.md.j2").startswith(
         "{%- block title -%}## Coverage report{%- if subproject_id %}"

@@ -1,0 +1,49 @@
+{%- if subproject_id %}## Plain-text coverage report ({{ subproject_id }}){% else %}## Plain-text coverage report{% endif %}
+
+**Overall coverage:** {{ coverage.info.percent_covered | pct }}{% if previous_coverage_rate %} (was {{ previous_coverage_rate | pct }}){% endif %}
+
+{% if failure_msg -%}
+> WARNING: {{ failure_msg }}
+
+**Diff coverage:** N/A
+{%- else -%}
+**Diff coverage:** {{ diff_coverage.total_percent_covered | pct }} ({{ diff_coverage.total_num_lines - diff_coverage.total_num_violations }}/{{ diff_coverage.total_num_lines }} new statements covered)
+{%- endif %}
+{% if not files %}
+
+_This PR does not seem to contain any modification to coverable code._
+{%- else %}
+
+| File | Stmts | Missing | Coverage | New stmts coverage | Missing lines |
+| ---- | ----: | ------: | -------: | -----------------: | ------------- |
+{%- for parent, files_in_folder in files|groupby(attribute="path.parent") %}
+{%- for file in files_in_folder %}
+{%- set path = file.coverage.path %}
+{%- if file.previous %}
+{%- set cov_str = (file.previous.info.percent_covered | pct) ~ " -> " ~ (file.coverage.info.percent_covered | pct) %}
+{%- else %}
+{%- set cov_str = file.coverage.info.percent_covered | pct %}
+{%- endif %}
+{%- if file.diff and file.diff.added_statements %}
+{%- set diff_str = (file.diff.percent_covered | pct) ~ " (" ~ (file.diff.covered_statements | length) ~ "/" ~ (file.diff.added_statements | length) ~ ")" %}
+{%- else %}
+{%- set diff_str = "N/A" %}
+{%- endif %}
+{%- set comma = joiner(", ") %}
+{%- set ns = namespace(missing="") %}
+{%- for group in missing_diff_lines.get(path, []) %}
+{%- if group.line_start == group.line_end %}
+{%- set ns.missing = ns.missing ~ comma() ~ (group.line_start | string) %}
+{%- else %}
+{%- set ns.missing = ns.missing ~ comma() ~ (group.line_start | string) ~ "-" ~ (group.line_end | string) %}
+{%- endif %}
+{%- endfor %}
+| {{ path }} | {{ file.coverage.info.num_statements }} | {{ file.coverage.info.missing_lines }} | {{ cov_str }} | {{ diff_str }} | {{ ns.missing }} |
+{%- endfor %}
+{%- endfor %}
+| **Total** | {{ coverage.info.num_statements }} | {{ coverage.info.missing_lines }} | {% if previous_coverage %}{{ previous_coverage.info.percent_covered | pct }} -> {% endif %}{{ coverage.info.percent_covered | pct }} | {{ diff_coverage.total_percent_covered | pct }} ({{ diff_coverage.total_num_lines - diff_coverage.total_num_violations }}/{{ diff_coverage.total_num_lines }}) | |
+{%- if max_files and count_files > max_files %}
+
+_Report truncated to {{ max_files }} files out of {{ count_files }}. See the workflow summary for the full report._
+{%- endif %}
+{%- endif %}

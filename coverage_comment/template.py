@@ -200,6 +200,48 @@ def get_comment_markdown(
     return comment
 
 
+def get_plain_text_markdown(
+    *,
+    coverage: coverage_module.Coverage,
+    diff_coverage: coverage_module.DiffCoverage,
+    previous_coverage_rate: decimal.Decimal | None,
+    previous_coverage: coverage_module.Coverage | None,
+    files: list[FileInfo],
+    max_files: int | None,
+    count_files: int,
+    subproject_id: str | None = None,
+    failure_msg: str | None = None,
+) -> str:
+    env = SandboxedEnvironment()
+    env.filters["pct"] = pct
+
+    missing_diff_lines = {
+        key: list(value)
+        for key, value in itertools.groupby(
+            diff_grouper.get_diff_missing_groups(
+                coverage=coverage, diff_coverage=diff_coverage
+            ),
+            lambda x: x.file,
+        )
+    }
+
+    try:
+        return env.from_string(read_template_file("comment_plain.md.j2")).render(
+            previous_coverage_rate=previous_coverage_rate,
+            coverage=coverage,
+            diff_coverage=diff_coverage,
+            previous_coverage=previous_coverage,
+            count_files=count_files,
+            max_files=max_files,
+            files=files,
+            missing_diff_lines=missing_diff_lines,
+            subproject_id=subproject_id,
+            failure_msg=failure_msg,
+        )
+    except jinja2.exceptions.TemplateError as exc:
+        raise TemplateError from exc
+
+
 def select_files(
     *,
     coverage: coverage_module.Coverage,

@@ -64,6 +64,7 @@ class Config:
     MERGE_COVERAGE_FILES: bool = False
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
+    INCLUDE_PLAIN_TEXT_REPORT: bool = False
     MAX_FILES_IN_COMMENT: int = 25
     USE_GH_PAGES_HTML_URL: bool = False
     VERBOSE: bool = False
@@ -93,6 +94,10 @@ class Config:
 
     @classmethod
     def clean_annotate_missing_lines(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
+    def clean_include_plain_text_report(cls, value: str) -> bool:
         return str_to_bool(value)
 
     @classmethod
