@@ -408,6 +408,65 @@ def test_template__no_files(coverage_obj, diff_coverage_obj_more_files):
     assert "other.py" not in result
 
 
+def test_template__with_plain_text_report(coverage_obj, diff_coverage_obj):
+    files, total = template.select_files(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        max_files=25,
+    )
+    result = template.get_comment_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=files,
+        count_files=total,
+        max_files=25,
+        minimum_green=decimal.Decimal("100"),
+        minimum_orange=decimal.Decimal("70"),
+        marker="<!-- foo -->",
+        github_host="https://github.com",
+        repo_name="org/repo",
+        pr_number=3,
+        branch_name=None,
+        base_template=template.read_template_file("comment.md.j2"),
+        plain_text_report="## Plain-text coverage report\n\n| File | Coverage |\n| ---- | -------: |\n| code.py | 50% |",
+    )
+    assert "<details><summary>Plain-text coverage table (for copy-paste)</summary>" in result
+    assert "## Plain-text coverage report" in result
+    assert "| code.py | 50% |" in result
+    assert "<!-- foo -->" in result
+
+
+def test_template__without_plain_text_report(coverage_obj, diff_coverage_obj):
+    files, total = template.select_files(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        max_files=25,
+    )
+    result = template.get_comment_markdown(
+        coverage=coverage_obj,
+        diff_coverage=diff_coverage_obj,
+        previous_coverage=None,
+        previous_coverage_rate=None,
+        files=files,
+        count_files=total,
+        max_files=25,
+        minimum_green=decimal.Decimal("100"),
+        minimum_orange=decimal.Decimal("70"),
+        marker="<!-- foo -->",
+        github_host="https://github.com",
+        repo_name="org/repo",
+        pr_number=3,
+        branch_name=None,
+        base_template=template.read_template_file("comment.md.j2"),
+    )
+    assert "Plain-text coverage table" not in result
+    assert "<!-- foo -->" in result
+
+
 def test_get_plain_text_markdown(make_coverage, make_coverage_and_diff):
     previous_cov = make_coverage(
         """

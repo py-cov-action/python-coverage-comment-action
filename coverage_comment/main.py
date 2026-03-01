@@ -205,6 +205,26 @@ def process_pr(
         except github.CannotDeterminePR:
             pr_number = None
 
+    plain_text_report: str | None = None
+    if config.INCLUDE_PLAIN_TEXT_REPORT:
+        try:
+            plain_text_report = template.get_plain_text_markdown(
+                coverage=coverage,
+                diff_coverage=diff_coverage,
+                previous_coverage=previous_coverage,
+                previous_coverage_rate=previous_coverage_rate,
+                files=files_info,
+                count_files=count_files,
+                max_files=None,
+                subproject_id=config.SUBPROJECT_ID,
+                failure_msg=failure_msg,
+            )
+        except template.TemplateError:
+            log.warning(
+                "There was a rendering error when computing the plain-text report. "
+                "The plain-text output will not be available."
+            )
+
     try:
         comment = template.get_comment_markdown(
             coverage=coverage,
@@ -226,6 +246,7 @@ def process_pr(
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
             failure_msg=failure_msg,
+            plain_text_report=plain_text_report,
         )
         # Same as above except `max_files` is None
         summary_comment = template.get_comment_markdown(
@@ -248,6 +269,7 @@ def process_pr(
             marker=marker,
             subproject_id=config.SUBPROJECT_ID,
             failure_msg=failure_msg,
+            plain_text_report=plain_text_report,
         )
     except template.MissingMarker:
         log.error(
@@ -269,29 +291,6 @@ def process_pr(
     github.add_job_summary(
         content=summary_comment, github_step_summary=config.GITHUB_STEP_SUMMARY
     )
-
-    if config.INCLUDE_PLAIN_TEXT_REPORT:
-        try:
-            plain_text_report = template.get_plain_text_markdown(
-                coverage=coverage,
-                diff_coverage=diff_coverage,
-                previous_coverage=previous_coverage,
-                previous_coverage_rate=previous_coverage_rate,
-                files=files_info,
-                count_files=count_files,
-                max_files=None,
-                subproject_id=config.SUBPROJECT_ID,
-                failure_msg=failure_msg,
-            )
-            github.add_job_summary(
-                content=plain_text_report,
-                github_step_summary=config.GITHUB_STEP_SUMMARY,
-            )
-        except template.TemplateError:
-            log.warning(
-                "There was a rendering error when computing the plain-text report. "
-                "The plain-text output will not be available."
-            )
 
     if pr_number is not None and config.ANNOTATE_MISSING_LINES:
         annotations = diff_grouper.get_diff_missing_groups(
