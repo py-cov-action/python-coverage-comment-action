@@ -433,7 +433,10 @@ def test_template__with_plain_text_report(coverage_obj, diff_coverage_obj):
         base_template=template.read_template_file("comment.md.j2"),
         plain_text_report="## Plain-text coverage report\n\n| File | Coverage |\n| ---- | -------: |\n| code.py | 50% |",
     )
-    assert "<details><summary>Plain-text coverage table (for copy-paste)</summary>" in result
+    assert (
+        "<details><summary>Plain-text coverage table (for copy-paste)</summary>"
+        in result
+    )
     assert "## Plain-text coverage report" in result
     assert "| code.py | 50% |" in result
     assert "<!-- foo -->" in result
