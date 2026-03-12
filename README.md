@@ -92,6 +92,16 @@ is done in 2 steps:
    untrusted code
 2. From a trusted workflow, publish the comment on the PR
 
+The write permissions in the `CI` workflow below are intentional. They are
+used when the PR is trusted enough, usually because it comes from the same
+repository, for this workflow to publish or update the comment directly.
+When that happens, the second workflow can be skipped.
+For `pull_request` runs coming from forks, which are untrusted by default,
+GitHub downgrades requested write permissions to read-only unless the
+repository is explicitly configured to send write tokens to workflows from
+pull requests. In other words, these settings do not grant write access to
+untrusted code.
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI
@@ -107,12 +117,11 @@ jobs:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
+      # Allows the action to publish new comments directly on trusted PRs.
+      # Forked pull_request runs are downgraded to read-only by GitHub.
       pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
+      # Allows updating the python-coverage-comment-action branch and editing
+      # existing comments when direct publication is allowed.
       contents: write
     steps:
       - uses: actions/checkout@v4
