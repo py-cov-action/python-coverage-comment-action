@@ -92,6 +92,11 @@ def action_ref():
 
 
 @pytest.fixture
+def repository_owner():
+    return os.environ.get("COVERAGE_COMMENT_E2E_REPOSITORY_OWNER", "py-cov-action")
+
+
+@pytest.fixture
 def _gh(call, gh_config_dir):
     def gh(*args, token, json=False, fail_value=None):
         @tenacity.retry(
@@ -194,7 +199,7 @@ def gh_other_username(gh_other):
 
 
 @pytest.fixture
-def git_repo(cd, git, action_ref, code_path, subproject_id):
+def git_repo(cd, git, action_ref, repository_owner, code_path, subproject_id):
     with cd("repo") as repo:
         git("init", "-b", "main")
         # Copy .github
@@ -214,6 +219,7 @@ def git_repo(cd, git, action_ref, code_path, subproject_id):
         for file in (repo / ".github/workflows").iterdir():
             content = (
                 file.read_text()
+                .replace("__ACTION_REPOSITORY_OWNER__", repository_owner)
                 .replace("__ACTION_REF__", action_ref)
                 .replace("__ACTION_COVERAGE_PATH__", str(code_path))
                 .replace("__ACTION_SUBPROJECT_ID__", json_module.dumps(subproject_id))
