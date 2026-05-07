@@ -59,7 +59,7 @@ def test_action__invalid_event_name(session, push_config, in_integration_env, ge
     )
 
     assert result == 1
-    assert get_logs("ERROR", "This action has only been designed to work for")
+    assert get_logs("ERROR", "This action's default behavior is to determine")
 
 
 def get_expected_output(
