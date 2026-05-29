@@ -19,28 +19,28 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.15.15
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/DetachHead/basedpyright-prek-mirror
-    rev: 1.36.2
+    rev: 1.39.6
     hooks:
       - id: basedpyright
 
         additional_dependencies:
-          - anyio==4.12.0
-          - certifi==2025.11.12
-          - coverage==7.13.1
+          - anyio==4.13.0
+          - certifi==2026.5.20
+          - coverage==7.14.1
           - h11==0.16.0
           - h2==4.3.0
           - hpack==4.1.0
           - httpcore==1.0.9
           - httpx==0.28.1
           - hyperframe==6.1.0
-          - idna==3.11
+          - idna==3.17
           - jinja2==3.1.6
           - markupsafe==3.0.3
   - repo: https://github.com/ewjoachim/sync-pre-commit-with-uv
