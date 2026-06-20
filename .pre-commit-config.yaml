@@ -47,3 +47,11 @@ repos:
     rev: 1.1.0
     hooks:
       - id: sync
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    # Zizmor version.
+    rev: v1.25.2
+    hooks:
+      # Run the linter.
+      - id: zizmor
+        args: ["--fix=all"]
