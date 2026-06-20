@@ -7,7 +7,7 @@ import pathlib
 from collections.abc import Sequence
 from typing import Any
 
-from coverage_comment import log, subprocess
+from coverage_comment import subprocess
 
 from . import json
 
@@ -123,7 +123,7 @@ def get_coverage_info(
         )
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
-            log.error(
+            exc.add_note(
                 "Cannot read .coverage files because files are absolute. You need "
                 "to configure coverage to write relative paths by adding the following "
                 "option to your coverage configuration file:\n"
