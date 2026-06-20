@@ -26,6 +26,7 @@ from coverage_comment import coverage as coverage_module
 
 
 def main():
+    config = None
     try:
         logging.basicConfig(level="DEBUG")
         logging.getLogger().handlers[0].formatter = log_utils.GitHubFormatter()
@@ -55,7 +56,11 @@ def main():
 
     except Exception:
         log.exception(
-            "Critical error. This error possibly occurred because the permissions of the workflow are set incorrectly. You can see the correct setting of permissions here: https://github.com/py-cov-action/python-coverage-comment-action#basic-usage\nOtherwise please look for open issues or open one in https://github.com/py-cov-action/python-coverage-comment-action/"
+            "Critical error. Please look at the error details and check the user manual at "
+            "https://github.com/py-cov-action/python-coverage-comment-action\n"
+            "If you believe this is a bug in the action, please consult open issues or "
+            "open a new one at https://github.com/py-cov-action/python-coverage-comment-action/issues .\n"
+            f"Full config: {config}"
         )
         sys.exit(1)
 
