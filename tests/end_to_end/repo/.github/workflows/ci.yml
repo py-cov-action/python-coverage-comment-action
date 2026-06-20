@@ -9,6 +9,8 @@ on:
 concurrency:
   group: CI
 
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display/prepare coverage
@@ -33,7 +35,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: __ACTION_REPOSITORY_OWNER__/python-coverage-comment-action@__ACTION_REF__
+        uses: __ACTION_REPOSITORY_OWNER__/python-coverage-comment-action@__ACTION_REF__ # zizmor: ignore[unpinned-uses]
         with:
           GITHUB_TOKEN: ${{ github.token }}
           ANNOTATE_MISSING_LINES: true

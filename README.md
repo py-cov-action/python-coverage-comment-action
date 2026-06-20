@@ -131,7 +131,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -149,7 +149,7 @@ jobs:
 # .github/workflows/coverage.yml
 name: Post coverage comment
 
-on:
+on:  # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a coverage comment on external PRs. This is safe because we don't checkout the external code or interact with the external code in any way but extracting an artifact containing the comment to post, and post it.
   workflow_run:
     workflows: ["CI"]
     types:
@@ -175,7 +175,7 @@ jobs:
       # DO NOT run actions/checkout here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1 #  vx.y.z
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -224,7 +224,7 @@ jobs:
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1 #  vx.y.z
         with:
           GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -269,7 +269,7 @@ jobs:
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -362,7 +362,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
@@ -416,7 +416,7 @@ Usage may look like this
 ```yaml
 - name: Coverage comment
   id: coverage_comment
-  uses: py-cov-action/python-coverage-comment-action@v3
+  uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
@@ -430,7 +430,7 @@ Usage may look like this
 ```yaml
 - name: Display coverage
   id: coverage_comment
-  uses: py-cov-action/python-coverage-comment-action@v3
+  uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
   with:
     GITHUB_TOKEN: ${{ github.token }}
 
@@ -618,7 +618,7 @@ jobs:
 
       - name: Coverage comment (project 1)
         id: coverage_comment_1
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           COVERAGE_PATH: project_1
           SUBPROJECT_ID: project-1
@@ -626,7 +626,7 @@ jobs:
 
       - name: Coverage comment (project 2)
         id: coverage_comment_2
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           COVERAGE_PATH: project_2/src
           SUBPROJECT_ID: project-2
@@ -645,7 +645,7 @@ jobs:
 # .github/workflows/coverage.yml
 name: Post coverage comment
 
-on:
+on:  # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a coverage comment on external PRs. This is safe because we don't checkout the external code or interact with the external code in any way but extracting an artifact containing the comment to post, and post it.
   workflow_run:
     workflows: ["CI"]
     types:
@@ -662,7 +662,7 @@ jobs:
       actions: read
     steps:
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -670,7 +670,7 @@ jobs:
           COVERAGE_PATH: project_1
 
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}

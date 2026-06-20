@@ -1,9 +1,11 @@
-name: Release Action (manual)
+name: Release Action
 
 on: workflow_dispatch
 
 concurrency:
   group: release
+
+permissions: {}
 
 jobs:
   release:

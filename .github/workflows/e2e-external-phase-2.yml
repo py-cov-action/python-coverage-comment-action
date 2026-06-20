@@ -1,6 +1,6 @@
 name: Run end-to-end tests on external PR approval
 
-on:
+on: # zizmor: ignore[dangerous-triggers] We're using workflow_run to run end to end tests on external PRs, upon apporoval. It's true that it's a risk, that why we only do it when we a maintainer has approved the PR.
   workflow_run:
     workflows: ["Trigger end-to-end tests on external PR approval"]
     types:
@@ -8,6 +8,8 @@ on:
 
 concurrency:
   group: ${{ github.event_name }}-${{ github.ref }}
+
+permissions: {}
 
 jobs:
   e2e:
