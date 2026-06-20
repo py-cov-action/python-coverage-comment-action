@@ -764,3 +764,18 @@ with badges. We've been iterating a lot on the new format.
 It's perfectly ok if you preferred the old format. In that case, see
 #335 for instructions on how to emulate the old format using
 `COMMENT_TEMPLATE`.
+
+## Zizmor
+
+[Zizmor](https://docs.zizmor.sh/) is an awesome security-minded linter for GitHub
+Actions. You should use it. If you use it with this action, the way this action is
+setup, it will complain about `workflow_run` unless you keep the `zizmor:
+ignore[dangerous-triggers]`. Zizmor is right, `workflow_run` is dangerous if you don't
+follow the [good
+practice](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/).
+
+As far as we know, though, this action is safe because we're very purposefully **not**
+doing things that make `workflow_run` dangerous such as checking out unsafe code or
+interpolating unsafe strings inside bash scripts. As far as we know, it's acceptable to
+silence Zizmor here. Of course, if you think you've found a flaw in the reasoning, let
+us know.
