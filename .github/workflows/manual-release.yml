@@ -18,6 +18,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
 
       - env:
           GH_TOKEN: ${{ github.token }}
