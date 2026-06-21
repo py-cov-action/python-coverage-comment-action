@@ -1,57 +1,38 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
-default_language_version:
-  python: python3.14
-
-ci:
-  # Renovate updates the file. We can't disable pre-commit CI's autoupdate entirely
-  # but this is the least frequent we can make it.
-  autoupdate_schedule: quarterly
-  skip: [basedpyright]
-
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  - repo: builtin
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.18
+  - repo: local
     hooks:
-      - id: ruff-check
-        args: [--fix]
-      - id: ruff-format
+      - id: ruff format
+        name: ruff format
+        entry: uv run ruff format --force-exclude
+        types: [python]
+        language: system
 
-  - repo: https://github.com/DetachHead/basedpyright-prek-mirror
-    rev: 1.39.8
-    hooks:
+      - id: ruff check
+        name: ruff check
+        entry: uv run ruff check --fix --force-exclude
+        types: [python]
+        language: system
+
       - id: basedpyright
+        name: basedpyright
+        entry: uv run basedpyright
+        language: system
+        require_serial: true
+        types_or: [python, pyi]
 
-        additional_dependencies:
-          - anyio==4.14.0
-          - certifi==2026.6.17
-          - coverage==7.14.2
-          - h11==0.16.0
-          - h2==4.3.0
-          - hpack==4.1.0
-          - httpcore==1.0.9
-          - httpx==0.28.1
-          - hyperframe==6.1.0
-          - idna==3.18
-          - jinja2==3.1.6
-          - markupsafe==3.0.3
-  - repo: https://github.com/ewjoachim/sync-pre-commit-with-uv
-    rev: 1.1.0
-    hooks:
-      - id: sync
-
-  - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    # Zizmor version.
-    rev: v1.26.1
-    hooks:
-      # Run the linter.
       - id: zizmor
-        args: ["--fix=all"]
+        name: zizmor
+        entry: uv run zizmor --fix=all
+        types: [yaml]
+        files: (\.github/(workflows/.*|dependabot.ya?ml))|(action\.ya?ml)$
+        language: system
+        require_serial: true
+        args:
+          - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
