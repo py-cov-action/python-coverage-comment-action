@@ -716,13 +716,12 @@ jobs:
 
 ## Pinning
 
-On the examples above, the version was set to the tag `v3`. Pinning to a major version
-will give you the latest release on this version. (Note that we release every time after
-a PR is merged). Pinning to a specific version (`v3.1` for example) would make the
-action more reproducible, though you'd have to update it regularly (e.g. using
-Dependabot). You can also pin a commit hash if you want to be 100% sure of what you run,
-given that tags are mutable. Finally, You can also decide to pin to main, if you're OK
-with the action maybe breaking when (if) we release a v4.
+We used to rewrite tags following the GitHub practices (and provide `@v3`, `@v3.1`, etc.).
+The new accepted good practice is release immutability, so that's what we do.
+Using standard tools like [Zizmor](https://docs.zizmor.sh/) or
+[Pinact](https://github.com/suzuki-shunsuke/pinact), you're expected to pin to a
+given commit sha, and use a comment to indicate the corresponding exact version.
+This is format is understood and followed by dependabot/renovate.
 
 ## Note on the state of this action
 
