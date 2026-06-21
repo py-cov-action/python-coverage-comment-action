@@ -55,8 +55,10 @@ def test_compute_badge_endpoint_data():
 
 def test_compute_badge_image(session):
     session.register(
-        "GET", "https://img.shields.io/static/v1?label=Coverage&message=27%25&color=red"
-    )(text="foo")
+        "GET",
+        "https://img.shields.io/static/v1?label=Coverage&message=27%25&color=red",
+        text="foo",
+    )
 
     badge_data = badge.compute_badge_image(
         line_rate=decimal.Decimal("27.42"), color="red", http_session=session

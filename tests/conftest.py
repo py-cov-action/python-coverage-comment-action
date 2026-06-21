@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import datetime
 import decimal
-import functools
 import io
 import os
 import pathlib
+import shlex
 import zipfile
 from collections.abc import Callable
 
@@ -76,72 +76,27 @@ def workflow_run_config(base_config):
 
 
 @pytest.fixture
-def session(is_failed):
-    """
-    You get a session object. Register responses on it:
-        session.register(method="GET", path="/a/b")(status_code=200)
-    or
-        session.register(method="GET", path="/a/b", json=checker)(status_code=200)
-    (where checker is a function receiving the json value, and returning True if it
-    matches)
-
-    if session.request(method="GET", path="/a/b") is called, it will return a response
-    with status_code 200. Also, if not called by the end of the test, it will raise.
-    """
-
-    class Session:
+def session(httpx_mock):
+    class FakeSession(httpx.Client):
         def __init__(self):
-            self.responses = []  # List[Tuples[request kwargs, response kwargs]]
+            super().__init__(base_url="https://example.com")
 
-        def request(self, method, path, **kwargs):
-            request_kwargs = {"method": method, "path": path} | kwargs
+        def _kwargs(self, method: str, url: str, **kwargs):
+            if not url.startswith("https://"):
+                url = f"https://example.com/{url.lstrip('/')}"
+            return {"method": method, "url": url, **kwargs}
 
-            for i, (match_kwargs, response_kwargs) in enumerate(self.responses):
-                match = True
-                for key, match_value in match_kwargs.items():
-                    if key not in request_kwargs:
-                        match = False
-                        break
-                    request_value = request_kwargs[key]
+        def get_request(self, *args, **kwargs):
+            return httpx_mock.get_request(**self._kwargs(*args, **kwargs))
 
-                    if hasattr(match_value, "__call__"):
-                        try:
-                            assert match_value(request_value)
-                        except Exception:
-                            match = False
-                            break
-                    else:
-                        if not match_value == request_value:
-                            match = False
-                            break
-                if match:
-                    self.responses.pop(i)
-                    return httpx.Response(
-                        **response_kwargs,
-                        request=httpx.Request(method=method, url=path),
-                    )
-            assert False, (
-                f"No response found for kwargs {request_kwargs}\nExpected answers are {self.responses}"
-            )
+        def register(self, *args, callback=None, **kwargs):
+            if callback:
+                return httpx_mock.add_callback(
+                    callback, **self._kwargs(*args, **kwargs)
+                )
+            return httpx_mock.add_response(**self._kwargs(*args, **kwargs))
 
-        def __getattr__(self, value):
-            if value in ["get", "post", "patch", "delete", "put"]:
-                return functools.partial(self.request, value.upper())
-            raise AttributeError(value)
-
-        def register(self, method, path, **request_kwargs):
-            request_kwargs = {"method": method, "path": path} | request_kwargs
-
-            def _(**response_kwargs):
-                response_kwargs.setdefault("status_code", 200)
-                self.responses.append((request_kwargs, response_kwargs))
-
-            return _
-
-    session = Session()
-    yield session
-    if not is_failed:
-        assert not session.responses
+    return FakeSession()
 
 
 @pytest.fixture
@@ -187,56 +142,12 @@ def zip_bytes():
 
 
 @pytest.fixture
-def git(is_failed):
-    """
-    You get a git object. Register calls on it:
-        git.register("git checkout master")(exit_code=1)
-    or
-        git.register("git commit", env={"A": "B"})(stdout="Changed branch")
+def git(fake_process):
+    class FakeGit(subprocess.Git):
+        def register(self, cmd: str, **kwargs):
+            return fake_process.register(["git", *shlex.split(cmd)], **kwargs)
 
-    If the command was not received by the end of the test, it will raise.
-    """
-
-    class Git:
-        def __init__(self):
-            self.expected_calls = []
-
-        def command(self, command, *args, token=None, env=None):
-            args = " ".join(("git", command, *args))
-            if not self.expected_calls:
-                assert False, (
-                    f"Received command `{args}` with env {env} while expecting nothing."
-                )
-
-            call = self.expected_calls[0]
-            exp_args, exp_env, exp_token, exit_code, stdout = call
-            if not (
-                args == exp_args
-                and (not exp_env or exp_env == env)
-                and (not exp_token or exp_token == token)
-            ):
-                assert False, (
-                    f"Expected command is not `{args}` with env {env} and token {token}\nExpected command is {self.expected_calls[0]}"
-                )
-
-            self.expected_calls.pop(0)
-            if exit_code == 0:
-                return stdout
-            raise subprocess.GitError
-
-        def __getattr__(self, value):
-            return functools.partial(self.command, value.replace("_", "-"))
-
-        def register(self, command, env=None, token=None):
-            def _(*, exit_code=0, stdout=""):
-                self.expected_calls.append((command, env, token, exit_code, stdout))
-
-            return _
-
-    git = Git()
-    yield git
-    if not is_failed:
-        assert not git.expected_calls
+    return FakeGit()
 
 
 @pytest.fixture

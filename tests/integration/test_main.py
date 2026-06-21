@@ -47,8 +47,10 @@ def payload():
 
 
 def test_action__invalid_event_name(session, push_config, in_integration_env, get_logs):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     result = main.action(
@@ -103,41 +105,45 @@ def test_action__pull_request__store_comment(
     pull_request_config,
     session,
     in_integration_env,
+    coverage_json,
     output_file,
     summary_file,
     capsys,
     git,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(status_code=404)
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     comment = None
 
-    def checker(payload):
-        body = payload["body"]
-        assert "## Coverage report" in body
-        nonlocal comment
-        comment = body
-        return True
-
     # Post a new comment
     session.register(
-        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
-    )(status_code=403)
+        "POST",
+        "/repos/py-cov-action/foobar/issues/2/comments",
+        status_code=403,
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(
@@ -149,6 +155,12 @@ def test_action__pull_request__store_comment(
     )
     assert result == 0
 
+    comment = json.loads(
+        session.get_request(
+            "POST", "/repos/py-cov-action/foobar/issues/2/comments"
+        ).content.decode()
+    )["body"]
+
     # Check that no annotations were made
     output = capsys.readouterr()
     assert output.err.strip() == ""
@@ -156,22 +168,18 @@ def test_action__pull_request__store_comment(
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
     assert comment == summary_file.read_text()
-    assert (
-        "Coverage for the whole project is 77.77%. Previous coverage rate is not available"
-        in comment
-    )
-    assert (
-        "In this PR, 4 new statements are added to the whole project, 3 of which are covered (75%)."
-        in comment
-    )
-    assert (
-        "https://github.com/py-cov-action/foobar/pull/2/files#diff-b08fd7a517303ab07cfa211f74d03c1a4c2e64b3b0656d84ff32ecb449b785d2"
-        in comment
-    )
-    assert (
-        "<!-- This comment was produced by python-coverage-comment-action -->"
-        in comment
-    )
+
+    s1 = "Coverage for the whole project is 77.77%. Previous coverage rate is not available"
+    assert s1 in comment
+
+    s2 = "In this PR, 4 new statements are added to the whole project, 3 of which are covered (75%)."
+    assert s2 in comment
+
+    s3 = "https://github.com/py-cov-action/foobar/pull/2/files#diff-b08fd7a517303ab07cfa211f74d03c1a4c2e64b3b0656d84ff32ecb449b785d2"
+    assert s3 in comment
+
+    s4 = "<!-- This comment was produced by python-coverage-comment-action -->"
+    assert s4 in comment
 
     output = {
         key: value
@@ -192,37 +200,31 @@ def test_action__pull_request__store_comment_not_targeting_default(
     capsys,
     git,
     payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
-    )
-
     session.register(
         "GET",
-        "/repos/py-cov-action/foobar/contents/data.json",
-    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
+    )
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
-
-    comment = None
-
-    def checker(payload):
-        body = payload["body"]
-        assert "## Coverage report" in body
-        nonlocal comment
-        comment = body
-        return True
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     # Post a new comment
     session.register(
-        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
-    )(status_code=403)
+        "POST",
+        "/repos/py-cov-action/foobar/issues/2/comments",
+        status_code=403,
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(
@@ -235,6 +237,12 @@ def test_action__pull_request__store_comment_not_targeting_default(
         git=git,
     )
     assert result == 0
+
+    comment = json.loads(
+        session.get_request(
+            "POST", "/repos/py-cov-action/foobar/issues/2/comments"
+        ).content.decode()
+    )["body"]
 
     # Check that no annotations were made
     output = capsys.readouterr()
@@ -257,42 +265,42 @@ def test_action__pull_request__post_comment(
     summary_file,
     git,
     payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
+        match_params={"ref": "python-coverage-comment-action-data"},
+        text=payload,
+        headers={"content-type": "application/vnd.github.raw+json"},
+    )
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
 
     comment = None
-
-    def checker(payload):
-        body = payload["body"]
-        assert "## Coverage report" in body
-        nonlocal comment
-        comment = body
-        return True
 
     # Post a new comment
     session.register(
         "POST",
         "/repos/py-cov-action/foobar/issues/2/comments",
-        json=checker,
-    )(
         status_code=200,
     )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(
@@ -303,6 +311,12 @@ def test_action__pull_request__post_comment(
         git=git,
     )
     assert result == 0
+
+    comment = json.loads(
+        session.get_request(
+            "POST", "/repos/py-cov-action/foobar/issues/2/comments"
+        ).content.decode()
+    )["body"]
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
     assert "Coverage for the whole project went from 30% to 77.77%" in comment
@@ -319,56 +333,64 @@ def test_action__pull_request__post_comment(
 
 
 def test_action__push__non_default_branch(
-    push_config, session, in_integration_env, output_file, summary_file, git, payload
+    push_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    git,
+    payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     # What is the diff of the `other` branch
-    session.register("GET", "/repos/py-cov-action/foobar/compare/main...other")(
-        text=DIFF_STDOUT
+    session.register(
+        "GET", "/repos/py-cov-action/foobar/compare/main...other", text=DIFF_STDOUT
     )
 
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
+        match_params={"ref": "python-coverage-comment-action-data"},
+        text=payload,
+        headers={"content-type": "application/vnd.github.raw+json"},
+    )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "state": "open",
             "head": "py-cov-action:other",
             "sort": "updated",
             "direction": "desc",
         },
-    )(json=[{"number": 2}])
+        json=[{"number": 2}],
+    )
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     comment = None
-
-    def checker(payload):
-        body = payload["body"]
-        assert "## Coverage report" in body
-        nonlocal comment
-        comment = body
-        return True
 
     # Post a new comment
     session.register(
         "POST",
         "/repos/py-cov-action/foobar/issues/2/comments",
-        json=checker,
-    )(
         status_code=200,
     )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+
     result = main.action(
         config=push_config(
             GITHUB_REF="refs/heads/other",
@@ -380,6 +402,12 @@ def test_action__push__non_default_branch(
         git=git,
     )
     assert result == 0
+
+    comment = json.loads(
+        session.get_request(
+            "POST", "/repos/py-cov-action/foobar/issues/2/comments"
+        ).content.decode()
+    )["body"]
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
     assert "Coverage for the whole project went from 30% to 77.77%" in comment
@@ -395,10 +423,17 @@ def test_action__push__non_default_branch(
 
 
 def test_action__push__no_branch(
-    push_config, session, in_integration_env, git, get_logs
+    push_config,
+    session,
+    in_integration_env,
+    git,
+    get_logs,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     result = main.action(
@@ -414,42 +449,59 @@ def test_action__push__no_branch(
 
 
 def test_action__push__non_default_branch__no_pr(
-    push_config, session, in_integration_env, output_file, summary_file, git, payload
+    push_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    git,
+    payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     # What is the diff of the `other` branch
-    session.register("GET", "/repos/py-cov-action/foobar/compare/main...other")(
-        text=DIFF_STDOUT
+    session.register(
+        "GET", "/repos/py-cov-action/foobar/compare/main...other", text=DIFF_STDOUT
     )
 
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
+        match_params={"ref": "python-coverage-comment-action-data"},
+        text=payload,
+        headers={"content-type": "application/vnd.github.raw+json"},
+    )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "state": "open",
             "head": "py-cov-action:other",
             "sort": "updated",
             "direction": "desc",
         },
-    )(json=[])
+        json=[],
+    )
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "state": "all",
             "head": "py-cov-action:other",
             "sort": "updated",
             "direction": "desc",
         },
-    )(json=[])
+        json=[],
+    )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=push_config(
@@ -475,20 +527,34 @@ def test_action__push__non_default_branch__no_pr(
 
 
 def test_action__pull_request__force_store_comment(
-    pull_request_config, session, in_integration_env, output_file, git, payload
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    git,
+    payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     # There is an existing badge in this test, allowing to test the coverage evolution
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(text=payload, headers={"content-type": "application/vnd.github.raw+json"})
+        match_params={"ref": "python-coverage-comment-action-data"},
+        text=payload,
+        headers={"content-type": "application/vnd.github.raw+json"},
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(FORCE_WORKFLOW_RUN=True, GITHUB_OUTPUT=output_file),
@@ -510,20 +576,32 @@ def test_action__pull_request__force_store_comment(
 
 
 def test_action__pull_request__post_comment__no_marker(
-    pull_request_config, session, in_integration_env, get_logs, git
+    pull_request_config,
+    session,
+    in_integration_env,
+    get_logs,
+    git,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(status_code=404)
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""foo"""),
@@ -536,30 +614,41 @@ def test_action__pull_request__post_comment__no_marker(
 
 
 def test_action__pull_request__annotations(
-    pull_request_config, session, in_integration_env, capsys, git
+    pull_request_config,
+    session,
+    in_integration_env,
+    capsys,
+    git,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(status_code=404)
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     # Post a new comment
     session.register(
-        "POST",
-        "/repos/py-cov-action/foobar/issues/2/comments",
-    )(status_code=200)
+        "POST", "/repos/py-cov-action/foobar/issues/2/comments", status_code=200
+    )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(ANNOTATE_MISSING_LINES=True),
@@ -577,20 +666,32 @@ def test_action__pull_request__annotations(
 
 
 def test_action__pull_request__post_comment__template_error(
-    pull_request_config, session, in_integration_env, get_logs, git
+    pull_request_config,
+    session,
+    in_integration_env,
+    get_logs,
+    git,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     # No existing badge in this test
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/contents/data.json",
-    )(status_code=404)
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
 
     # What is the diff of the PR
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(text=DIFF_STDOUT)
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(COMMENT_TEMPLATE="""{%"""),
@@ -603,29 +704,51 @@ def test_action__pull_request__post_comment__template_error(
 
 
 def test_action__push__default_branch(
-    push_config, session, in_integration_env, get_logs, git, summary_file
+    push_config,
+    session,
+    in_integration_env,
+    get_logs,
+    git,
+    summary_file,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     session.register(
         "GET",
         "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
-    )(text="<this is a svg badge>")
+        text="<this is a svg badge>",
+    )
 
-    git.register("git branch --show-current")(stdout="foo")
-    git.register("git reset --hard")()
-    git.register("git fetch origin python-coverage-comment-action-data")()
-    git.register("git switch python-coverage-comment-action-data")()
-    git.register("git add endpoint.json")()
-    git.register("git add data.json")()
-    git.register("git add badge.svg")()
-    git.register("git add htmlcov")()
-    git.register("git add README.md")()
-    git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message ci: Update coverage data")()
-    git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="foo")
+    git.register("reset --hard")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin python-coverage-comment-action-data"
+    )
+    git.register("switch python-coverage-comment-action-data")
+    git.register("add endpoint.json")
+    git.register("add data.json")
+    git.register("add badge.svg")
+    git.register("add htmlcov")
+    git.register("add README.md")
+    git.register("diff --staged --exit-code", returncode=1)
+    git.register("commit --message 'ci: Update coverage data'")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+    )
+    git.register("switch foo")
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+    fake_process.pass_command(
+        ["coverage", "html", "--skip-empty", "--directory", fake_process.any()]
+    )
+    fake_process.pass_command(
+        ["coverage", "report", "--format=markdown", "--show-missing"]
+    )
 
     result = main.action(
         config=push_config(GITHUB_STEP_SUMMARY=summary_file),
@@ -673,31 +796,48 @@ def test_action__pull_request_closed_merged(
     git,
     summary_file,
     pull_request_event_payload,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     session.register(
         "GET",
         "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
-    )(text="<this is a svg badge>")
+        text="<this is a svg badge>",
+    )
 
-    git.register("git branch --show-current")(stdout="foo")
-    git.register("git reset --hard")()
-    git.register("git fetch origin python-coverage-comment-action-data")()
-    git.register("git switch python-coverage-comment-action-data")()
-    git.register("git add endpoint.json")()
-    git.register("git add data.json")()
-    git.register("git add badge.svg")()
-    git.register("git add htmlcov")()
-    git.register("git add README.md")()
-    git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message ci: Update coverage data")()
-    git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="foo")
+    git.register("reset --hard")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin python-coverage-comment-action-data"
+    )
+    git.register("switch python-coverage-comment-action-data")
+    git.register("add endpoint.json")
+    git.register("add data.json")
+    git.register("add badge.svg")
+    git.register("add htmlcov")
+    git.register("add README.md")
+    git.register("diff --staged --exit-code", returncode=1)
+    git.register("commit --message 'ci: Update coverage data'")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+    )
+    git.register("switch foo")
 
     pull_request_event_payload.write_text(
         """{"action": "closed", "pull_request": {"merged": true}}"""
+    )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+    fake_process.pass_command(
+        ["coverage", "html", "--skip-empty", "--directory", fake_process.any()]
+    )
+    fake_process.pass_command(
+        ["coverage", "report", "--format=markdown", "--show-missing"]
     )
 
     result = main.action(
@@ -715,28 +855,49 @@ def test_action__pull_request_closed_merged(
 
 
 def test_action__push__default_branch__private(
-    push_config, session, in_integration_env, get_logs, git
+    push_config,
+    session,
+    in_integration_env,
+    get_logs,
+    git,
+    fake_process,
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "private"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "private"},
     )
     session.register(
         "GET",
         "https://img.shields.io/static/v1?label=Coverage&message=77%25&color=orange",
-    )(text="<this is a svg badge>")
+        text="<this is a svg badge>",
+    )
 
-    git.register("git branch --show-current")(stdout="foo")
-    git.register("git reset --hard")()
-    git.register("git fetch origin python-coverage-comment-action-data")()
-    git.register("git switch python-coverage-comment-action-data")()
-    git.register("git add endpoint.json")()
-    git.register("git add data.json")()
-    git.register("git add badge.svg")()
-    git.register("git add README.md")()
-    git.register("git diff --staged --exit-code")(exit_code=1)
-    git.register("git commit --message ci: Update coverage data")()
-    git.register("git push origin python-coverage-comment-action-data")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="foo")
+    git.register("reset --hard")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin python-coverage-comment-action-data"
+    )
+    git.register("switch python-coverage-comment-action-data")
+    git.register("add endpoint.json")
+    git.register("add data.json")
+    git.register("add badge.svg")
+    git.register("add README.md")
+    git.register("diff --staged --exit-code", returncode=1)
+    git.register("commit --message 'ci: Update coverage data'")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+    )
+    git.register("switch foo")
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+    fake_process.pass_command(
+        ["coverage", "html", "--skip-empty", "--directory", fake_process.any()]
+    )
+    fake_process.pass_command(
+        ["coverage", "report", "--format=markdown", "--show-missing"]
+    )
 
     result = main.action(
         config=push_config(),
@@ -763,8 +924,10 @@ See more details and ready-to-copy-paste-markdown at:
 def test_action__workflow_run__no_pr_number(
     workflow_run_config, session, in_integration_env, get_logs
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
 
     result = main.action(
@@ -781,37 +944,43 @@ def test_action__workflow_run__no_pr_number(
 def test_action__workflow_run__no_pr(
     workflow_run_config, session, in_integration_env, get_logs
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
-    session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
+    session.register("GET", "/user", json={"login": "foo"})
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/runs/123",
         json={
             "head_branch": "branch",
             "head_repository": {"owner": {"login": "bar/repo-name"}},
-        }
+        },
     )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
             "direction": "desc",
             "state": "open",
         },
-    )(json=[])
+        json=[],
+    )
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
             "direction": "desc",
             "state": "all",
         },
-    )(json=[])
+        json=[],
+    )
 
     result = main.action(
         config=workflow_run_config(),
@@ -827,32 +996,39 @@ def test_action__workflow_run__no_pr(
 def test_action__workflow_run__no_artifact(
     workflow_run_config, session, in_integration_env, get_logs
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
-    session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
+    session.register("GET", "/user", json={"login": "foo"})
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/runs/123",
         json={
             "head_branch": "branch",
             "head_repository": {"owner": {"login": "bar/repo-name"}},
-        }
+        },
     )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
             "direction": "desc",
             "state": "open",
         },
-    )(json=[{"number": 456}])
+        json=[{"number": 456}],
+    )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-    )(json={"artifacts": [{"name": "wrong_name"}], "total_count": 1})
+        match_params={"page": "1"},
+        json={"artifacts": [{"name": "wrong_name"}], "total_count": 1},
+    )
 
     result = main.action(
         config=workflow_run_config(),
@@ -868,53 +1044,58 @@ def test_action__workflow_run__no_artifact(
 def test_action__workflow_run__post_comment(
     workflow_run_config, session, in_integration_env, get_logs, zip_bytes, summary_file
 ):
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
-    session.register("GET", "/user")(json={"login": "foo"})
-    session.register("GET", "/repos/py-cov-action/foobar/actions/runs/123")(
+    session.register("GET", "/user", json={"login": "foo"})
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/runs/123",
         json={
             "head_branch": "branch",
             "head_repository": {"owner": {"login": "bar/repo-name"}},
-        }
+        },
     )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/pulls",
-        params={
+        match_params={
             "head": "bar/repo-name:branch",
             "sort": "updated",
             "direction": "desc",
             "state": "open",
         },
-    )(json=[{"number": 456}])
+        json=[{"number": 456}],
+    )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
-    )(
+        match_params={"page": "1"},
         json={
             "artifacts": [{"name": "python-coverage-comment-action", "id": 789}],
             "total_count": 1,
-        }
+        },
     )
 
     session.register(
         "GET",
         "/repos/py-cov-action/foobar/actions/artifacts/789/zip",
-    )(content=zip_bytes(filename="python-coverage-comment-action.txt", content="Hey!"))
+        content=zip_bytes(
+            filename="python-coverage-comment-action.txt", content="Hey!"
+        ),
+    )
 
-    session.register(
-        "GET",
-        "/repos/py-cov-action/foobar/issues/456/comments",
-    )(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/456/comments", json=[])
 
     session.register(
         "POST",
         "/repos/py-cov-action/foobar/issues/456/comments",
         json={"body": "Hey!"},
-    )()
+    )
 
     result = main.action(
         config=workflow_run_config(GITHUB_STEP_SUMMARY=summary_file),
@@ -937,34 +1118,35 @@ def test_action__pull_request__diff_too_large(
     summary_file,
     git,
     get_logs,
+    fake_process,
 ):
     """Test that when the diff is too large, a warning is shown in the comment."""
-    session.register("GET", "/repos/py-cov-action/foobar")(
-        json={"default_branch": "main", "visibility": "public"}
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
     )
     # No existing badge in this test
-    session.register("GET", "/repos/py-cov-action/foobar/contents/data.json")(
-        status_code=404
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
     )
 
     # Who am I
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
     # Are there already comments
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments")(json=[])
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
 
     comment = None
 
-    def checker(payload):
-        body = payload["body"]
-        assert "## Coverage report" in body
-        nonlocal comment
-        comment = body
-        return True
-
     # Post a new comment
     session.register(
-        "POST", "/repos/py-cov-action/foobar/issues/2/comments", json=checker
-    )(status_code=200)
+        "POST",
+        "/repos/py-cov-action/foobar/issues/2/comments",
+        status_code=200,
+    )
 
     # The diff is too large - returns 406 with error
     error_response = {
@@ -973,9 +1155,15 @@ def test_action__pull_request__diff_too_large(
         "documentation_url": "https://docs.github.com/rest/pulls/pulls#list-pull-requests-files",
         "status": "406",
     }
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2")(
-        json=error_response, status_code=406
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/pulls/2",
+        json=error_response,
+        status_code=406,
     )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
 
     result = main.action(
         config=pull_request_config(
@@ -986,6 +1174,12 @@ def test_action__pull_request__diff_too_large(
         git=git,
     )
     assert result == 0
+
+    comment = json.loads(
+        session.get_request(
+            "POST", "/repos/py-cov-action/foobar/issues/2/comments"
+        ).content.decode()
+    )["body"]
 
     # Check that a warning was logged
     assert get_logs("WARNING", "too large")

@@ -8,13 +8,12 @@ from coverage_comment import __main__
 @pytest.mark.parametrize(
     "name, expected",
     [
-        ("__main__", True),
-        ("foo", False),
+        ("__main__", [True]),
+        ("foo", []),
     ],
 )
-def test_main_call(mocker, name, expected):
-    main = mocker.patch("coverage_comment.main.main")
+def test_main_call(name, expected):
+    called = []
+    __main__.main_call(name, main_func=lambda: called.append(True))
 
-    __main__.main_call(name)
-
-    assert main.called is expected
+    assert called == expected

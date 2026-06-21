@@ -8,44 +8,50 @@ from coverage_comment import files, storage, subprocess
 
 
 def test_checked_out_branch(git):
-    git.register("git branch --show-current")(stdout="bar")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="bar")
+    git.register("reset --hard")
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo")
+    git.register("switch foo")
 
     with storage.checked_out_branch(git=git, branch="foo", token="secret"):
-        git.register("git switch bar")()
+        git.register("switch bar")
 
 
 def test_checked_out_branch__detached_head(git):
-    git.register("git branch --show-current")(stdout="")
-    git.register("git rev-parse --short HEAD")(stdout="123abc")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="")
+    git.register("rev-parse --short HEAD", stdout="123abc")
+    git.register("reset --hard")
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo")
+    git.register("switch foo")
 
     with storage.checked_out_branch(git=git, branch="foo", token="secret"):
-        git.register("git switch --detach 123abc")()
+        git.register("switch --detach 123abc")
 
 
 def test_checked_out_branch__branch_does_not_exist(git):
-    git.register("git branch --show-current")(stdout="bar")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")(exit_code=1)
-    git.register("git fetch origin", token="secret")()
-    git.register("git rev-parse --verify origin/foo")(exit_code=1)
-    git.register("git switch --orphan foo")()
+    git.register("branch --show-current", stdout="bar")
+    git.register("reset --hard")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo",
+        returncode=1,
+    )
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin")
+    git.register("rev-parse --verify origin/foo", returncode=1)
+    git.register("switch --orphan foo")
 
     with storage.checked_out_branch(git=git, branch="foo", token="secret"):
-        git.register("git switch bar")()
+        git.register("switch bar")
 
 
 def test_checked_out_branch__fetch_fails(git):
-    git.register("git branch --show-current")(stdout="bar")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")(exit_code=1)
-    git.register("git fetch origin", token="secret")()
-    git.register("git rev-parse --verify origin/foo")()
+    git.register("branch --show-current", stdout="bar")
+    git.register("reset --hard")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo",
+        returncode=1,
+    )
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin")
+    git.register("rev-parse --verify origin/foo")
 
     with pytest.raises(subprocess.GitError):
         with storage.checked_out_branch(git=git, branch="foo", token="secret"):
@@ -59,18 +65,18 @@ def test_commit_operations__no_diff(git, in_tmp_path):
     ]
 
     # checked_out_branch
-    git.register("git branch --show-current")(stdout="bar")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="bar")
+    git.register("reset --hard")
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo")
+    git.register("switch foo")
 
     # upload_files
-    git.register(f"git add {operations[0].path}")()
-    git.register(f"git add {operations[1].path}")()
-    git.register("git diff --staged --exit-code")()  # no diff
+    git.register(f"add {operations[0].path}")
+    git.register(f"add {operations[1].path}")
+    git.register("diff --staged --exit-code")  # no diff
 
     # __exit__ of checked_out_branch
-    git.register("git switch bar")()
+    git.register("switch bar")
 
     storage.commit_operations(
         operations=operations,
@@ -91,32 +97,24 @@ def test_commit_operations(git, in_tmp_path):
     ]
 
     # checked_out_branch
-    git.register("git branch --show-current")(stdout="bar")
-    git.register("git reset --hard")()
-    git.register("git fetch origin foo", token="secret")()
-    git.register("git switch foo")()
+    git.register("branch --show-current", stdout="bar")
+    git.register("reset --hard")
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin foo")
+    git.register("switch foo")
 
     # upload_files
-    git.register(f"git add {operations[0].path}")()
-    git.register(f"git add {operations[1].path}")()
+    git.register(f"add {operations[0].path}")
+    git.register(f"add {operations[1].path}")
 
-    git.register("git diff --staged --exit-code")(exit_code=1)  # diff!
+    git.register("diff --staged --exit-code", returncode=1)  # diff!
 
     # (yes, it's missing the quotes, but this is just an artifact from our test
     # double)
-    git.register(
-        "git commit --message ci: Update coverage data",
-        env={
-            "GIT_AUTHOR_NAME": "github-actions",
-            "GIT_AUTHOR_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
-            "GIT_COMMITTER_NAME": "github-actions",
-            "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
-        },
-    )()
-    git.register("git push origin foo", token="secret")()
+    registered = git.register("commit --message 'ci: Update coverage data'")
+    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER push origin foo")
 
     # __exit__ of checked_out_branch
-    git.register("git switch bar")()
+    git.register("switch bar")
 
     storage.commit_operations(
         operations=operations,
@@ -127,11 +125,24 @@ def test_commit_operations(git, in_tmp_path):
 
     assert operations[0].path.read_text() == operations[0].contents
     assert operations[1].path.read_text() == operations[1].contents
+    assert registered.calls[0].kwargs["env"]["GIT_AUTHOR_NAME"] == "github-actions"
+    assert (
+        registered.calls[0].kwargs["env"]["GIT_AUTHOR_EMAIL"]
+        == "41898282+github-actions[bot]@users.noreply.github.com"
+    )
+    assert registered.calls[0].kwargs["env"]["GIT_COMMITTER_NAME"] == "github-actions"
+    assert (
+        registered.calls[0].kwargs["env"]["GIT_COMMITTER_EMAIL"]
+        == "41898282+github-actions[bot]@users.noreply.github.com"
+    )
 
 
 def test_get_datafile_contents__not_found(gh, session):
-    session.register("GET", "/repos/foo/bar/contents/data.json", params={"ref": "baz"})(
-        status_code=404
+    session.register(
+        "GET",
+        "/repos/foo/bar/contents/data.json",
+        match_params={"ref": "baz"},
+        status_code=404,
     )
 
     result = storage.get_datafile_contents(
@@ -143,8 +154,12 @@ def test_get_datafile_contents__not_found(gh, session):
 
 
 def test_get_datafile_contents(gh, session):
-    session.register("GET", "/repos/foo/bar/contents/data.json", params={"ref": "baz"})(
-        text="yay", headers={"content-type": "application/vnd.github.raw+json"}
+    session.register(
+        "GET",
+        "/repos/foo/bar/contents/data.json",
+        match_params={"ref": "baz"},
+        text="yay",
+        headers={"content-type": "application/vnd.github.raw+json"},
     )
 
     result = storage.get_datafile_contents(

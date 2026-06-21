@@ -37,8 +37,8 @@ def test_is_public(visibility, expected):
 
 
 def test_get_repository_info(gh, session):
-    session.register("GET", "/repos/foo/bar")(
-        json={"default_branch": "baz", "visibility": "public"}
+    session.register(
+        "GET", "/repos/foo/bar", json={"default_branch": "baz", "visibility": "public"}
     )
 
     info = github.get_repository_info(github=gh, repository="foo/bar")
@@ -72,12 +72,17 @@ def test_download_artifact(gh, session, zip_bytes):
         {"name": "bar", "id": 456},
         {"name": "foo", "id": 789},
     ]
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts, "total_count": 2}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": artifacts, "total_count": 2},
     )
 
-    session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
-        content=zip_bytes(filename="foo.txt", content="bar")
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/artifacts/789/zip",
+        content=zip_bytes(filename="foo.txt", content="bar"),
     )
 
     result = github.download_artifact(
@@ -99,17 +104,23 @@ def test_download_artifact_from_page_2(gh, session, zip_bytes):
         {"name": "bar", "id": 456},
         {"name": "foo", "id": 789},
     ]
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts_page_1, "total_count": 3}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": artifacts_page_1, "total_count": 3},
     )
     session.register(
         "GET",
         "/repos/foo/bar/actions/runs/123/artifacts",
-        params={"page": "2"},
-    )(json={"artifacts": artifacts_page_2, "total_count": 3})
+        match_params={"page": "2"},
+        json={"artifacts": artifacts_page_2, "total_count": 3},
+    )
 
-    session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
-        content=zip_bytes(filename="foo.txt", content="bar")
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/artifacts/789/zip",
+        content=zip_bytes(filename="foo.txt", content="bar"),
     )
 
     result = github.download_artifact(
@@ -127,8 +138,11 @@ def test_download_artifact__no_artifact(gh, session):
     artifacts = [
         {"name": "bar", "id": 456},
     ]
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts, "total_count": 1}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": artifacts, "total_count": 1},
     )
 
     with pytest.raises(github.NoArtifact):
@@ -143,17 +157,17 @@ def test_download_artifact__no_artifact(gh, session):
 
 def test_download_artifact__no_file(gh, session, zip_bytes):
     artifacts = [{"name": "foo", "id": 789}]
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts}
-    )
     session.register(
         "GET",
         "/repos/foo/bar/actions/runs/123/artifacts",
-        params={"page": "2"},
-    )(json={})
+        match_params={"page": "1"},
+        json={"artifacts": artifacts},
+    )
 
-    session.register("GET", "/repos/foo/bar/actions/artifacts/789/zip")(
-        content=zip_bytes(filename="foo.txt", content="bar")
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/artifacts/789/zip",
+        content=zip_bytes(filename="foo.txt", content="bar"),
     )
     with pytest.raises(github.NoArtifact):
         github.download_artifact(
@@ -166,8 +180,11 @@ def test_download_artifact__no_file(gh, session, zip_bytes):
 
 
 def test_fetch_artifacts_empty_response(gh, session):
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": [], "total_count": 0}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": [], "total_count": 0},
     )
 
     repo_path = gh.repos("foo/bar")
@@ -183,8 +200,11 @@ def test_fetch_artifacts_empty_response(gh, session):
 def test_fetch_artifacts_single_page(gh, session):
     artifacts = [{"name": "bar", "id": 456}]
 
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts, "total_count": 1}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": artifacts, "total_count": 1},
     )
 
     repo_path = gh.repos("foo/bar")
@@ -201,12 +221,18 @@ def test_fetch_artifacts_multiple_pages(gh, session):
     artifacts_page_1 = [{"name": "bar", "id": 456}]
     artifacts_page_2 = [{"name": "bar", "id": 789}]
 
-    session.register("GET", "/repos/foo/bar/actions/runs/123/artifacts")(
-        json={"artifacts": artifacts_page_1, "total_count": 2}
+    session.register(
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={"artifacts": artifacts_page_1, "total_count": 2},
     )
     session.register(
-        "GET", "/repos/foo/bar/actions/runs/123/artifacts", params={"page": "2"}
-    )(json={"artifacts": artifacts_page_2, "total_count": 2})
+        "GET",
+        "/repos/foo/bar/actions/runs/123/artifacts",
+        match_params={"page": "2"},
+        json={"artifacts": artifacts_page_2, "total_count": 2},
+    )
 
     repo_path = gh.repos("foo/bar")
 
@@ -223,7 +249,7 @@ def test_get_branch_from_workflow_run(gh, session):
         "head_branch": "other",
         "head_repository": {"owner": {"login": "someone"}},
     }
-    session.register("GET", "/repos/foo/bar/actions/runs/123")(json=json)
+    session.register("GET", "/repos/foo/bar/actions/runs/123", json=json)
 
     owner, branch = github.get_branch_from_workflow_run(
         github=gh, repository="foo/bar", run_id=123
@@ -240,8 +266,8 @@ def test_find_pr_for_branch(gh, session):
         "direction": "desc",
         "state": "open",
     }
-    session.register("GET", "/repos/foo/bar/pulls", params=params)(
-        json=[{"number": 456}]
+    session.register(
+        "GET", "/repos/foo/bar/pulls", match_params=params, json=[{"number": 456}]
     )
 
     result = github.find_pr_for_branch(
@@ -258,15 +284,14 @@ def test_find_pr_for_branch__no_open_pr(gh, session):
         "direction": "desc",
     }
     session.register(
-        "GET",
-        "/repos/foo/bar/pulls",
-        params=params | {"state": "open"},
-    )(json=[])
+        "GET", "/repos/foo/bar/pulls", match_params=params | {"state": "open"}, json=[]
+    )
     session.register(
         "GET",
         "/repos/foo/bar/pulls",
-        params=params | {"state": "all"},
-    )(json=[{"number": 456}])
+        match_params=params | {"state": "all"},
+        json=[{"number": 456}],
+    )
 
     result = github.find_pr_for_branch(
         github=gh, repository="foo/bar", owner="someone", branch="other"
@@ -282,15 +307,11 @@ def test_find_pr_for_branch__no_pr(gh, session):
         "direction": "desc",
     }
     session.register(
-        "GET",
-        "/repos/foo/bar/pulls",
-        params=params | {"state": "open"},
-    )(json=[])
+        "GET", "/repos/foo/bar/pulls", match_params=params | {"state": "open"}, json=[]
+    )
     session.register(
-        "GET",
-        "/repos/foo/bar/pulls",
-        params=params | {"state": "all"},
-    )(json=[])
+        "GET", "/repos/foo/bar/pulls", match_params=params | {"state": "all"}, json=[]
+    )
     with pytest.raises(github.CannotDeterminePR):
         github.find_pr_for_branch(
             github=gh, repository="foo/bar", owner="someone", branch="other"
@@ -298,7 +319,7 @@ def test_find_pr_for_branch__no_pr(gh, session):
 
 
 def test_get_my_login(gh, session):
-    session.register("GET", "/user")(json={"login": "foo"})
+    session.register("GET", "/user", json={"login": "foo"})
 
     result = github.get_my_login(github=gh)
 
@@ -306,7 +327,7 @@ def test_get_my_login(gh, session):
 
 
 def test_get_my_login__github_bot(gh, session):
-    session.register("GET", "/user")(status_code=403)
+    session.register("GET", "/user", status_code=403)
 
     result = github.get_my_login(github=gh)
 
@@ -325,12 +346,10 @@ def test_get_my_login__github_bot(gh, session):
     ],
 )
 def test_post_comment__create(gh, session, get_logs, existing_comments):
-    session.register("GET", "/repos/foo/bar/issues/123/comments")(
-        json=existing_comments
-    )
     session.register(
-        "POST", "/repos/foo/bar/issues/123/comments", json={"body": "hi!"}
-    )()
+        "GET", "/repos/foo/bar/issues/123/comments", json=existing_comments
+    )
+    session.register("POST", "/repos/foo/bar/issues/123/comments", json={"body": "hi!"})
 
     github.post_comment(
         github=gh,
@@ -345,10 +364,13 @@ def test_post_comment__create(gh, session, get_logs, existing_comments):
 
 
 def test_post_comment__create_error(gh, session):
-    session.register("GET", "/repos/foo/bar/issues/123/comments")(json=[])
+    session.register("GET", "/repos/foo/bar/issues/123/comments", json=[])
     session.register(
-        "POST", "/repos/foo/bar/issues/123/comments", json={"body": "hi!"}
-    )(status_code=403)
+        "POST",
+        "/repos/foo/bar/issues/123/comments",
+        json={"body": "hi!"},
+        status_code=403,
+    )
 
     with pytest.raises(github.CannotPostComment):
         github.post_comment(
@@ -367,10 +389,10 @@ def test_post_comment__update(gh, session, get_logs):
         "body": "Hey! Hi! How are you? marker",
         "id": 456,
     }
-    session.register("GET", "/repos/foo/bar/issues/123/comments")(json=[comment])
+    session.register("GET", "/repos/foo/bar/issues/123/comments", json=[comment])
     session.register(
         "PATCH", "/repos/foo/bar/issues/comments/456", json={"body": "hi!"}
-    )()
+    )
 
     github.post_comment(
         github=gh,
@@ -390,10 +412,13 @@ def test_post_comment__update_error(gh, session):
         "body": "Hey! Hi! How are you? marker",
         "id": 456,
     }
-    session.register("GET", "/repos/foo/bar/issues/123/comments")(json=[comment])
+    session.register("GET", "/repos/foo/bar/issues/123/comments", json=[comment])
     session.register(
-        "PATCH", "/repos/foo/bar/issues/comments/456", json={"body": "hi!"}
-    )(status_code=403)
+        "PATCH",
+        "/repos/foo/bar/issues/comments/456",
+        json={"body": "hi!"},
+        status_code=403,
+    )
 
     with pytest.raises(github.CannotPostComment):
         github.post_comment(
@@ -472,7 +497,8 @@ def test_get_pr_diff(gh, session):
         "GET",
         "/repos/foo/bar/pulls/123",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(text="diff --git a/foo.py b/foo.py...")
+        text="diff --git a/foo.py b/foo.py...",
+    )
 
     result = github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
 
@@ -484,7 +510,8 @@ def test_get_branch_diff(gh, session):
         "GET",
         "/repos/foo/bar/compare/main...feature",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(text="diff --git a/foo.py b/foo.py...")
+        text="diff --git a/foo.py b/foo.py...",
+    )
 
     result = github.get_branch_diff(
         github=gh, repository="foo/bar", base_branch="main", head_branch="feature"
@@ -504,7 +531,9 @@ def test_get_pr_diff__too_large(gh, session):
         "GET",
         "/repos/foo/bar/pulls/123",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(json=error_response, status_code=406)
+        json=error_response,
+        status_code=406,
+    )
 
     with pytest.raises(github.CannotGetDiff) as exc_info:
         github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
@@ -524,7 +553,9 @@ def test_get_branch_diff__too_large(gh, session):
         "GET",
         "/repos/foo/bar/compare/main...feature",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(json=error_response, status_code=406)
+        json=error_response,
+        status_code=406,
+    )
 
     with pytest.raises(github.CannotGetDiff) as exc_info:
         github.get_branch_diff(
@@ -541,7 +572,9 @@ def test_get_pr_diff__other_error(gh, session):
         "GET",
         "/repos/foo/bar/pulls/123",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(json=error_response, status_code=500)
+        json=error_response,
+        status_code=500,
+    )
 
     with pytest.raises(github_client.ApiError):
         github.get_pr_diff(github=gh, repository="foo/bar", pr_number=123)
@@ -553,7 +586,9 @@ def test_get_branch_diff__other_error(gh, session):
         "GET",
         "/repos/foo/bar/compare/main...feature",
         headers={"Accept": "application/vnd.github.v3.diff"},
-    )(json=error_response, status_code=500)
+        json=error_response,
+        status_code=500,
+    )
 
     with pytest.raises(github_client.ApiError):
         github.get_branch_diff(

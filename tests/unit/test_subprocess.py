@@ -25,79 +25,52 @@ def test_run__error():
         subprocess.run("false", path=pathlib.Path("."))
 
 
-@pytest.fixture
-def environ(mocker):
-    return mocker.patch("os.environ", {})
-
-
-def test_git(mocker, environ):
-    run = mocker.patch("coverage_comment.subprocess.run")
+def test_git(fake_process, monkeypatch):
     git = subprocess.Git()
     git.cwd = pathlib.Path("/tmp")
-    environ["A"] = "B"
+    monkeypatch.setenv("A", "B")
 
-    git.clone("https://some_address.git", "--depth", "1", text=True)
-    git.add("some_file")
-    git.fetch("origin", token="secret")
-    basicauth = base64.b64encode(b"x-access-token:secret").decode()
-
-    run.assert_has_calls(
-        [
-            mocker.call(
-                "git",
-                "clone",
-                "https://some_address.git",
-                "--depth",
-                "1",
-                path=pathlib.Path("/tmp"),
-                text=True,
-                env=mocker.ANY,
-            ),
-            mocker.call(
-                "git",
-                "add",
-                "some_file",
-                path=pathlib.Path("/tmp"),
-                env=mocker.ANY,
-            ),
-            mocker.call(
-                "git",
-                "--config-env=http.extraheader=GIT_EXTRA_HEADER",
-                "fetch",
-                "origin",
-                path=pathlib.Path("/tmp"),
-                env=mocker.ANY,
-            ),
-        ]
+    clone_recorder = fake_process.register(
+        ["git", "clone", "https://some_address.git", "--depth", "1"]
     )
 
-    assert run.call_args_list[0].kwargs["env"]["A"] == "B"
+    add_recorder = fake_process.register(["git", "add", "some_file"])
 
+    fetch_recorder = fake_process.register(
+        ["git", "--config-env=http.extraheader=GIT_EXTRA_HEADER", "fetch", "origin"],
+    )
+    basicauth = base64.b64encode(b"x-access-token:secret").decode()
     header = f"Authorization: basic {basicauth}"
-    assert run.call_args_list[2].kwargs["env"]["GIT_EXTRA_HEADER"] == header
+
+    git.clone("https://some_address.git", "--depth", "1")
+    git.add("some_file")
+    git.fetch("origin", token="secret")
+
+    assert clone_recorder.calls[0].kwargs["cwd"] == pathlib.Path("/tmp")
+    assert clone_recorder.calls[0].kwargs["env"]["A"] == "B"
+    assert add_recorder.calls[0].kwargs["cwd"] == pathlib.Path("/tmp")
+    assert fetch_recorder.calls[0].kwargs["env"]["GIT_EXTRA_HEADER"] == header
 
 
-def test_git_env(mocker, environ):
-    run = mocker.patch("coverage_comment.subprocess.run")
+def test_git_env(fake_process, monkeypatch):
     git = subprocess.Git()
 
-    environ.update({"A": "B", "C": "D"})
+    monkeypatch.setenv("A", "B")
+    monkeypatch.setenv("C", "D")
 
+    commit_recorder = fake_process.register(["git", "commit"])
     git.commit(env={"C": "E", "F": "G"})
 
-    _, _kwargs = run.call_args_list[0]
-
-    env = run.call_args_list[0].kwargs["env"]
+    env = commit_recorder.calls[0].kwargs["env"]
     assert env["A"] == "B"
     assert env["C"] == "E"
     assert env["F"] == "G"
 
 
-def test_git__error(mocker):
-    mocker.patch(
-        "coverage_comment.subprocess.run", side_effect=subprocess.SubProcessError
-    )
+def test_git__error(fake_process):
     git = subprocess.Git()
+
+    fake_process.register(["git", "add", "some_file"], returncode=1)
 
     with pytest.raises(subprocess.GitError):
         git.add("some_file")

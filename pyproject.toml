@@ -5,12 +5,7 @@ description = "Publish diff coverage report as PR comment, and create a coverage
 authors = [{ name = "Joachim Jablon", email = "ewjoachim@gmail.com" }]
 requires-python = ">=3.14"
 license = { file = "LICENSE" }
-dependencies = [
-    "coverage[toml]",
-    "httpx[http2]",
-    "Jinja2",
-    "prek>=0.4.5",
-]
+dependencies = ["coverage[toml]", "httpx[http2]", "Jinja2", "prek>=0.4.5"]
 
 [project.scripts]
 coverage_comment = "coverage_comment.main:main"
@@ -25,10 +20,11 @@ dev = [
     "mypy",
     "pytest",
     "pytest-cov",
-    "pytest-mock",
     "tenacity",
     "basedpyright",
-    "zizmor>=1.26.1",
+    "zizmor",
+    "pytest-subprocess",
+    "pytest-httpx",
 ]
 
 [tool.hatch.build.targets.sdist]
