@@ -21,9 +21,9 @@
 | coverage\_comment/main.py           |      151 |        0 |       24 |        0 |     100% |           |
 | coverage\_comment/settings.py       |      141 |        0 |       16 |        0 |     100% |           |
 | coverage\_comment/storage.py        |       77 |        0 |       12 |        0 |     100% |           |
-| coverage\_comment/subprocess.py     |       26 |        0 |        0 |        0 |     100% |           |
+| coverage\_comment/subprocess.py     |       33 |        0 |        2 |        0 |     100% |           |
 | coverage\_comment/template.py       |      126 |        0 |       28 |        0 |     100% |           |
-| **TOTAL**                           | **1079** |    **0** |  **174** |    **0** | **100%** |           |
+| **TOTAL**                           | **1086** |    **0** |  **176** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
