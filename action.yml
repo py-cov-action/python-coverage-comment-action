@@ -6,6 +6,13 @@ description: >
   Publish diff coverage report as PR comment, and create a coverage badge
   to display on the readme.
 inputs:
+  ACTIVITY:
+    description: >
+      Use this setting to override the auto-selection of the proper activity
+      ("process_pr", "post_comment", "save_coverage_data_files").
+      By default, a heuristic based on the event that triggers the worflow will
+      auto-select the proper activity
+    required: false
   GITHUB_BASE_URL:
     description: >
       The base URL for the GitHub API, typically used to specify custom endpoints
@@ -168,6 +175,7 @@ runs:
   using: docker
   image: Dockerfile
   env:
+    ACTIVITY: ${{ inputs.ACTIVITY }}
     GITHUB_BASE_URL: ${{ inputs.GITHUB_BASE_URL }}
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     GITHUB_PR_RUN_ID: ${{ inputs.GITHUB_PR_RUN_ID }}
