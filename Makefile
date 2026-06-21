@@ -1,11 +1,11 @@
 .PHONY: install
 install: ## install dependencies
 	uv sync --all-groups
-	pre-commit install
+	prek install
 
 .PHONY: lint
 lint: ## lint code
-	pre-commit
+	prek
 
 .PHONY: test
 test: ## run all tests

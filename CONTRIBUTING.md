@@ -7,7 +7,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 - Python3.14
 - Use [uv](https://docs.astral.sh/uv/)
 - Launch tests with `pytest`, config is in setup.cfg
-- `ruff` runs through `pre-commit`, so you can install hooks with `pre-commit install`.
+- All linters and formatters are configured to run through `prek`.
 - `docker`. Classic stuff.
 
 ### Launching locally
@@ -68,6 +68,12 @@ To run the end-to-end tests, you'll need:
 - Please be aware that the tests will launch `gh auth setup-git` which might be
   surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
   seems not to be enough to isolate tests.)
+
+### Linting and formatting
+
+You can install pre-commit hooks with `prek install`. They're installed in the dev
+environment, and you may run those directly via `uv run`. The `.pre-commit-config.yaml`
+file is the source of truth for how they should run.
 
 ## Coverage labs
 
