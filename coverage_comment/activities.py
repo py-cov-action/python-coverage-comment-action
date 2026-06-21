@@ -25,12 +25,6 @@ class ActivityConfigError(Exception):
     pass
 
 
-def validate_activity(activity: str) -> Activity:
-    if activity not in [a.value for a in Activity]:
-        raise ActivityConfigError(f"Invalid activity: {activity}")
-    return Activity(activity)
-
-
 def find_activity(
     event_name: str,
     is_default_branch: bool,

@@ -10,7 +10,7 @@ from typing import Any
 
 from coverage_comment import log
 
-from . import json
+from . import activities, json
 
 
 class MissingEnvironmentVariable(Exception):
@@ -67,7 +67,7 @@ class Config:
     ANNOTATION_TYPE: str = "warning"
     MAX_FILES_IN_COMMENT: int = 25
     USE_GH_PAGES_HTML_URL: bool = False
-    ACTIVITY: str | None = None
+    ACTIVITY: activities.Activity | None = None
     VERBOSE: bool = False
     # Only for debugging, not exposed in the action:
     FORCE_WORKFLOW_RUN: bool = False
@@ -132,6 +132,10 @@ class Config:
     @classmethod
     def clean_github_event_path(cls, value: str) -> pathlib.Path:
         return pathlib.Path(value)
+
+    @classmethod
+    def clean_activity(cls, activity: str) -> activities.Activity:
+        return activities.Activity(activity)
 
     @property
     def GITHUB_PR_NUMBER(self) -> int | None:

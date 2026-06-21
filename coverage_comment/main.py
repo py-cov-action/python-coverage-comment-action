@@ -39,9 +39,8 @@ def action(
         github=gh, repository=config.GITHUB_REPOSITORY
     )
     try:
-        if config.ACTIVITY:
-            activity = activity_module.validate_activity(config.ACTIVITY)
-        else:
+        activity = config.ACTIVITY
+        if not activity:
             activity = activity_module.find_activity(
                 event_name=event_name,
                 is_default_branch=repo_info.is_default_branch(ref=config.GITHUB_REF),
