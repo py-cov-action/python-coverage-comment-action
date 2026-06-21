@@ -1,9 +1,11 @@
 name: Delete end-to-end test repos on PR close
 
-on:
+on: # zizmor: ignore[dangerous-triggers] We're using pull_request_target to cleanup repos. We're not checking out code from the PR, and the only input we use is guaranteed to be a number.
   pull_request_target:
     types:
       - closed
+
+permissions: {}
 
 jobs:
   test:

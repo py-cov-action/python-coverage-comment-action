@@ -26,7 +26,7 @@ GIT_COMMIT_MESSAGE = "ci: Update coverage data"
 
 
 @contextlib.contextmanager
-def checked_out_branch(git: subprocess.Git, branch: str):
+def checked_out_branch(git: subprocess.Git, branch: str, token: str):
     # If we're not on a branch, `git branch --show-current` will print nothing
     # and still exit with 0.
     current_checkout = git.branch("--show-current").strip()
@@ -41,12 +41,12 @@ def checked_out_branch(git: subprocess.Git, branch: str):
     git.reset("--hard")
 
     try:
-        git.fetch("origin", branch)
+        git.fetch("origin", branch, token=token)
     except subprocess.SubProcessError:
         # Branch seems to no exist, OR fetch failed for a different reason.
         # Let's make sure:
         # 1/ Fetch again, but this time all the remote
-        git.fetch("origin")
+        git.fetch("origin", token=token)
         # 2/ And check that our branch really doesn't exist
         try:
             git.rev_parse("--verify", f"origin/{branch}")
@@ -72,9 +72,7 @@ def checked_out_branch(git: subprocess.Git, branch: str):
 
 
 def commit_operations(
-    operations: list[files.Operation],
-    git: subprocess.Git,
-    branch: str,
+    operations: list[files.Operation], git: subprocess.Git, branch: str, token: str
 ):
     """
     Store the given files.
@@ -88,7 +86,7 @@ def commit_operations(
     branch : str
         branch on which to store the files
     """
-    with checked_out_branch(git=git, branch=branch):
+    with checked_out_branch(git=git, branch=branch, token=token):
         for op in operations:
             op.apply()
             git.add(str(op.path))
@@ -107,7 +105,7 @@ def commit_operations(
             GIT_COMMIT_MESSAGE,
             env=COMMIT_ENVIRONMENT,
         )
-        git.push("origin", branch)
+        git.push("origin", branch, token=token)
 
         log.info("Files saved")
 

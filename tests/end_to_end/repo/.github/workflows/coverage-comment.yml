@@ -1,10 +1,12 @@
 name: Post coverage comment
 
-on:
+on: # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a coverage comment on external PRs. This is safe because we don't checkout the external code. The only attack vector here would be via the coverage comment.
   workflow_run:
     workflows: ["CI"]
     types:
       - completed
+
+permissions: {}
 
 jobs:
   test:
@@ -17,7 +19,7 @@ jobs:
       contents: write
     steps:
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@__ACTION_REF__
+        uses: py-cov-action/python-coverage-comment-action@__ACTION_REF__ # zizmor: ignore[unpinned-uses]
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}

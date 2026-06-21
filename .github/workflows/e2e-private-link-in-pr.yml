@@ -4,6 +4,8 @@ on:
   issue_comment:
     types: [created]
 
+permissions: {}
+
 jobs:
   invite:
     name: Invite everyone to the e2e private repo
@@ -27,7 +29,6 @@ jobs:
             ENABLED: ${{ !contains(fromJson('["kieferro", "ewjoachim"]'), github.event.issue.user.login) }}
 
     steps:
-
       - name: Invite @${{ matrix.collaborator.LOGIN }} to the e2e private repo
         run: gh api --method PUT /repos/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private/collaborators/${LOGIN} -f permission=${PERMISSION}
         if: ${{ matrix.collaborator.ENABLED == true }}

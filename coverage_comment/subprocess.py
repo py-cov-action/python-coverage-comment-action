@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import functools
 import os
 import pathlib
@@ -53,7 +54,13 @@ class Git:
 
     cwd: pathlib.Path = pathlib.Path(".")
 
-    def _git(self, *args: str, env: dict[str, str] | None = None, **kwargs: Any) -> str:
+    def __call__(
+        self,
+        *args: str,
+        env: dict[str, str] | None = None,
+        token: str | None = None,
+        **kwargs: Any,
+    ) -> str:
         # When setting the `env` argument to run, instead of inheriting env
         # vars from the current process, the whole environment of the
         # subprocess is whatever we pass. In other words, we can either
@@ -61,16 +68,23 @@ class Git:
         # or we can always pass an `env` parameter, but in this case, we
         # need to always merge `os.environ` to it (and ensure our variables
         # have precedence)
+        token_args = []
+        token_env = {}
+        if token is not None:
+            token_args = ["--config-env=http.extraheader=GIT_EXTRA_HEADER"]
+            encoded = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+            token_env = {"GIT_EXTRA_HEADER": f"Authorization: basic {encoded}"}
         try:
             return run(
                 "git",
+                *token_args,
                 *args,
                 path=self.cwd,
-                env=os.environ | (env or {}),
+                env=os.environ | (env or {}) | token_env,
                 **kwargs,
             )
         except SubProcessError as exc:
             raise GitError from exc
 
     def __getattr__(self, name: str) -> Any:
-        return functools.partial(self._git, name.replace("_", "-"))
+        return functools.partial(self, name.replace("_", "-"))

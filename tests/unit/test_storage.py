@@ -10,10 +10,10 @@ from coverage_comment import files, storage, subprocess
 def test_checked_out_branch(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")()
+    git.register("git fetch origin foo", token="secret")()
     git.register("git switch foo")()
 
-    with storage.checked_out_branch(git=git, branch="foo"):
+    with storage.checked_out_branch(git=git, branch="foo", token="secret"):
         git.register("git switch bar")()
 
 
@@ -21,34 +21,34 @@ def test_checked_out_branch__detached_head(git):
     git.register("git branch --show-current")(stdout="")
     git.register("git rev-parse --short HEAD")(stdout="123abc")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")()
+    git.register("git fetch origin foo", token="secret")()
     git.register("git switch foo")()
 
-    with storage.checked_out_branch(git=git, branch="foo"):
+    with storage.checked_out_branch(git=git, branch="foo", token="secret"):
         git.register("git switch --detach 123abc")()
 
 
 def test_checked_out_branch__branch_does_not_exist(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")(exit_code=1)
-    git.register("git fetch origin")()
+    git.register("git fetch origin foo", token="secret")(exit_code=1)
+    git.register("git fetch origin", token="secret")()
     git.register("git rev-parse --verify origin/foo")(exit_code=1)
     git.register("git switch --orphan foo")()
 
-    with storage.checked_out_branch(git=git, branch="foo"):
+    with storage.checked_out_branch(git=git, branch="foo", token="secret"):
         git.register("git switch bar")()
 
 
 def test_checked_out_branch__fetch_fails(git):
     git.register("git branch --show-current")(stdout="bar")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")(exit_code=1)
-    git.register("git fetch origin")()
+    git.register("git fetch origin foo", token="secret")(exit_code=1)
+    git.register("git fetch origin", token="secret")()
     git.register("git rev-parse --verify origin/foo")()
 
     with pytest.raises(subprocess.GitError):
-        with storage.checked_out_branch(git=git, branch="foo"):
+        with storage.checked_out_branch(git=git, branch="foo", token="secret"):
             pass
 
 
@@ -61,7 +61,7 @@ def test_commit_operations__no_diff(git, in_tmp_path):
     # checked_out_branch
     git.register("git branch --show-current")(stdout="bar")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")()
+    git.register("git fetch origin foo", token="secret")()
     git.register("git switch foo")()
 
     # upload_files
@@ -76,6 +76,7 @@ def test_commit_operations__no_diff(git, in_tmp_path):
         operations=operations,
         git=git,
         branch="foo",
+        token="secret",
     )
 
     # But content has been written to disk
@@ -92,7 +93,7 @@ def test_commit_operations(git, in_tmp_path):
     # checked_out_branch
     git.register("git branch --show-current")(stdout="bar")
     git.register("git reset --hard")()
-    git.register("git fetch origin foo")()
+    git.register("git fetch origin foo", token="secret")()
     git.register("git switch foo")()
 
     # upload_files
@@ -112,7 +113,7 @@ def test_commit_operations(git, in_tmp_path):
             "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
         },
     )()
-    git.register("git push origin foo")()
+    git.register("git push origin foo", token="secret")()
 
     # __exit__ of checked_out_branch
     git.register("git switch bar")()
@@ -121,6 +122,7 @@ def test_commit_operations(git, in_tmp_path):
         operations=operations,
         git=git,
         branch="foo",
+        token="secret",
     )
 
     assert operations[0].path.read_text() == operations[0].contents

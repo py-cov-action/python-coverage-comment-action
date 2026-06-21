@@ -1,9 +1,11 @@
 name: Post link to public end-to-end test repository
 
-on:
+on: # zizmor: ignore[dangerous-triggers] We're using pull_request_target to post a static comment on PRs. We're not checking out anything. We don't interact with anything from the PR except html_url (provided by github) and pull_request.number (an integer). This is safe.
   pull_request_target:
     types:
       - opened
+
+permissions: {}
 
 jobs:
   test:

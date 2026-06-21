@@ -1,6 +1,6 @@
 name: Run end-to-end tests on external PR approval
 
-on:
+on: # zizmor: ignore[dangerous-triggers] We're using workflow_run to run end to end tests on external PRs, upon apporoval. It's true that it's a risk, that why we only do it when we a maintainer has approved the PR.
   workflow_run:
     workflows: ["Trigger end-to-end tests on external PR approval"]
     types:
@@ -8,6 +8,8 @@ on:
 
 concurrency:
   group: ${{ github.event_name }}-${{ github.ref }}
+
+permissions: {}
 
 jobs:
   e2e:
@@ -82,17 +84,18 @@ jobs:
           JOB_ID: ${{ steps.extract_job_id.outputs.JOB_ID }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # Important: use the commit that was reviewed. GitHub is making sure
           # that this is race-condition-proof
           ref: ${{ steps.extract_commit.outputs.COMMIT_ID }}
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
 
       - name: Poetry caches
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.cache/
