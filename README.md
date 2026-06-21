@@ -78,7 +78,7 @@ build out the the custom handling needed. For example:
 ```yaml
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
         with:
           GITHUB_TOKEN: ${{ github.token }}
           activity: "${{ github.event_name == 'push' && 'save_coverage_data_files' || 'process_pr' }}"
@@ -154,7 +154,7 @@ jobs:
       # existing comments when direct publication is allowed.
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@sha1  # vx.y.z
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
@@ -166,7 +166,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@sha1  # vx.y.z
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
@@ -243,7 +243,7 @@ jobs:
       # comments (to avoid publishing multiple comments in the same PR)
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@sha1  # vx.y.z
         with:
           # This is optional since by default it's to true. The git
           # operations in python-coverage-comment-action utilize the token
@@ -288,7 +288,7 @@ jobs:
       # comments (to avoid publishing multiple comments in the same PR)
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@sha1  # vx.y.z
         with:
           # This is optional since by default it's to true. The git
           # operations in python-coverage-comment-action utilize the token
@@ -335,7 +335,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@sha1  # vx.y.z
         with:
           # This is optional since by default it's to true. The git
           # operations in python-coverage-comment-action utilize the token
@@ -344,7 +344,7 @@ jobs:
 
       - name: Set up Python
         id: setup-python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@sha1  # vx.y.z
         with:
           python-version: ${{ matrix.python_version }}
 
@@ -358,7 +358,7 @@ jobs:
           # this prefix is not used.
 
       - name: Store coverage file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@sha1  # vx.y.z
         with:
           name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
@@ -377,14 +377,14 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@sha1  # vx.y.z
         with:
           # This is optional since by default it's to true. The git
           # operations in python-coverage-comment-action utilize the token
           # stored by actions/checkout.
           persist-credentials: true
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@sha1  # vx.y.z
         id: download
         with:
           pattern: coverage-*
@@ -398,7 +398,7 @@ jobs:
           MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@sha1  # vx.y.z
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -642,7 +642,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@sha1  # vx.y.z
 
       - name: Test project 1
         run: make -C project_1 test
@@ -667,7 +667,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@sha1  # vx.y.z
         if: steps.coverage_comment_1.outputs.COMMENT_FILE_WRITTEN == 'true' || steps.coverage_comment_2.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
