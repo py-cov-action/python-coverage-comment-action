@@ -7,7 +7,7 @@ from typing import Any
 
 import httpx
 
-from coverage_comment import activity as activity_module
+from coverage_comment import activities as activity_module
 from coverage_comment import (
     comment_file,
     communication,
