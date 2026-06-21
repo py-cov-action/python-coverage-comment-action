@@ -4,12 +4,13 @@ import dataclasses
 import decimal
 import functools
 import inspect
-import json
 import pathlib
 from collections.abc import MutableMapping
 from typing import Any
 
 from coverage_comment import log
+
+from . import json
 
 
 class MissingEnvironmentVariable(Exception):
@@ -149,7 +150,7 @@ class Config:
     def GITHUB_EVENT_PAYLOAD(self) -> dict[str, Any]:
         if not self.GITHUB_EVENT_PATH:
             return {}
-        return json.loads(self.GITHUB_EVENT_PATH.read_text())
+        return json.loads_dict(self.GITHUB_EVENT_PATH.read_text())
 
     @property
     def GITHUB_EVENT_TYPE(self) -> str | None:

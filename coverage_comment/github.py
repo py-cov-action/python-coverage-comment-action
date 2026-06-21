@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import io
-import json
 import pathlib
 import re
 import sys
@@ -12,6 +11,8 @@ from typing import Any
 from urllib.parse import urlparse
 
 from coverage_comment import github_client, log
+
+from . import json
 
 GITHUB_ACTIONS_LOGIN = "github-actions[bot]"
 
@@ -339,7 +340,7 @@ def _is_too_large_error(exc: github_client.ApiError) -> bool:
     The error response body is JSON from GitHub's API.
     """
     try:
-        error_data: dict[str, Any] = json.loads(str(exc))
+        error_data: dict[str, Any] = json.loads_dict(str(exc))
         errors: list[dict[str, Any]] = error_data.get("errors", [])
         return any(error.get("code") == "too_large" for error in errors)
     except (json.JSONDecodeError, TypeError):

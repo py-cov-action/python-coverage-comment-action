@@ -3,12 +3,13 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import decimal
-import json
 import pathlib
 from collections.abc import Sequence
 from typing import Any
 
-from coverage_comment import log, subprocess
+from coverage_comment import subprocess
+
+from . import json
 
 
 # The dataclasses in this module are accessible in the template, which is overridable by the user.
@@ -117,12 +118,12 @@ def get_coverage_info(
         if merge:
             subprocess.run("coverage", "combine", path=coverage_path)
 
-        json_coverage = json.loads(
+        json_coverage = json.loads_dict(
             subprocess.run("coverage", "json", "-o", "-", path=coverage_path)
         )
     except subprocess.SubProcessError as exc:
         if "No source for code:" in str(exc):
-            log.error(
+            exc.add_note(
                 "Cannot read .coverage files because files are absolute. You need "
                 "to configure coverage to write relative paths by adding the following "
                 "option to your coverage configuration file:\n"

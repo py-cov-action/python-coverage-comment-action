@@ -20,7 +20,7 @@ class GitError(SubProcessError):
 
 def run(*args: str, path: pathlib.Path, **kwargs: Any) -> str:
     try:
-        return subprocess.run(
+        call = subprocess.run(
             args,
             cwd=path,
             text=True,
@@ -29,12 +29,17 @@ def run(*args: str, path: pathlib.Path, **kwargs: Any) -> str:
             check=True,
             capture_output=True,
             **kwargs,
-        ).stdout
-    except subprocess.CalledProcessError as exc:
-        log.debug(
-            f"Command failed: {args=} {path=} {kwargs=} {exc.stderr=} {exc.returncode=}"
         )
-        raise SubProcessError("\n".join([exc.stderr, exc.stdout])) from exc
+    except subprocess.CalledProcessError as exc:
+        exc.add_note(
+            f"Error on command: {args=} {path=} {kwargs=} {exc.returncode=}\n{exc.stderr=}\n{exc.stdout=}"
+        )
+        raise SubProcessError("Error on calling subprocess.") from exc
+    else:
+        log.debug(
+            f"Ran command: {args=} {path=} {kwargs=} {call.stderr=} {call.stdout=} {call.returncode=}"
+        )
+    return call.stdout
 
 
 class Git:

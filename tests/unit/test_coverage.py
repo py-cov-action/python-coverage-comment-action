@@ -99,16 +99,16 @@ def test_get_coverage_info__error_base(mocker, get_logs):
     assert not get_logs("ERROR")
 
 
-def test_get_coverage_info__error_no_source(mocker, get_logs):
+def test_get_coverage_info__error_no_source(mocker):
     mocker.patch(
         "coverage_comment.subprocess.run",
         side_effect=subprocess.SubProcessError("No source for code: bla"),
     )
 
-    with pytest.raises(subprocess.SubProcessError):
+    with pytest.raises(subprocess.SubProcessError) as exc_info:
         coverage.get_coverage_info(merge=False, coverage_path=pathlib.Path("."))
 
-    assert get_logs("ERROR", "Cannot read")
+    assert "No source" in str(exc_info.value)
 
 
 def test_generate_coverage_html_files(mocker):

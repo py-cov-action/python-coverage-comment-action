@@ -6,10 +6,11 @@ by shields.io
 from __future__ import annotations
 
 import decimal
-import json
 import urllib.parse
 
 import httpx
+
+from . import json
 
 
 def get_badge_color(
