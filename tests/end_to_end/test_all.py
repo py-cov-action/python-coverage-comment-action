@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import urllib
 
 import pytest
 
@@ -48,32 +49,37 @@ def test_public_repo(
     # Then check the logs for this job
     logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
 
-    print("Logs:", logs)
-    log_lines = logs.splitlines()
+    expected_links_in_readme = [
+        # - html report
+        f"https://htmlpreview.github.io/?https://github.com/{repo_full_name}/blob/python-coverage-comment-action-data-my-great-project/htmlcov/index.html",
+        # - badge 1, 2 and 3
+        f"https://raw.githubusercontent.com/{repo_full_name}/python-coverage-comment-action-data-my-great-project/badge.svg",
+        f"https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/{repo_full_name}/python-coverage-comment-action-data-my-great-project/endpoint.json",
+        f"https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2F{urllib.parse.urlencode(repo_full_name)}%2Fpython-coverage-comment-action-data-my-great-project%2Fendpoint.json",
+        # - coverage branch readme url
+        f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project",
+    ]
 
-    # The easiest way to check the links is to assume there will be no other
-    # line with a link prefixed by 4 spaces. If at some point there is, we'll
-    # change the test.
-    links = {line.strip().split()[-1] for line in log_lines if "    https://" in line}
-    # - html report
-    # - badge 1, 2 and 3
-    # - coverage branch readme url
-    assert len(links) == 5
+    expected_links_in_logs = [
+        *expected_links_in_readme,
+        f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project",
+    ]
+
+    print("Logs:", logs)
+
+    for expected_link in expected_links_in_logs:
+        assert expected_link in logs
 
     # Check that all 5 links are valid and lead to a 200
     # It's made this way to avoid hardcoding links in the test, because I assume
     # they'll be evolving.
     number_of_svgs = 0
-    for link in links:
+    for link in expected_links_in_logs:
         response = http_client.get(link)
         response.raise_for_status()
         number_of_svgs += int(response.text.startswith("<svg"))
 
     assert number_of_svgs == 3
-
-    # Check that logs point to the branch that has the readme file.
-    data_branch_url = f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project"
-    assert data_branch_url in links
 
     # Time to check the Readme contents
     raw_url_prefix = f"https://github.com/{repo_full_name}/raw/python-coverage-comment-action-data-my-great-project"
@@ -83,8 +89,8 @@ def test_public_repo(
     response.raise_for_status()
     # And all previously found links should be present
     readme = response.text
-    for link in links - {data_branch_url}:
-        assert link in readme
+    for expected_link in expected_links_in_readme:
+        assert expected_link in readme
 
     # And while we're at it, there are 2 other files we want to check in this
     # branch. Once again, trying to avoid hardcoding too many specifics, that's what
