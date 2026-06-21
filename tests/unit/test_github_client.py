@@ -6,62 +6,80 @@ from coverage_comment import github_client
 
 
 def test_github_client__get(session, gh):
-    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
-        json={"foo": "bar"}
+    session.register(
+        "GET", "/repos/a/b/issues", match_params={"a": "1"}, json={"foo": "bar"}
     )
 
     assert gh.repos("a/b").issues().get(a=1) == {"foo": "bar"}
 
 
 def test_github_client__post(session, gh):
-    session.register("POST", "/repos/a/b/issues", timeout=60, json={"a": 1})(
-        json={"foo": "bar"}
+    session.register(
+        "POST",
+        "/repos/a/b/issues",
+        match_json={"a": 1},
+        json={"foo": "bar"},
     )
 
     assert gh.repos("a/b").issues().post(a=1) == {"foo": "bar"}
 
 
 def test_github_client__put(session, gh):
-    session.register("PUT", "/repos/a/b/issues", timeout=60, json={"a": 1})(
-        json={"foo": "bar"}
+    session.register(
+        "PUT", "/repos/a/b/issues", match_json={"a": 1}, json={"foo": "bar"}
     )
 
     assert gh.repos("a/b").issues().put(a=1) == {"foo": "bar"}
 
 
 def test_github_client__patch(session, gh):
-    session.register("PATCH", "/repos/a/b/issues", timeout=60, json={"a": 1})(
-        json={"foo": "bar"}
+    session.register(
+        "PATCH",
+        "/repos/a/b/issues",
+        match_json={"a": 1},
+        json={"foo": "bar"},
     )
 
     assert gh.repos("a/b").issues().patch(a=1) == {"foo": "bar"}
 
 
 def test_github_client__delete(session, gh):
-    session.register("DELETE", "/repos/a/b/issues", timeout=60)(json={"foo": "bar"})
+    session.register("DELETE", "/repos/a/b/issues", json={"foo": "bar"})
 
     assert gh.repos("a/b").issues().delete() == {"foo": "bar"}
 
 
 def test_github_client__get_text(session, gh):
-    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
-        text="foobar", headers={"content-type": "application/vnd.github.raw+json"}
+    session.register(
+        "GET",
+        "/repos/a/b/issues",
+        match_params={"a": "1"},
+        text="foobar",
+        headers={"content-type": "application/vnd.github.raw+json"},
     )
 
     assert gh.repos("a/b").issues().get(a=1, text=True) == "foobar"
 
 
 def test_github_client__get_bytes(session, gh):
-    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
-        text="foobar", headers={"content-type": "application/vnd.github.raw+json"}
+    session.register(
+        "GET",
+        "/repos/a/b/issues",
+        match_params={"a": "1"},
+        text="foobar",
+        headers={"content-type": "application/vnd.github.raw+json"},
     )
 
     assert gh.repos("a/b").issues().get(a=1, bytes=True) == b"foobar"
 
 
 def test_github_client__incorrect(session, gh):
-    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
-        text="foobar", headers={"content-type": "text/plain"}
+    session.register(
+        "GET",
+        "/repos/a/b/issues",
+        match_params={"a": "1"},
+        text="foobar",
+        headers={"content-type": "text/plain"},
     )
 
     with pytest.raises(github_client.InvalidResponseType):
@@ -69,7 +87,10 @@ def test_github_client__incorrect(session, gh):
 
 
 def test_github_client__get_headers(session, gh):
-    session.register("GET", "/repos/a/b/issues", timeout=60, params={"a": 1})(
+    session.register(
+        "GET",
+        "/repos/a/b/issues",
+        match_params={"a": "1"},
         json={"foo": "bar"},
         headers={"X-foo": "yay"},
     )
@@ -78,7 +99,7 @@ def test_github_client__get_headers(session, gh):
 
 
 def test_github_client__post_non_json(session, gh):
-    session.register("POST", "/repos/a/b/issues", timeout=60, json={"a": 1})()
+    session.register("POST", "/repos/a/b/issues", json={"a": 1})
 
     gh.repos("a/b").issues().post(a=1)
 
@@ -97,7 +118,9 @@ def test_json_object__error():
 
 
 def test_github_client__get_error(session, gh):
-    session.register("GET", "/repos")(
+    session.register(
+        "GET",
+        "/repos",
         json={"foo": "bar"},
         status_code=404,
     )
@@ -109,7 +132,9 @@ def test_github_client__get_error(session, gh):
 
 
 def test_github_client__get_error_non_json(session, gh):
-    session.register("GET", "/repos")(
+    session.register(
+        "GET",
+        "/repos",
         text="{foobar",
         headers={"content-type": "text/plain"},
         status_code=404,

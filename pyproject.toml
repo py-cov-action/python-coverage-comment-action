@@ -30,6 +30,7 @@ dev = [
     "basedpyright",
     "zizmor>=1.26.1",
     "pytest-subprocess>=1.6.0",
+    "pytest-httpx>=0.36.2",
 ]
 
 [tool.hatch.build.targets.sdist]

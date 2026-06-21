@@ -146,11 +146,10 @@ def get_coverage_html_files(
     *,
     coverage_path: pathlib.Path,
     gen_dir: pathlib.Path | None = None,
+    _generate_coverage_html_files: Any = coverage.generate_coverage_html_files,
 ) -> ReplaceDir:
     html_dir = pathlib.Path(tempfile.mkdtemp(dir=gen_dir))
-    coverage.generate_coverage_html_files(
-        destination=html_dir, coverage_path=coverage_path
-    )
+    _generate_coverage_html_files(destination=html_dir, coverage_path=coverage_path)
     dest = pathlib.Path("htmlcov")
     # Coverage may or may not create a .gitignore.
     (html_dir / ".gitignore").unlink(missing_ok=True)

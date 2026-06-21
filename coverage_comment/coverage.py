@@ -122,7 +122,7 @@ def get_coverage_info(
             subprocess.run("coverage", "json", "-o", "-", path=coverage_path)
         )
     except subprocess.SubProcessError as exc:
-        if "No source for code:" in str(exc):
+        if "No source for code:" in exc.stderr:
             exc.add_note(
                 "Cannot read .coverage files because files are absolute. You need "
                 "to configure coverage to write relative paths by adding the following "

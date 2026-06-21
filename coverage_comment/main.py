@@ -3,7 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 import os
-import sys
+from typing import Any
 
 import httpx
 
@@ -23,46 +23,6 @@ from coverage_comment import (
     template,
 )
 from coverage_comment import coverage as coverage_module
-
-
-def main():
-    config = None
-    try:
-        logging.basicConfig(level="DEBUG")
-        logging.getLogger().handlers[0].formatter = log_utils.GitHubFormatter()
-
-        log.info("Starting action")
-        config = settings.Config.from_environ(environ=os.environ)
-
-        git = subprocess.Git()
-
-        with (
-            httpx.Client(
-                base_url=config.GITHUB_BASE_URL,
-                follow_redirects=True,
-                headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
-            ) as github_session,
-            httpx.Client() as http_session,
-        ):
-            exit_code = action(
-                config=config,
-                github_session=github_session,
-                http_session=http_session,
-                git=git,
-            )
-
-        log.info("Ending action")
-        sys.exit(exit_code)
-
-    except Exception:
-        log.exception(
-            "Critical error. Please look at the error details and check the user manual at "
-            "https://github.com/py-cov-action/python-coverage-comment-action\n"
-            "If you believe this is a bug in the action, please consult open issues or "
-            "open a new one at https://github.com/py-cov-action/python-coverage-comment-action/issues .\n"
-            f"Full config: {config}"
-        )
-        sys.exit(1)
 
 
 def action(
@@ -476,3 +436,43 @@ def save_coverage_data_files(
     )
 
     return 0
+
+
+def main(_action: Any = action):
+    config = None
+    try:
+        logging.basicConfig(level="DEBUG")
+        logging.getLogger().handlers[0].formatter = log_utils.GitHubFormatter()
+
+        log.info("Starting action")
+        config = settings.Config.from_environ(environ=os.environ)
+
+        git = subprocess.Git()
+
+        with (
+            httpx.Client(
+                base_url=config.GITHUB_BASE_URL,
+                follow_redirects=True,
+                headers={"Authorization": f"token {config.GITHUB_TOKEN}"},
+            ) as github_session,
+            httpx.Client() as http_session,
+        ):
+            exit_code = _action(
+                config=config,
+                github_session=github_session,
+                http_session=http_session,
+                git=git,
+            )
+
+        log.info("Ending action")
+        raise SystemExit(exit_code)
+
+    except Exception as exc:
+        log.exception(
+            "Critical error. Please look at the error details and check the user manual at "
+            "https://github.com/py-cov-action/python-coverage-comment-action\n"
+            "If you believe this is a bug in the action, please consult open issues or "
+            "open a new one at https://github.com/py-cov-action/python-coverage-comment-action/issues .\n"
+            f"Full config: {config}"
+        )
+        raise SystemExit(1) from exc

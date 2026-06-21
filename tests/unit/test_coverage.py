@@ -57,41 +57,31 @@ def test_compute_coverage_with_branches(
     ) == decimal.Decimal(expected_coverage)
 
 
-def test_get_coverage_info(mocker, coverage_json, coverage_obj):
-    run = mocker.patch(
-        "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
+def test_get_coverage_info(fake_process, coverage_json, coverage_obj):
+    fake_process.register(["coverage", "combine"])
+    fake_process.register(
+        ["coverage", "json", "-o", "-"],
+        stdout=json.dumps(coverage_json),
     )
 
     raw_coverage_information, result = coverage.get_coverage_info(
         merge=True, coverage_path=pathlib.Path(".")
     )
 
-    assert run.call_args_list == [
-        mocker.call("coverage", "combine", path=pathlib.Path(".")),
-        mocker.call("coverage", "json", "-o", "-", path=pathlib.Path(".")),
-    ]
-
     assert result == coverage_obj
     assert raw_coverage_information == coverage_json
 
 
-def test_get_coverage_info__no_merge(mocker, coverage_json):
-    run = mocker.patch(
-        "coverage_comment.subprocess.run", return_value=json.dumps(coverage_json)
+def test_get_coverage_info__no_merge(fake_process, coverage_json):
+    fake_process.register(
+        ["coverage", "json", "-o", "-"], stdout=json.dumps(coverage_json)
     )
 
     coverage.get_coverage_info(merge=False, coverage_path=pathlib.Path("."))
 
-    assert (
-        mocker.call("coverage", "combine", path=pathlib.Path("."))
-        not in run.call_args_list
-    )
 
-
-def test_get_coverage_info__error_base(mocker, get_logs):
-    mocker.patch(
-        "coverage_comment.subprocess.run", side_effect=subprocess.SubProcessError
-    )
+def test_get_coverage_info__error_base(fake_process, get_logs):
+    fake_process.register(["coverage", "json", "-o", "-"], returncode=1)
 
     with pytest.raises(subprocess.SubProcessError):
         coverage.get_coverage_info(merge=False, coverage_path=pathlib.Path("."))
@@ -99,10 +89,9 @@ def test_get_coverage_info__error_base(mocker, get_logs):
     assert not get_logs("ERROR")
 
 
-def test_get_coverage_info__error_no_source(mocker):
-    mocker.patch(
-        "coverage_comment.subprocess.run",
-        side_effect=subprocess.SubProcessError("No source for code: bla"),
+def test_get_coverage_info__error_no_source(fake_process, get_logs):
+    fake_process.register(
+        ["coverage", "json", "-o", "-"], returncode=1, stderr="No source for code: bla"
     )
 
     with pytest.raises(subprocess.SubProcessError) as exc_info:
@@ -110,42 +99,27 @@ def test_get_coverage_info__error_no_source(mocker):
 
     assert "No source" in str(exc_info.value)
 
+    assert "Cannot read .coverage files because files are absolute" in str(
+        exc_info.value.__notes__[1]
+    )
 
-def test_generate_coverage_html_files(mocker):
-    run = mocker.patch(
-        "coverage_comment.subprocess.run",
+
+def test_generate_coverage_html_files(fake_process):
+    fake_process.register(
+        ["coverage", "html", "--skip-empty", "--directory", "/tmp/foo"],
     )
 
     coverage.generate_coverage_html_files(
         destination=pathlib.Path("/tmp/foo"), coverage_path=pathlib.Path(".")
     )
 
-    assert run.call_args_list == [
-        mocker.call(
-            "coverage",
-            "html",
-            "--skip-empty",
-            "--directory",
-            "/tmp/foo",
-            path=pathlib.Path("."),
-        ),
-    ]
 
-
-def test_generate_coverage_markdown(mocker):
-    run = mocker.patch("coverage_comment.subprocess.run", return_value="foo")
+def test_generate_coverage_markdown(fake_process):
+    fake_process.register(
+        ["coverage", "report", "--format=markdown", "--show-missing"], stdout="foo"
+    )
 
     result = coverage.generate_coverage_markdown(coverage_path=pathlib.Path("."))
-
-    assert run.call_args_list == [
-        mocker.call(
-            "coverage",
-            "report",
-            "--format=markdown",
-            "--show-missing",
-            path=pathlib.Path("."),
-        ),
-    ]
 
     assert result == "foo"
 
@@ -352,8 +326,8 @@ similarity index 100%
 rename from coverage_comment/annotations.py
 rename to coverage_comment/annotations2.py
 """
-    git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
+    git.register("fetch origin main --depth=1000")
+    git.register("diff --unified=0 FETCH_HEAD...HEAD", stdout=diff)
     assert coverage.get_added_lines(diff=diff) == {
         pathlib.Path("README.md"): [1, 3, 4, 5, 6],
         pathlib.Path("foo.txt"): [1],
@@ -367,7 +341,7 @@ def test_get_added_lines__error(git):
 diff --git a/README.md b/README.md
 index 1f1d9a4..e69de29 100644
 """
-    git.register("git fetch origin main --depth=1000")()
-    git.register("git diff --unified=0 FETCH_HEAD...HEAD")(stdout=diff)
+    git.register("fetch origin main --depth=1000")
+    git.register("diff --unified=0 FETCH_HEAD...HEAD", stdout=diff)
     with pytest.raises(ValueError):
         coverage.get_added_lines(diff=diff)

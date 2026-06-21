@@ -5,13 +5,37 @@ import functools
 import os
 import pathlib
 import subprocess
-from typing import Any
+from typing import Any, Self
 
 from coverage_comment import log
 
 
 class SubProcessError(Exception):
-    pass
+    def __init__(
+        self,
+        args: list[str],
+        returncode: int,
+        stderr: str,
+        stdout: str,
+        exc: subprocess.CalledProcessError,
+    ):
+        self.exc_args: list[str] = args
+        self.returncode: int = returncode
+        self.stderr: str = stderr
+        self.stdout: str = stdout
+        self.exc: subprocess.CalledProcessError = exc
+        message = f"Error on command: {args=} {returncode=}\n{stderr=}\n{stdout=}"
+        super().__init__(message)
+
+    @classmethod
+    def from_called_process_error(cls, exc: subprocess.CalledProcessError) -> Self:
+        return cls(
+            args=exc.cmd,
+            returncode=exc.returncode,
+            stderr=exc.stderr,
+            stdout=exc.stdout,
+            exc=exc,
+        )
 
 
 class GitError(SubProcessError):
@@ -31,10 +55,9 @@ def run(*args: str, path: pathlib.Path, **kwargs: Any) -> str:
             **kwargs,
         )
     except subprocess.CalledProcessError as exc:
-        exc.add_note(
-            f"Error on command: {args=} {path=} {kwargs=} {exc.returncode=}\n{exc.stderr=}\n{exc.stdout=}"
-        )
-        raise SubProcessError("Error on calling subprocess.") from exc
+        new_exc = SubProcessError.from_called_process_error(exc)
+        new_exc.add_note(f"Launched from {path=} with {kwargs=}")
+        raise new_exc from exc
     else:
         log.debug(
             f"Ran command: {args=} {path=} {kwargs=} {call.stderr=} {call.stdout=} {call.returncode=}"
@@ -89,7 +112,7 @@ class Git:
                 **kwargs,
             )
         except SubProcessError as exc:
-            raise GitError from exc
+            raise GitError.from_called_process_error(exc.exc) from exc
 
     def __getattr__(self, name: str) -> Any:
         return functools.partial(self, name.replace("_", "-"))
