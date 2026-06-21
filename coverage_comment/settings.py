@@ -134,7 +134,9 @@ class Config:
         return pathlib.Path(value)
 
     @classmethod
-    def clean_activity(cls, activity: str) -> activities.Activity:
+    def clean_activity(cls, activity: str) -> activities.Activity | None:
+        if not activity:
+            return None
         return activities.Activity(activity)
 
     @property
