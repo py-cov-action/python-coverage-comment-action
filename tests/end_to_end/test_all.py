@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import base64
-import urllib
+import urllib.parse
 
 import pytest
 
@@ -49,19 +49,20 @@ def test_public_repo(
     # Then check the logs for this job
     logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
 
+    quoted = urllib.parse.quote(repo_full_name, safe="")
+
     expected_links_in_readme = [
         # - html report
         f"https://htmlpreview.github.io/?https://github.com/{repo_full_name}/blob/python-coverage-comment-action-data-my-great-project/htmlcov/index.html",
         # - badge 1, 2 and 3
         f"https://raw.githubusercontent.com/{repo_full_name}/python-coverage-comment-action-data-my-great-project/badge.svg",
         f"https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/{repo_full_name}/python-coverage-comment-action-data-my-great-project/endpoint.json",
-        f"https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2F{urllib.parse.urlencode(repo_full_name)}%2Fpython-coverage-comment-action-data-my-great-project%2Fendpoint.json",
-        # - coverage branch readme url
-        f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project",
+        f"https://img.shields.io/badge/dynamic/json?color=brightgreen&label=coverage&query=%24.message&url=https%3A%2F%2Fraw.githubusercontent.com%2F{quoted}%2Fpython-coverage-comment-action-data-my-great-project%2Fendpoint.json",
     ]
 
     expected_links_in_logs = [
         *expected_links_in_readme,
+        # - coverage branch readme url
         f"https://github.com/{repo_full_name}/tree/python-coverage-comment-action-data-my-great-project",
     ]
 
