@@ -186,7 +186,7 @@ class Config:
     # os.environ is, and just saying `dict[str, str]` is not enough to make
     # mypy happy
     @classmethod
-    def from_environ(cls, environ: MutableMapping[str, str]) -> Config:
+    def from_environ(cls, environ: MutableMapping[str, Any]) -> Config:
         possible_variables = [e for e in inspect.signature(cls).parameters]
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables

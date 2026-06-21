@@ -5,7 +5,7 @@ import pathlib
 
 import pytest
 
-from coverage_comment import main
+from coverage_comment import activities, main
 
 DIFF_STDOUT = """diff --git a/foo.py b/foo.py
 index 6c08c94..b65c612 100644
@@ -62,6 +62,75 @@ def test_action__invalid_event_name(session, push_config, in_integration_env, ge
 
     assert result == 1
     assert get_logs("ERROR", "This action's default behavior is to determine")
+
+
+def test_action__explicit_activity(
+    session, workflow_run_config, in_integration_env, get_logs, zip_bytes
+):
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
+    )
+    session.register("GET", "/user", json={"login": "foo"})
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/runs/123",
+        json={
+            "head_branch": "branch",
+            "head_repository": {"owner": {"login": "bar/repo-name"}},
+        },
+    )
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/pulls",
+        match_params={
+            "head": "bar/repo-name:branch",
+            "sort": "updated",
+            "direction": "desc",
+            "state": "open",
+        },
+        json=[{"number": 456}],
+    )
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/runs/123/artifacts",
+        match_params={"page": "1"},
+        json={
+            "artifacts": [{"name": "python-coverage-comment-action", "id": 789}],
+            "total_count": 1,
+        },
+    )
+
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/actions/artifacts/789/zip",
+        content=zip_bytes(
+            filename="python-coverage-comment-action.txt", content="Hey!"
+        ),
+    )
+
+    session.register("GET", "/repos/py-cov-action/foobar/issues/456/comments", json=[])
+
+    session.register(
+        "POST",
+        "/repos/py-cov-action/foobar/issues/456/comments",
+        json={"body": "Hey!"},
+    )
+
+    result = main.action(
+        config=workflow_run_config(
+            GITHUB_EVENT_NAME="something_else",
+            ACTIVITY=activities.Activity.POST_COMMENT,
+        ),
+        github_session=session,
+        http_session=session,
+        git=None,
+    )
+
+    assert result == 0
 
 
 def get_expected_output(
