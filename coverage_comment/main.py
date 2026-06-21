@@ -461,6 +461,7 @@ def save_coverage_data_files(
         operations=operations,
         git=git,
         branch=config.FINAL_COVERAGE_DATA_BRANCH,
+        token=config.GITHUB_TOKEN,
     )
 
     log.info(log_message)

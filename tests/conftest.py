@@ -201,7 +201,7 @@ def git(is_failed):
         def __init__(self):
             self.expected_calls = []
 
-        def command(self, command, *args, env=None):
+        def command(self, command, *args, token=None, env=None):
             args = " ".join(("git", command, *args))
             if not self.expected_calls:
                 assert False, (
@@ -209,10 +209,14 @@ def git(is_failed):
                 )
 
             call = self.expected_calls[0]
-            exp_args, exp_env, exit_code, stdout = call
-            if not (args == exp_args and (not exp_env or exp_env == env)):
+            exp_args, exp_env, exp_token, exit_code, stdout = call
+            if not (
+                args == exp_args
+                and (not exp_env or exp_env == env)
+                and (not exp_token or exp_token == token)
+            ):
                 assert False, (
-                    f"Expected command is not `{args}` with env {env}\nExpected command is {self.expected_calls[0]}"
+                    f"Expected command is not `{args}` with env {env} and token {token}\nExpected command is {self.expected_calls[0]}"
                 )
 
             self.expected_calls.pop(0)
@@ -223,9 +227,9 @@ def git(is_failed):
         def __getattr__(self, value):
             return functools.partial(self.command, value.replace("_", "-"))
 
-        def register(self, command, env=None):
+        def register(self, command, env=None, token=None):
             def _(*, exit_code=0, stdout=""):
-                self.expected_calls.append((command, env, exit_code, stdout))
+                self.expected_calls.append((command, env, token, exit_code, stdout))
 
             return _
 

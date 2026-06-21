@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import pathlib
 
 import pytest
@@ -37,6 +38,8 @@ def test_git(mocker, environ):
 
     git.clone("https://some_address.git", "--depth", "1", text=True)
     git.add("some_file")
+    git.fetch("origin", token="secret")
+    basicauth = base64.b64encode(b"x-access-token:secret").decode()
 
     run.assert_has_calls(
         [
@@ -57,10 +60,21 @@ def test_git(mocker, environ):
                 path=pathlib.Path("/tmp"),
                 env=mocker.ANY,
             ),
+            mocker.call(
+                "git",
+                "--config-env=http.extraheader=GIT_EXTRA_HEADER",
+                "fetch",
+                "origin",
+                path=pathlib.Path("/tmp"),
+                env=mocker.ANY,
+            ),
         ]
     )
 
     assert run.call_args_list[0].kwargs["env"]["A"] == "B"
+
+    header = f"Authorization: basic {basicauth}"
+    assert run.call_args_list[2].kwargs["env"]["GIT_EXTRA_HEADER"] == header
 
 
 def test_git_env(mocker, environ):
