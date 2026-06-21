@@ -7,7 +7,7 @@ from collections.abc import Callable
 
 import pytest
 
-from coverage_comment import settings
+from coverage_comment import activities, settings
 
 
 @pytest.mark.parametrize("path", ["a", "a/b/.."])
@@ -51,6 +51,7 @@ def test_config__from_environ__ok():
             "ANNOTATION_TYPE": "error",
             "VERBOSE": "false",
             "FORCE_WORKFLOW_RUN": "false",
+            "ACTIVITY": "process_pr",
         }
     ) == settings.Config(
         GITHUB_BASE_REF="master",
@@ -75,6 +76,7 @@ def test_config__from_environ__ok():
         ANNOTATION_TYPE="error",
         VERBOSE=False,
         FORCE_WORKFLOW_RUN=False,
+        ACTIVITY=activities.Activity.PROCESS_PR,
     )
 
 
@@ -86,7 +88,7 @@ def test_config__verbose_deprecated(get_logs):
             "GITHUB_REPOSITORY": "owner/repo",
             "GITHUB_REF": "master",
             "GITHUB_EVENT_NAME": "pull",
-            "GITHUB_EVENT_PATH": pathlib.Path("test_event_path"),
+            "GITHUB_EVENT_PATH": "test_event_path",
             "GITHUB_PR_RUN_ID": "123",
             "GITHUB_STEP_SUMMARY": "step_summary",
             "VERBOSE": "true",
