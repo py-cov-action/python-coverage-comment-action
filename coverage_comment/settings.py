@@ -39,7 +39,7 @@ class Config:
     """This object defines the environment variables"""
 
     # A branch name, not a fully-formed ref. For example, `main`.
-    GITHUB_BASE_REF: str
+    GITHUB_BASE_REF: str = ""
     GITHUB_BASE_URL: str = "https://api.github.com"
     GITHUB_TOKEN: str = dataclasses.field(repr=False)
     GITHUB_REPOSITORY: str
@@ -51,7 +51,7 @@ class Config:
     GITHUB_REF: str
     GITHUB_EVENT_NAME: str
     GITHUB_EVENT_PATH: pathlib.Path | None = None
-    GITHUB_PR_RUN_ID: int | None
+    GITHUB_PR_RUN_ID: int | None = None
     GITHUB_STEP_SUMMARY: pathlib.Path
     COMMENT_TEMPLATE: str | None = None
     COVERAGE_DATA_BRANCH: str = "python-coverage-comment-action-data"
@@ -83,7 +83,7 @@ class Config:
 
     @classmethod
     def clean_github_pr_run_id(cls, value: str) -> int | None:
-        return int(value) if value else None
+        return int(value)
 
     @classmethod
     def clean_github_step_summary(cls, value: str) -> pathlib.Path:
@@ -134,7 +134,15 @@ class Config:
         return pathlib.Path(value)
 
     @classmethod
-    def clean_activity(cls, activity: str) -> activities.Activity:
+    def clean_max_files_in_comment(cls, value: str) -> int:
+        return int(value)
+
+    @classmethod
+    def clean_use_gh_pages_html_url(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
+    def clean_activity(cls, activity: str) -> activities.Activity | None:
         return activities.Activity(activity)
 
     @property
@@ -191,6 +199,7 @@ class Config:
         config: dict[str, Any] = {
             k: v for k, v in environ.items() if k in possible_variables
         }
+        config = {k: v for k, v in config.items() if v != ""}
         for key, value in list(config.items()):
             if func := getattr(cls, f"clean_{key.lower()}", None):
                 try:
