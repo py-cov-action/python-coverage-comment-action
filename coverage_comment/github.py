@@ -33,7 +33,6 @@ class CannotGetDiff(Exception):
     """Raised when the diff cannot be fetched from GitHub."""
 
 
-
 @dataclasses.dataclass
 class RepositoryInfo:
     default_branch: str
