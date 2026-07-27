@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json as python_json
 from collections.abc import Mapping, Sequence
-from json import JSONDecodeError as JSONDecodeError  # reexport error
 
 type Json = dict[str, Json] | list[Json] | str | int | float | bool | None
 type ROJson = Mapping[str, Json] | Sequence[Json] | str | int | float | bool | None

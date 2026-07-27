@@ -60,8 +60,8 @@ class Config:
     COMMENT_FILENAME: pathlib.Path = pathlib.Path("python-coverage-comment-action.txt")
     SUBPROJECT_ID: str | None = None
     GITHUB_OUTPUT: pathlib.Path | None = None
-    MINIMUM_GREEN: decimal.Decimal = decimal.Decimal("100")
-    MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal("70")
+    MINIMUM_GREEN: decimal.Decimal = decimal.Decimal(100)
+    MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal(70)
     MERGE_COVERAGE_FILES: bool = False
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
