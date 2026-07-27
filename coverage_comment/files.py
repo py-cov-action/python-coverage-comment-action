@@ -66,7 +66,7 @@ def compute_files(
     minimum_orange: decimal.Decimal,
     http_session: httpx.Client,
 ) -> list[Operation]:
-    line_rate *= decimal.Decimal("100")
+    line_rate *= decimal.Decimal(100)
     color = badge.get_badge_color(
         rate=line_rate,
         minimum_green=minimum_green,
@@ -113,7 +113,7 @@ def compute_datafile(
 def parse_datafile(contents: str) -> tuple[coverage.Coverage | None, decimal.Decimal]:
     file_contents = json.loads_dict(contents)
     coverage_rate = decimal.Decimal(str(file_contents["coverage"])) / decimal.Decimal(
-        "100"
+        100
     )
     try:
         return coverage.extract_info(
