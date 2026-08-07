@@ -10,16 +10,16 @@ from coverage_comment import badge
 @pytest.mark.parametrize(
     "rate, expected",
     [
-        (decimal.Decimal("10"), "red"),
-        (decimal.Decimal("80"), "orange"),
-        (decimal.Decimal("99"), "brightgreen"),
+        (decimal.Decimal(10), "red"),
+        (decimal.Decimal(80), "orange"),
+        (decimal.Decimal(99), "brightgreen"),
     ],
 )
 def test_get_badge_color(rate, expected):
     color = badge.get_badge_color(
         rate=rate,
-        minimum_green=decimal.Decimal("90"),
-        minimum_orange=decimal.Decimal("60"),
+        minimum_green=decimal.Decimal(90),
+        minimum_orange=decimal.Decimal(60),
     )
     assert color == expected
 
@@ -27,13 +27,13 @@ def test_get_badge_color(rate, expected):
 @pytest.mark.parametrize(
     "delta, up_is_good, neutral_color, expected",
     [
-        (decimal.Decimal("-5"), True, "lightgrey", "red"),
-        (decimal.Decimal("5"), True, "lightgrey", "brightgreen"),
-        (decimal.Decimal("-5"), False, "lightgrey", "brightgreen"),
-        (decimal.Decimal("5"), False, "lightgrey", "red"),
-        (decimal.Decimal("0"), False, "blue", "blue"),
-        (decimal.Decimal("0"), False, "lightgrey", "lightgrey"),
-        (decimal.Decimal("0"), True, "lightgrey", "lightgrey"),
+        (decimal.Decimal(-5), True, "lightgrey", "red"),
+        (decimal.Decimal(5), True, "lightgrey", "brightgreen"),
+        (decimal.Decimal(-5), False, "lightgrey", "brightgreen"),
+        (decimal.Decimal(5), False, "lightgrey", "red"),
+        (decimal.Decimal(0), False, "blue", "blue"),
+        (decimal.Decimal(0), False, "lightgrey", "lightgrey"),
+        (decimal.Decimal(0), True, "lightgrey", "lightgrey"),
     ],
 )
 def test_get_evolution_badge_color(delta, up_is_good, neutral_color, expected):

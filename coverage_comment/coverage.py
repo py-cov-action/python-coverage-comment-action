@@ -107,7 +107,7 @@ def compute_coverage(
     numerator = decimal.Decimal(num_covered + num_branches_covered)
     denominator = decimal.Decimal(num_total + num_branches_total)
     if denominator == 0:
-        return decimal.Decimal("1")
+        return decimal.Decimal(1)
     return numerator / denominator
 
 
