@@ -34,6 +34,13 @@ repos:
         files: ^(README\.md|docs/examples/.*)$
         pass_filenames: false
 
+      - id: check-documented-inputs
+        name: check documented inputs
+        entry: uv run python .github/scripts/check_documented_inputs.py
+        language: system
+        files: ^(README\.md|action\.ya?ml|docs/examples/.*)$
+        pass_filenames: false
+
       - id: actionlint
         name: actionlint
         entry: uv run actionlint
