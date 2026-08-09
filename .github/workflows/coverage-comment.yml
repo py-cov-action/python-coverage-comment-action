@@ -16,7 +16,7 @@ jobs:
     permissions:
       actions: read
       pull-requests: write
-      contents: write
+      contents: read
     steps:
       - name: Post comment
         uses: py-cov-action/python-coverage-comment-action@main # zizmor: ignore[unpinned-uses] Dogfooding
