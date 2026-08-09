@@ -13,10 +13,10 @@
 | coverage\_comment/coverage.py       |      130 |        0 |       22 |        0 |    100% |           |
 | coverage\_comment/diff\_grouper.py  |       12 |        0 |        4 |        0 |    100% |           |
 | coverage\_comment/files.py          |       59 |        0 |        2 |        0 |    100% |           |
-| coverage\_comment/github.py         |      157 |        0 |       26 |        0 |    100% |           |
+| coverage\_comment/github.py         |      156 |        0 |       26 |        0 |    100% |           |
 | coverage\_comment/github\_client.py |       87 |        0 |       14 |        0 |    100% |           |
 | coverage\_comment/groups.py         |       35 |        0 |        6 |        0 |    100% |           |
-| coverage\_comment/json.py           |       21 |        0 |        2 |        0 |    100% |           |
+| coverage\_comment/json.py           |       22 |        0 |        2 |        0 |    100% |           |
 | coverage\_comment/log.py            |        5 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/log\_utils.py     |       11 |        0 |        0 |        0 |    100% |           |
 | coverage\_comment/main.py           |      154 |        0 |       26 |        0 |    100% |           |
