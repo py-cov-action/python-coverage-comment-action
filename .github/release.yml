@@ -1,4 +1,9 @@
 changelog:
   exclude:
     labels:
-      - dependencies
+      - deps
+    # GitHub's docs use the bare login, but the `[bot]` form is what shows up
+    # on the commits themselves. Listing both is the only way to be sure.
+    authors:
+      - renovate
+      - renovate[bot]
