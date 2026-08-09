@@ -512,6 +512,12 @@ Usage may look like this
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
     ANNOTATION_TYPE: warning
 
+    # If true, link the HTML coverage report to your GitHub Pages site, which
+    # assumes you serve COVERAGE_DATA_BRANCH from there. If false, the link
+    # goes through htmlpreview.github.io instead (or, on GitHub Enterprise,
+    # straight to the file in the repository).
+    USE_GH_PAGES_HTML_URL: false
+
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
     COMMENT_ARTIFACT_NAME: python-coverage-comment-action
