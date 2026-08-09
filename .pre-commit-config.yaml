@@ -27,11 +27,18 @@ repos:
         require_serial: true
         types_or: [python, pyi]
 
+      - id: sync-readme-examples
+        name: sync README examples
+        entry: uv run python .github/scripts/sync_readme_examples.py
+        language: system
+        files: ^(README\.md|docs/examples/.*)$
+        pass_filenames: false
+
       - id: zizmor
         name: zizmor
         entry: uv run zizmor --fix=all
         types: [yaml]
-        files: (\.github/(workflows/.*|dependabot.ya?ml))|(action\.ya?ml)$
+        files: (\.github/(workflows/.*|dependabot.ya?ml))|(action\.ya?ml)$|(docs/examples/.*\.ya?ml$)
         language: system
         require_serial: true
         args:
