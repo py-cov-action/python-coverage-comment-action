@@ -70,7 +70,7 @@ jobs:
           path: python-coverage-comment-action.txt
 
   push-to-registry:
-    name: Push Docker image to Docker Hub
+    name: Push Docker image to ghcr.io
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     concurrency:
       group: release
@@ -89,12 +89,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          username: ewjoachim
-          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
@@ -129,7 +123,6 @@ jobs:
             org.opencontainers.image.description='Publish coverage report as PR comment, and create a coverage badge & dashboard to display on the Readme for Python projects, all inside GitHub without third party servers'
             org.opencontainers.image.licenses='MIT'
           tags: |
-            ewjoachim/python-coverage-comment-action-base:v7
             ghcr.io/py-cov-action/python-coverage-comment-action-base:v7
             ${{ steps.docker_meta.outputs.tags }}
             ghcr.io/${{ github.repository }}:${{ github.sha }}
