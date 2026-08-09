@@ -15,24 +15,31 @@ jobs:
       contents: write # Create the release and its tag
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-          persist-credentials: false
-
-      - env:
+      - name: Create the release
+        shell: python
+        env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          set -eux
-          current="$(git describe --tags --abbrev=0 --match 'v*.*')"
+          import subprocess
 
-          major="$(echo "$current" | cut -d. -f1)"
-          minor="$(echo "$current" | cut -d. -f2)"
+          current = subprocess.run(
+              ["gh", "release", "view", "--json", "tagName", "--jq", ".tagName"],
+              check=True,
+              text=True,
+              capture_output=True,
+          ).stdout.strip()
+
+          major, minor = current.split(".")[:2]
 
           # Major releases will be released manually.
-          minor=$((minor + 1))
-          new_tag="${major}.${minor}"
+          new_tag = f"{major}.{int(minor) + 1}"
 
-          gh release create "${new_tag}" --generate-notes --notes-start-tag "${current}"
+          subprocess.run(
+              [
+                  "gh", "release", "create", new_tag,
+                  "--generate-notes",
+                  "--notes-start-tag", current,
+              ],
+              check=True,
+          )
