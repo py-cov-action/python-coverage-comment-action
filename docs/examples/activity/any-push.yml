@@ -1,0 +1,36 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Publish/update the coverage comment on the PR
+      contents: write # Push the coverage data to the data branch
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install everything, run the tests, produce the .coverage file
+        run: make test # This is the part where you put your own test command
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          ACTIVITY: "${{ github.event_name == 'push' && 'save_coverage_data_files' || 'process_pr' }}"

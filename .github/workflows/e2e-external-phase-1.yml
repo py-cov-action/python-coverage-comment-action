@@ -4,6 +4,11 @@ on:
   pull_request_review:
     types: [submitted]
 
+concurrency:
+  # On a re-approval, only the latest run's artifact matters to phase 2.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:

@@ -5,24 +5,31 @@ on: # zizmor: ignore[dangerous-triggers] We're using pull_request_target to clea
     types:
       - closed
 
+concurrency:
+  # Deletions must run to completion, so never cancel one in flight.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
   test:
+    name: Delete the e2e test repos
     runs-on: ubuntu-latest
+    environment: e2e
     steps:
       - run: |
-          gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public || true
+          gh repo delete --yes "https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public" || true
         env:
           NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
       - run: |
-          gh repo delete --yes https://github.com/mihcaojwe2/python-coverage-comment-action-end-to-end-${NUMBER}-public || true
+          gh repo delete --yes "https://github.com/mihcaojwe2/python-coverage-comment-action-end-to-end-${NUMBER}-public" || true
         env:
           NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
       - run: |
-          gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private || true
+          gh repo delete --yes "https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private" || true
         env:
           NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}

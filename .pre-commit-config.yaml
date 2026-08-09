@@ -27,12 +27,37 @@ repos:
         require_serial: true
         types_or: [python, pyi]
 
+      - id: sync-readme-examples
+        name: sync README examples
+        entry: uv run python .github/scripts/sync_readme_examples.py
+        language: system
+        files: ^(README\.md|docs/examples/.*)$
+        pass_filenames: false
+
+      - id: check-documented-inputs
+        name: check documented inputs
+        entry: uv run python .github/scripts/check_documented_inputs.py
+        language: system
+        files: ^(README\.md|action\.ya?ml|docs/examples/.*)$
+        pass_filenames: false
+
+      - id: actionlint
+        name: actionlint
+        entry: uv run actionlint
+        types: [yaml]
+        # Unlike zizmor, actionlint reads every file it's given as a workflow,
+        # so action.yml is not in this list.
+        files: (\.github/workflows/.*\.ya?ml$)|(docs/examples/.*\.ya?ml$)
+        language: system
+        require_serial: true
+
       - id: zizmor
         name: zizmor
         entry: uv run zizmor --fix=all
         types: [yaml]
-        files: (\.github/(workflows/.*|dependabot.ya?ml))|(action\.ya?ml)$
+        files: (\.github/(workflows/.*|dependabot.ya?ml))|(action\.ya?ml)$|(docs/examples/.*\.ya?ml$)
         language: system
         require_serial: true
         args:
           - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
+          - "--persona=auditor"

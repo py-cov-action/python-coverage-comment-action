@@ -1,6 +1,6 @@
 # If you change anything here, bump the version in:
 # - Dockerfile
-# - .github/workflows/release.yml
+# - .github/workflows/ci.yml (the image tags of the push-to-registry job)
 
 FROM python:3.14-slim
 

@@ -75,18 +75,24 @@ Combining this with [Github's Expressions]
 (https://docs.github.com/en/actions/reference/workflows-and-actions/expressions) you can
 build out the the custom handling needed. For example:
 
-```yaml
+```yaml title="docs/examples/activity/any-push.yml" lines=31-36
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ github.token }}
-          activity: "${{ github.event_name == 'push' && 'save_coverage_data_files' || 'process_pr' }}"
+          ACTIVITY: "${{ github.event_name == 'push' && 'save_coverage_data_files' || 'process_pr' }}"
+```
 
-        # or
+Or, to only save the coverage data when pushing to the default branch:
 
+```yaml title="docs/examples/activity/default-branch.yml" lines=31-36
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
-          activity: "${{ (github.event_name == 'push' && github.ref_name == 'main') && 'save_coverage_data_files' || 'process_pr' }}"
+          GITHUB_TOKEN: ${{ github.token }}
+          ACTIVITY: "${{ (github.event_name == 'push' && github.ref_name == 'main') && 'save_coverage_data_files' || 'process_pr' }}"
 ```
 
 ## Usage
@@ -132,7 +138,7 @@ repository is explicitly configured to send write tokens to workflows from
 pull requests. In other words, these settings do not grant write access to
 untrusted code.
 
-```yaml
+```yaml title="docs/examples/basic-usage/ci.yml"
 # .github/workflows/ci.yml
 name: CI
 
@@ -142,31 +148,37 @@ on:
     branches:
       - "main"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      # Allows the action to publish new comments directly on trusted PRs.
-      # Forked pull_request runs are downgraded to read-only by GitHub.
-      pull-requests: write
-      # Allows updating the python-coverage-comment-action branch and editing
-      # existing comments when direct publication is allowed.
-      contents: write
+      # Forked pull_request runs are downgraded to read-only by GitHub, so
+      # these do not grant write access to untrusted code.
+      pull-requests: write # Publish/update the coverage comment on trusted PRs
+      contents: write # Push the coverage data to the data branch
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@sha1  # vx.y.z
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
@@ -175,7 +187,7 @@ jobs:
           path: python-coverage-comment-action.txt
 ```
 
-```yaml
+```yaml title="docs/examples/basic-usage/coverage.yml"
 # .github/workflows/coverage.yml
 name: Post coverage comment
 
@@ -185,27 +197,28 @@ on:  # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a cov
     types:
       - completed
 
+concurrency:
+  # Group by the PR's branch, so that runs for different PRs don't cancel
+  # each other. `github.ref` is always the default branch on `workflow_run`.
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
-      # Gives the action the necessary permissions for looking up the
-      # workflow that launched this workflow, and download the related
-      # artifact that contains the comment to be published
-      actions: read
+      pull-requests: write # Post the comment, and edit it on later runs
+      actions: read # Download the comment artifact from the triggering CI run
+      contents: read
     steps:
       # DO NOT run actions/checkout here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@sha1 #  vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -220,7 +233,7 @@ If you don't expect external contributors, you don't need all the shenanigans
 with the artifacts and the 2nd workflow. This is likely to be the most straightforward
 way to configure it for private repositories. It might look like this:
 
-```yaml
+```yaml title="docs/examples/no-external-contributors/ci.yml"
 # .github/workflows/ci.yml
 name: CI
 
@@ -230,31 +243,29 @@ on:
     branches:
       - "main"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This is optional since by default it's to true. The git
-          # operations in python-coverage-comment-action utilize the token
-          # stored by actions/checkout.
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@sha1 #  vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -267,7 +278,7 @@ You will need to ensure the action is run only _after_ all the actual merge chec
 
 For instance
 
-```yaml
+```yaml title="docs/examples/merge-queue/ci.yml"
 # .github/workflows/ci.yml
 name: CI
 
@@ -275,31 +286,30 @@ on:
   pull_request:
   merge_group:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Never cancel a merge_group run: that would dequeue the pull request.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This is optional since by default it's to true. The git
-          # operations in python-coverage-comment-action utilize the token
-          # stored by actions/checkout.
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Install everything, run the tests, produce the .coverage file
         run: make test # This is the part where you put your own test command
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ github.token }}
 ```
@@ -310,7 +320,7 @@ In case you have a job matrix and you want the report to be on the global
 coverage, you can configure your `ci.yml` like this (`coverage.yml` remains the
 same)
 
-```yaml
+```yaml title="docs/examples/matrix/ci.yml"
 name: CI
 
 on:
@@ -320,6 +330,12 @@ on:
       - "master"
     tags:
       - "*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   build:
@@ -333,18 +349,17 @@ jobs:
 
     name: "Python ${{ matrix.python_version }}"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Checkout the repository
 
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This is optional since by default it's to true. The git
-          # operations in python-coverage-comment-action utilize the token
-          # stored by actions/checkout.
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Set up Python
         id: setup-python
-        uses: actions/setup-python@sha1  # vx.y.z
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python_version }}
 
@@ -358,7 +373,7 @@ jobs:
           # this prefix is not used.
 
       - name: Store coverage file
-        uses: actions/upload-artifact@sha1  # vx.y.z
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
@@ -374,17 +389,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      pull-requests: write
-      contents: write
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This is optional since by default it's to true. The git
-          # operations in python-coverage-comment-action utilize the token
-          # stored by actions/checkout.
-          persist-credentials: true
+          persist-credentials: false
 
-      - uses: actions/download-artifact@sha1  # vx.y.z
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         id: download
         with:
           pattern: coverage-*
@@ -392,13 +404,13 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@sha1  # vx.y.z
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -443,16 +455,16 @@ All the following outputs are only available when running in PR mode.
 
 Usage may look like this
 
-```yaml
-- name: Coverage comment
-  id: coverage_comment
-  uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
-  with:
-    GITHUB_TOKEN: ${{ github.token }}
+```yaml title="docs/examples/enforce-coverage/ci.yml" lines=31-39
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
 
-- name: Enforce coverage
-  if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
-  run: echo "Coverage decreased." && exit 1
+      - name: Enforce coverage
+        if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
+        run: echo "Coverage decreased." && exit 1
 ```
 
 ### All options
@@ -499,6 +511,12 @@ Usage may look like this
     # notice, warning and error as annotation type. For more information look here:
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
     ANNOTATION_TYPE: warning
+
+    # If true, link the HTML coverage report to your GitHub Pages site, which
+    # assumes you serve COVERAGE_DATA_BRANCH from there. If false, the link
+    # goes through htmlpreview.github.io instead (or, on GitHub Enterprise,
+    # straight to the file in the repository).
+    USE_GH_PAGES_HTML_URL: false
 
     # Name of the artifact in which the body of the comment to post on the PR is stored.
     # You typically don't have to change this unless you're already using this name for something else.
@@ -624,7 +642,7 @@ still use the same step for storing all files as artifacts. You'll end up with
 a different comment for each launch. Feel free to use the `COMMENT_TEMPLATE` if
 you want each comment to clearly state what it relates to.
 
-```yaml
+```yaml title="docs/examples/monorepo/ci.yml"
 # .github/workflows/ci.yml
 name: CI
 
@@ -634,15 +652,23 @@ on:
     branches:
       - "main"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
-      contents: write
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
     steps:
-      - uses: actions/checkout@sha1  # vx.y.z
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Test project 1
         run: make -C project_1 test
@@ -652,7 +678,7 @@ jobs:
 
       - name: Coverage comment (project 1)
         id: coverage_comment_1
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           COVERAGE_PATH: project_1
           SUBPROJECT_ID: project-1
@@ -660,14 +686,14 @@ jobs:
 
       - name: Coverage comment (project 2)
         id: coverage_comment_2
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           COVERAGE_PATH: project_2/src
           SUBPROJECT_ID: project-2
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@sha1  # vx.y.z
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: steps.coverage_comment_1.outputs.COMMENT_FILE_WRITTEN == 'true' || steps.coverage_comment_2.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -675,7 +701,7 @@ jobs:
           path: python-coverage-comment-action*.txt
 ```
 
-```yaml
+```yaml title="docs/examples/monorepo/coverage.yml"
 # .github/workflows/coverage.yml
 name: Post coverage comment
 
@@ -685,18 +711,26 @@ on:  # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a cov
     types:
       - completed
 
+concurrency:
+  # Group by the PR's branch, so that runs for different PRs don't cancel
+  # each other. `github.ref` is always the default branch on `workflow_run`.
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     permissions:
-      pull-requests: write
-      contents: write
-      actions: read
+      pull-requests: write # Post the comment, and edit it on later runs
+      actions: read # Download the comment artifact from the triggering CI run
+      contents: read
     steps:
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -704,7 +738,7 @@ jobs:
           COVERAGE_PATH: project_1
 
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@sha1  # vx.y.z
+        uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -722,6 +756,26 @@ Using standard tools like [Zizmor](https://docs.zizmor.sh/) or
 [Pinact](https://github.com/suzuki-shunsuke/pinact), you're expected to pin to a
 given commit sha, and use a comment to indicate the corresponding exact version.
 This is format is understood and followed by dependabot/renovate.
+
+## Persisted credentials
+
+Starting with **v4.1**, the action hands the `GITHUB_TOKEN` you pass it directly to
+`git` for every network operation (fetching and pushing the coverage data branch).
+It never reads the credentials that `actions/checkout` writes to `.git/config`, so
+you can — and should — check out with `persist-credentials: false`.
+
+This keeps a write-scoped token out of `.git/config` on the runner, where any later
+step in the job would be able to read it. It's what
+[Zizmor](https://docs.zizmor.sh/) reports as
+[`artipacked`](https://docs.zizmor.sh/audits/#artipacked).
+
+This only concerns *persisted* credentials. The job that stores the coverage data
+still needs `contents: write`, because that's the permission carried by the
+`GITHUB_TOKEN` the action uses.
+
+If you're pinned to a release older than v4.1 (that is, any `v3.x` release), the
+action still relies on the credentials stored by `actions/checkout`. Keep
+`persist-credentials: true` until you upgrade.
 
 ## Note on the state of this action
 
