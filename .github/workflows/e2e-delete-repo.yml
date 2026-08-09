@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: e2e
     steps:
       - run: |
           gh repo delete --yes https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public || true

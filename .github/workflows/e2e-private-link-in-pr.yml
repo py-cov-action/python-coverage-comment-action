@@ -13,6 +13,7 @@ jobs:
       github.event.issue.pull_request
       && contains(github.event.comment.body, '/invite')
     runs-on: ubuntu-latest
+    environment: e2e
     strategy:
       matrix:
         collaborator:
