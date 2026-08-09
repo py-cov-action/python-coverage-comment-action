@@ -34,6 +34,16 @@ repos:
         files: ^(README\.md|docs/examples/.*)$
         pass_filenames: false
 
+      - id: actionlint
+        name: actionlint
+        entry: uv run actionlint
+        types: [yaml]
+        # Unlike zizmor, actionlint reads every file it's given as a workflow,
+        # so action.yml is not in this list.
+        files: (\.github/workflows/.*\.ya?ml$)|(docs/examples/.*\.ya?ml$)
+        language: system
+        require_serial: true
+
       - id: zizmor
         name: zizmor
         entry: uv run zizmor --fix=all
