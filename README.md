@@ -751,6 +751,26 @@ Using standard tools like [Zizmor](https://docs.zizmor.sh/) or
 given commit sha, and use a comment to indicate the corresponding exact version.
 This is format is understood and followed by dependabot/renovate.
 
+## Persisted credentials
+
+Starting with **v4.1**, the action hands the `GITHUB_TOKEN` you pass it directly to
+`git` for every network operation (fetching and pushing the coverage data branch).
+It never reads the credentials that `actions/checkout` writes to `.git/config`, so
+you can — and should — check out with `persist-credentials: false`.
+
+This keeps a write-scoped token out of `.git/config` on the runner, where any later
+step in the job would be able to read it. It's what
+[Zizmor](https://docs.zizmor.sh/) reports as
+[`artipacked`](https://docs.zizmor.sh/audits/#artipacked).
+
+This only concerns *persisted* credentials. The job that stores the coverage data
+still needs `contents: write`, because that's the permission carried by the
+`GITHUB_TOKEN` the action uses.
+
+If you're pinned to a release older than v4.1 (that is, any `v3.x` release), the
+action still relies on the credentials stored by `actions/checkout`. Keep
+`persist-credentials: true` until you upgrade.
+
 ## Note on the state of this action
 
 This action is tested with 100% coverage. That said, coverage isn't all, and
