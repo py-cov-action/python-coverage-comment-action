@@ -120,7 +120,7 @@ jobs:
           gh api
           "repos/py-cov-action/python-coverage-comment-action/check-runs/${CHECK_RUN_ID}"
           -X PATCH
-          -F conclusion=${JOB_STATUS}
+          -F conclusion="${JOB_STATUS}"
           -F status=completed
         env:
           GITHUB_TOKEN: ${{ github.token }}

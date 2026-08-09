@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Invite @${{ matrix.collaborator.LOGIN }} to the e2e private repo
-        run: gh api --method PUT /repos/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private/collaborators/${LOGIN} -f permission=${PERMISSION}
+        run: gh api --method PUT "/repos/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private/collaborators/${LOGIN}" -f "permission=${PERMISSION}"
         if: ${{ matrix.collaborator.ENABLED == true }}
         env:
           LOGIN: ${{ matrix.collaborator.LOGIN }}
@@ -54,7 +54,7 @@ jobs:
       pull-requests: write # Post the comment linking to the private e2e repo
     steps:
       - run: |
-          gh pr comment ${LINK} --body-file - <<EOF
+          gh pr comment "${LINK}" --body-file - <<EOF
             [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
           EOF
         env:

@@ -19,7 +19,7 @@ jobs:
       pull-requests: write # Post the comment linking to the public e2e repo
     steps:
       - run: |
-          gh pr comment ${LINK} --body-file - <<EOF
+          gh pr comment "${LINK}" --body-file - <<EOF
           [End-to-end public repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-public)
 
           Admin commands cheatsheet:
