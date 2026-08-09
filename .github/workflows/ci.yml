@@ -31,8 +31,8 @@ jobs:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
-      contents: write
+      pull-requests: write # Post the coverage comment on the PR, and edit it on later runs
+      contents: write # Push the coverage data to the python-coverage-comment-action-data branch
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -78,9 +78,9 @@ jobs:
     needs: [lint, test]
     permissions:
       contents: read
-      packages: write
-      attestations: write
-      id-token: write
+      packages: write # Push the base image to ghcr.io
+      attestations: write # Attach a build provenance attestation to the pushed image
+      id-token: write # Mint the OIDC token the attestation is signed with
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

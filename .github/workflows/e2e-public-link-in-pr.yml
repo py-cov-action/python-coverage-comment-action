@@ -5,13 +5,18 @@ on: # zizmor: ignore[dangerous-triggers] We're using pull_request_target to post
     types:
       - opened
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
   test:
+    name: Post link to public e2e repo
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      pull-requests: write # Post the comment linking to the public e2e repo
     steps:
       - run: |
           gh pr comment ${LINK} --body-file - <<EOF

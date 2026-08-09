@@ -4,6 +4,11 @@ on:
   issue_comment:
     types: [created]
 
+concurrency:
+  # Invitations must run to completion, so never cancel one in flight.
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
@@ -46,7 +51,7 @@ jobs:
       && contains(github.event.comment.body, '/invite')
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      pull-requests: write # Post the comment linking to the private e2e repo
     steps:
       - run: |
           gh pr comment ${LINK} --body-file - <<EOF

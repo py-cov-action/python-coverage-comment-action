@@ -5,10 +5,16 @@ on: # zizmor: ignore[dangerous-triggers] We're using pull_request_target to clea
     types:
       - closed
 
+concurrency:
+  # Deletions must run to completion, so never cancel one in flight.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
   test:
+    name: Delete the e2e test repos
     runs-on: ubuntu-latest
     environment: e2e
     steps:

@@ -18,10 +18,10 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     environment: e2e
     permissions:
-      actions: read
-      pull-requests: write
-      contents: write
-      checks: write
+      actions: read # Download the pr_number artifact produced by phase 1
+      pull-requests: write # Read the PR's reviews, to find the approved commit
+      contents: write # Checkout the reviewed commit
+      checks: write # Create and update the "End-to-end tests (external PR)" check run
     steps:
       - name: Extract PR number from artifact
         id: extract_pr_number

@@ -6,6 +6,10 @@ on: # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a cove
     types:
       - completed
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
@@ -14,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     permissions:
-      actions: read
-      pull-requests: write
+      actions: read # Download the comment artifact from the triggering CI run
+      pull-requests: write # Post the coverage comment on the PR, and edit it on later runs
       contents: read
     steps:
       - name: Post comment
