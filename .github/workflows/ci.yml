@@ -30,6 +30,9 @@ jobs:
   test:
     name: Run tests & display coverage
     runs-on: ubuntu-latest
+    # Holds the e2e tokens. No protection rules: this job runs on
+    # refs/pull/N/merge, which a deployment branch rule would refuse.
+    environment: e2e
     permissions:
       pull-requests: write # Post the coverage comment on the PR, and edit it on later runs
       contents: write # Push the coverage data to the python-coverage-comment-action-data branch
@@ -49,8 +52,8 @@ jobs:
         run: uv run pytest
         env:
           PY_COLORS: 1
-          # The e2e tests skip without these; they only run through the /e2e
-          # approval flow, which holds the tokens in the `e2e` environment.
+          COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
+          COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_2 }}
           COVERAGE_COMMENT_E2E_ACTION_REF: ${{ github.sha }}
           COVERAGE_COMMENT_E2E_REPOSITORY_OWNER: ${{ github.repository_owner }}
           COVERAGE_COMMENT_E2E_REPO_SUFFIX: ${{ github.event.number }}
