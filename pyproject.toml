@@ -79,6 +79,10 @@ extend-select = [
 fixable = ["ALL"]
 extend-ignore = [
     "E501", # line too long
+    # We read timestamps produced by coverage.py, which are naive.
+    "DTZ001", # datetime() without tzinfo
+    # Tests use bare expressions to trigger exceptions.
+    "B018", # useless expression
 ]
 
 [tool.ruff.lint.isort]

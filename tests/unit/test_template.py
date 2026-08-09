@@ -543,7 +543,7 @@ def test_get_file_url(filepath, lines, pr_number, branch_name, expected):
 
 
 def test_get_file_url__neither_pr_number_nor_branch_name():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         template.get_file_url(
             filename=pathlib.Path("main.py"),
             lines=None,

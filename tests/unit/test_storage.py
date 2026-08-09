@@ -53,9 +53,11 @@ def test_checked_out_branch__fetch_fails(git):
     git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER fetch origin")
     git.register("rev-parse --verify origin/foo")
 
-    with pytest.raises(subprocess.GitError):
-        with storage.checked_out_branch(git=git, branch="foo", token="secret"):
-            pass
+    with (
+        pytest.raises(subprocess.GitError),
+        storage.checked_out_branch(git=git, branch="foo", token="secret"),
+    ):
+        pass
 
 
 def test_commit_operations__no_diff(git, in_tmp_path):

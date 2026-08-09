@@ -2,6 +2,17 @@ from __future__ import annotations
 
 import json as python_json
 from collections.abc import Mapping, Sequence
+from json import JSONDecodeError
+
+__all__ = [
+    "JSONDecodeError",
+    "Json",
+    "ROJson",
+    "UnexpectedType",
+    "dumps",
+    "loads",
+    "loads_dict",
+]
 
 type Json = dict[str, Json] | list[Json] | str | int | float | bool | None
 type ROJson = Mapping[str, Json] | Sequence[Json] | str | int | float | bool | None
@@ -14,7 +25,7 @@ def dumps(obj: ROJson) -> str:
 def loads(serialized: str) -> Json:
     try:
         return python_json.loads(serialized)
-    except python_json.JSONDecodeError as exc:
+    except JSONDecodeError as exc:
         exc.add_note(f"Full string that triggered JSONDecodeError: {serialized}")
         raise
 
