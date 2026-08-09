@@ -118,7 +118,7 @@ def process_pr(
                 pr_number=config.GITHUB_PR_NUMBER,
             )
         else:  # pragma: no cover
-            raise Exception("Unreachable code")
+            raise AssertionError("Unreachable code")
     except github.CannotGetDiff as exc:
         failure_msg = str(exc)
         log.warning(failure_msg, exc_info=True)

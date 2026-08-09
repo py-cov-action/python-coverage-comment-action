@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 From: https://github.com/michaelliao/githubpy/blob/96d0c3e729c0b3e3c043a604547ccff17782ac2b/github.py
 GitHub API Python SDK. (Python >= 2.6)

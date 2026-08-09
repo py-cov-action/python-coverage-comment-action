@@ -14,7 +14,7 @@ from coverage_comment import groups
         ([1, 2], {1, 2}, set(), [(1, 2)]),
         # Group of lines
         ([1, 2, 3], {1, 2, 3}, set(), [(1, 3)]),
-        # Pair of lines with a blank line in between
+        # Pair of lines with a blank line in between (a 1-sized gap)
         ([1, 3], {1, 3}, set(), [(1, 3)]),
         # Pair of lines with a separator in between
         ([1, 3], {1, 2, 3}, set(), [(1, 1), (3, 3)]),
@@ -22,8 +22,6 @@ from coverage_comment import groups
         ([1, 3, 5], {1, 2, 3, 4, 5}, set(), [(1, 1), (3, 3), (5, 5)]),
         # 3 groups of lines with a small gap & no separator in between
         ([1, 3, 5], {1, 3, 5}, set(), [(1, 5)]),
-        # with a 1-sized gap
-        ([1, 3], {1, 3}, set(), [(1, 3)]),
         # with a 2-sized gap
         ([1, 4], {1, 4}, set(), [(1, 4)]),
         # with a 3-sized gap

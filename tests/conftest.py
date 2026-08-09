@@ -131,9 +131,11 @@ def in_tmp_path(tmp_path):
 def zip_bytes():
     def _(filename, content):
         file = io.BytesIO()
-        with zipfile.ZipFile(file, mode="w") as zipf:
-            with zipf.open(filename, "w") as subfile:
-                subfile.write(content.encode("utf-8"))
+        with (
+            zipfile.ZipFile(file, mode="w") as zipf,
+            zipf.open(filename, "w") as subfile,
+        ):
+            subfile.write(content.encode("utf-8"))
         zip_bytes = file.getvalue()
         assert zip_bytes.startswith(b"PK")
         return zip_bytes

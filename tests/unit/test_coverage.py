@@ -198,7 +198,7 @@ def test__make_coverage_info__with_branches():
             coverage.DiffCoverage(
                 total_num_lines=0,
                 total_num_violations=0,
-                total_percent_covered=decimal.Decimal("1"),
+                total_percent_covered=decimal.Decimal(1),
                 num_changed_lines=2,
                 files={},
             ),
@@ -212,12 +212,12 @@ def test__make_coverage_info__with_branches():
             coverage.DiffCoverage(
                 total_num_lines=0,
                 total_num_violations=0,
-                total_percent_covered=decimal.Decimal("1"),
+                total_percent_covered=decimal.Decimal(1),
                 num_changed_lines=3,
                 files={
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
-                        percent_covered=decimal.Decimal("1"),
+                        percent_covered=decimal.Decimal(1),
                         added_statements=[],
                         covered_statements=[],
                         missing_statements=[],
@@ -252,7 +252,7 @@ def test__make_coverage_info__with_branches():
                 files={
                     pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                         path=pathlib.Path("codebase/code.py"),
-                        percent_covered=decimal.Decimal("1"),
+                        percent_covered=decimal.Decimal(1),
                         added_statements=[5, 6],
                         covered_statements=[5, 6],
                         missing_statements=[],

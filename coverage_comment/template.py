@@ -97,7 +97,7 @@ def remove_exponent(val: decimal.Decimal) -> decimal.Decimal:
 
 def percentage_value(val: decimal.Decimal, precision: int = 2) -> decimal.Decimal:
     return remove_exponent(
-        (decimal.Decimal("100") * val).quantize(
+        (decimal.Decimal(100) * val).quantize(
             decimal.Decimal("1." + ("0" * precision)),
             rounding=decimal.ROUND_DOWN,
         )

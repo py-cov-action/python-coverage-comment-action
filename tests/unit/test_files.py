@@ -38,8 +38,8 @@ def test_compute_files(session):
         line_rate=decimal.Decimal("0.1234"),
         raw_coverage_data={"foo": ["bar", "bar2"]},
         coverage_path=pathlib.Path("."),
-        minimum_green=decimal.Decimal("25"),
-        minimum_orange=decimal.Decimal("70"),
+        minimum_green=decimal.Decimal(25),
+        minimum_orange=decimal.Decimal(70),
         http_session=session,
     )
     expected = [

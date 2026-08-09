@@ -24,7 +24,8 @@ def test__github_formatter():
         def emit(self, record):
             logs.append(self.format(record))
 
-    logger = logging.Logger("test", level="DEBUG")
+    logger = logging.getLogger("test")
+    logger.setLevel("DEBUG")
     handler = TestHandler()
     handler.setFormatter(log_utils.GitHubFormatter())
     logger.addHandler(handler)
