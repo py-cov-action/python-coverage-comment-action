@@ -1,4 +1,4 @@
-name: Post link to private end-to-end test repository
+name: Invite to the private end-to-end test repository
 
 on:
   issue_comment:
@@ -43,22 +43,3 @@ jobs:
           NUMBER: ${{ github.event.issue.number }}
           PERMISSION: ${{ matrix.collaborator.PERMISSION }}
           GITHUB_TOKEN: ${{ secrets.COVERAGE_COMMENT_E2E_GITHUB_TOKEN_USER_1 }}
-
-  comment:
-    name: Add comment with link to e2e repos
-    if: |
-      github.event.issue.pull_request
-      && contains(github.event.comment.body, '/invite')
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write # Post the comment linking to the private e2e repo
-    steps:
-      - run: |
-          gh pr comment "${LINK}" --body-file - <<EOF
-            [End-to-end private repo](https://github.com/mihcaojwe/python-coverage-comment-action-end-to-end-${NUMBER}-private)
-          EOF
-        env:
-          LINK: ${{ github.event.issue.html_url }}
-          NUMBER: ${{ github.event.issue.number }}
-          LOGIN: ${{ github.event.issue.user.login }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

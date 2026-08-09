@@ -69,6 +69,17 @@ To run the end-to-end tests, you'll need:
   surprising if you use `https` remotes (sadly, setting `GIT_CONFIG_GLOBAL`
   seems not to be enough to isolate tests.)
 
+### Maintainer commands on pull requests
+
+- `/e2e`, in the body of an approving review: run the end-to-end tests against an
+  external contribution. They don't run on fork pull requests otherwise, because
+  those get no secrets.
+- `/invite`, in a comment: invite the pull request author (and the admins) to the
+  private end-to-end test repository.
+
+The test repositories for a given pull request are linked from the `e2e`
+deployment shown on the pull request itself.
+
 ### Linting and formatting
 
 You can install pre-commit hooks with `prek install`. They're installed in the dev
