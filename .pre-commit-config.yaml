@@ -59,5 +59,4 @@ repos:
         language: system
         require_serial: true
         args:
-          - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
           - "--persona=auditor"
