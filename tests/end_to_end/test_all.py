@@ -47,7 +47,11 @@ def test_public_repo(
     job_id = job_ids[0]
 
     # Then check the logs for this job
-    logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
+    logs = gh_me(
+        "api",
+        "--allow-escape-sequences",
+        f"{repo_api_url}/actions/jobs/{job_id}/logs",
+    )
 
     quoted = urllib.parse.quote(repo_full_name, safe="")
 
@@ -225,7 +229,11 @@ def test_private_repo(
     job_id = job_ids[0]
 
     # Then check the logs for this job
-    logs = gh_me("api", f"{repo_api_url}/actions/jobs/{job_id}/logs")
+    logs = gh_me(
+        "api",
+        "--allow-escape-sequences",
+        f"{repo_api_url}/actions/jobs/{job_id}/logs",
+    )
     print("Logs:", logs)
 
     # We can't check that the link loads, because it's a private repo but we
