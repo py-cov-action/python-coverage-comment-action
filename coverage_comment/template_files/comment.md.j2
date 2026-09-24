@@ -6,7 +6,7 @@
 {%- if previous_coverage_rate %}
 {%- set text = "Coverage for the whole project went from " ~ (previous_coverage_rate | pct) ~ " to " ~ (coverage.info.percent_covered | pct) -%}
 {%- set color = (coverage.info.percent_covered - previous_coverage_rate) | get_evolution_color(neutral_color='blue') -%}
-<img title="{{ text }}" src="{{ 'Coverage evolution' | generate_badge(message=(previous_coverage_rate | pct(precision=0)) ~ ' > ' ~ coverage.info.percent_covered | pct(precision=0), color=color) }}">
+<img title="{{ text }}" src="{{ 'Coverage evolution' | generate_badge(message=(previous_coverage_rate | pct(precision=0)) ~ ' → ' ~ coverage.info.percent_covered | pct(precision=0), color=color) }}">
 
 {%- else -%}
 {%- set text = "Coverage for the whole project is " ~ (coverage.info.percent_covered | pct) ~ ". Previous coverage rate is not available, cannot report on evolution." -%}
@@ -93,7 +93,7 @@
 {%- set text = "This PR doesn't change the coverage rate in " ~ path ~ ", which is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ ")." -%}
 {%- endif -%}
 {%- set color = coverage_diff | get_evolution_color() -%}
-{%- set message = "(" ~ previous_covered_statements_count | compact ~ "/" ~ previous_statements_count | compact ~ " > " ~ covered_statements_count | compact ~ "/" ~ statements_count | compact ~ ")" -%}
+{%- set message = "(" ~ previous_covered_statements_count | compact ~ "/" ~ previous_statements_count | compact ~ " → " ~ covered_statements_count | compact ~ "/" ~ statements_count | compact ~ ")" -%}
 {%- else -%}
 {%- set text = "The coverage rate of " ~ path ~ " is " ~ percent_covered | pct ~ " (" ~ covered_statements_count ~ "/" ~ statements_count ~ "). The file did not seem to exist on the base branch." -%}
 {%- set message = "(" ~ covered_statements_count | compact ~ "/" ~ statements_count | compact ~ ")" -%}

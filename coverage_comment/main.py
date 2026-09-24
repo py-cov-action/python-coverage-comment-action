@@ -146,7 +146,8 @@ def process_pr(
     previous_coverage, previous_coverage_rate = None, None
     if previous_coverage_data_file:
         previous_coverage, previous_coverage_rate = files.parse_datafile(
-            contents=previous_coverage_data_file
+            contents=previous_coverage_data_file,
+            current_rate=coverage.info.percent_covered,
         )
 
     marker = template.get_marker(marker_id=config.SUBPROJECT_ID)

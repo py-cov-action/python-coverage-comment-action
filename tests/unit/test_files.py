@@ -4,6 +4,8 @@ import decimal
 import json
 import pathlib
 
+import pytest
+
 from coverage_comment import files
 
 
@@ -68,7 +70,9 @@ def test_compute_datafile():
 
 
 def test_parse_datafile():
-    assert files.parse_datafile(contents="""{"coverage": 12.34}""") == (
+    assert files.parse_datafile(
+        contents="""{"coverage": 12.34}""", current_rate=decimal.Decimal("0.5")
+    ) == (
         None,
         decimal.Decimal("0.1234"),
     )
@@ -82,10 +86,65 @@ def test_parse_datafile__previous(coverage_json, coverage_obj):
                 "raw_data": coverage_json,
                 "coverage_path": ".",
             }
-        )
+        ),
+        current_rate=decimal.Decimal("0.5"),
     )
 
-    assert result == (coverage_obj, decimal.Decimal("0.1234"))
+    assert result == (coverage_obj, coverage_obj.info.percent_covered)
+
+
+def test_parse_datafile__previous_rate_is_exact(coverage_json, coverage_obj):
+    current_rate = coverage_obj.info.percent_covered
+    _, previous_rate = files.parse_datafile(
+        contents=files.compute_datafile(
+            raw_coverage_data=coverage_json,
+            line_rate=current_rate * 100,
+            coverage_path=pathlib.Path("."),
+        ),
+        current_rate=current_rate,
+    )
+
+    assert previous_rate == current_rate
+
+
+@pytest.mark.parametrize(
+    "current_rate",
+    [
+        decimal.Decimal(1) / decimal.Decimal(3),
+        decimal.Decimal(2) / decimal.Decimal(3),
+        decimal.Decimal(3931) / decimal.Decimal(4166),
+        decimal.Decimal(3931) / decimal.Decimal(4167),
+    ],
+)
+def test_rate_from_stored_float__unchanged(current_rate):
+    assert (
+        files.rate_from_stored_float(
+            stored_rate=float(current_rate * 100), current_rate=current_rate
+        )
+        == current_rate
+    )
+
+
+@pytest.mark.parametrize(
+    "previous_rate, current_rate",
+    [
+        (
+            decimal.Decimal(999_999) / decimal.Decimal(1_000_000),
+            decimal.Decimal(999_998) / decimal.Decimal(999_999),
+        ),
+        (
+            decimal.Decimal(999_998) / decimal.Decimal(999_999),
+            decimal.Decimal(999_999) / decimal.Decimal(1_000_000),
+        ),
+    ],
+)
+def test_rate_from_stored_float__tiny_change(previous_rate, current_rate):
+    result = files.rate_from_stored_float(
+        stored_rate=float(previous_rate * 100), current_rate=current_rate
+    )
+
+    assert (current_rate - result > 0) is (current_rate > previous_rate)
+    assert result != current_rate
 
 
 def test_get_urls():
