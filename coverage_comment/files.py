@@ -110,18 +110,32 @@ def compute_datafile(
     )
 
 
-def parse_datafile(contents: str) -> tuple[coverage.Coverage | None, decimal.Decimal]:
+def parse_datafile(
+    contents: str, current_rate: decimal.Decimal
+) -> tuple[coverage.Coverage | None, decimal.Decimal]:
     file_contents = json.loads_dict(contents)
-    coverage_rate = decimal.Decimal(str(file_contents["coverage"])) / decimal.Decimal(
-        100
-    )
     try:
-        return coverage.extract_info(
+        previous_coverage = coverage.extract_info(
             data=file_contents["raw_data"],  # pyright: ignore[reportArgumentType]
             coverage_path=pathlib.Path(file_contents["coverage_path"]),  # pyright: ignore[reportArgumentType]
-        ), coverage_rate
+        )
     except KeyError:
-        return None, coverage_rate
+        stored_rate = file_contents["coverage"]
+        assert isinstance(stored_rate, int | float)
+        return None, rate_from_stored_float(
+            stored_rate=stored_rate, current_rate=current_rate
+        )
+    return previous_coverage, previous_coverage.info.percent_covered
+
+
+def rate_from_stored_float(
+    stored_rate: float, current_rate: decimal.Decimal
+) -> decimal.Decimal:
+    # The stored float carries less precision than a freshly computed Decimal:
+    # compare in float space so an unchanged rate isn't seen as a tiny delta.
+    if float(current_rate * 100) == stored_rate:
+        return current_rate
+    return decimal.Decimal(str(stored_rate)) / decimal.Decimal(100)
 
 
 class ImageURLs(TypedDict):
