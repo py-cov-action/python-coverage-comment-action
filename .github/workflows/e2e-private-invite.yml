@@ -1,6 +1,6 @@
 name: Invite to the private end-to-end test repository
 
-on:
+on: # zizmor: ignore[dangerous-triggers] PR authors /invite themselves, so this must run on comments. We never check out PR code, and only the PR author or a maintainer can trigger it.
   issue_comment:
     types: [created]
 
@@ -17,6 +17,10 @@ jobs:
     if: |
       github.event.issue.pull_request
       && contains(github.event.comment.body, '/invite')
+      && (
+        github.event.comment.user.login == github.event.issue.user.login
+        || contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+      )
     runs-on: ubuntu-latest
     environment: e2e
     strategy:
