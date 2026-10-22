@@ -805,8 +805,9 @@ def test_action__push__default_branch(
     git.register("add README.md")
     git.register("diff --staged --exit-code", returncode=1)
     git.register("commit --message 'ci: Update coverage data'")
+    git.register("rev-parse HEAD", stdout="abc123")
     git.register(
-        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push --porcelain origin python-coverage-comment-action-data"
     )
     git.register("switch foo")
 
@@ -891,8 +892,9 @@ def test_action__pull_request_closed_merged(
     git.register("add README.md")
     git.register("diff --staged --exit-code", returncode=1)
     git.register("commit --message 'ci: Update coverage data'")
+    git.register("rev-parse HEAD", stdout="abc123")
     git.register(
-        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push --porcelain origin python-coverage-comment-action-data"
     )
     git.register("switch foo")
 
@@ -954,8 +956,9 @@ def test_action__push__default_branch__private(
     git.register("add README.md")
     git.register("diff --staged --exit-code", returncode=1)
     git.register("commit --message 'ci: Update coverage data'")
+    git.register("rev-parse HEAD", stdout="abc123")
     git.register(
-        "--config-env=http.extraheader=GIT_EXTRA_HEADER push origin python-coverage-comment-action-data"
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push --porcelain origin python-coverage-comment-action-data"
     )
     git.register("switch foo")
 
