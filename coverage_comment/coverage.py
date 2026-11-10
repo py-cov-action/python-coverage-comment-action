@@ -303,23 +303,32 @@ def get_added_lines(diff: str) -> dict[pathlib.Path, list[int]]:
     current_file: pathlib.Path | None = None
     added_filename_prefix = "+++ b/"
     result: dict[pathlib.Path, list[int]] = {}
+    # Lines of the new file that the current hunk still has to show, context included
+    hunk_lines: Sequence[int] = []
     for line in diff.splitlines():
+        if hunk_lines:
+            if line.startswith(("-", "\\")):
+                continue
+            if line.startswith("+"):
+                assert current_file is not None
+                result.setdefault(current_file, []).append(hunk_lines[0])
+            hunk_lines = hunk_lines[1:]
+            continue
         if line.startswith(added_filename_prefix):
             current_file = pathlib.Path(line.removeprefix(added_filename_prefix))
             continue
         if line.startswith("@@"):
-            lines = parse_line_number_diff_line(line)
-            if len(lines) > 0:
-                if current_file is None:
-                    raise ValueError(f"Unexpected diff output format: \n{diff}")
-                result.setdefault(current_file, []).extend(lines)
+            hunk_lines = parse_line_number_diff_line(line)
+            if hunk_lines and current_file is None:
+                raise ValueError(f"Unexpected diff output format: \n{diff}")
 
     return result
 
 
 def parse_line_number_diff_line(line: str) -> Sequence[int]:
     """
-    Parse the "added" part of the line number diff text:
+    Parse the "added" part of the line number diff text, i.e. the lines of the
+    new file covered by the hunk (context lines included):
         @@ -60,0 +61 @@ def compute_files(  -> [61]
         @@ -60,0 +61,3 @@ def compute_files(  -> [61, 62, 63]
     """
