@@ -504,6 +504,14 @@ Usage may look like this
     # If true, will run `coverage combine` before reading the `.coverage` file.
     MERGE_COVERAGE_FILES: false
 
+    # If false, will not comment on the pull request (nor write the comment
+    # file for the workflow_run step). The job summary, annotations and
+    # outputs are unaffected.
+    COMMENT_ON_PR: true
+
+    # If false, will not write the coverage report to the job summary.
+    WRITE_JOB_SUMMARY: true
+
     # If true, will create an annotation on every line with missing coverage on a pull request.
     ANNOTATE_MISSING_LINES: false
 

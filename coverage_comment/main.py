@@ -236,9 +236,10 @@ def process_pr(
         )
         return 1
 
-    github.add_job_summary(
-        content=summary_comment, github_step_summary=config.GITHUB_STEP_SUMMARY
-    )
+    if config.WRITE_JOB_SUMMARY:
+        github.add_job_summary(
+            content=summary_comment, github_step_summary=config.GITHUB_STEP_SUMMARY
+        )
 
     if pr_number is not None and config.ANNOTATE_MISSING_LINES:
         annotations = diff_grouper.get_diff_missing_groups(
@@ -259,6 +260,12 @@ def process_pr(
         outputs |= coverage_module.as_output(
             obj=previous_coverage.info, prefix="reference"
         )
+
+    if not config.COMMENT_ON_PR:
+        log.info("COMMENT_ON_PR is disabled, not commenting on the PR")
+        outputs["comment_file_written"] = False
+        github.set_output(github_output=config.GITHUB_OUTPUT, **outputs)
+        return 0
 
     try:
         if config.FORCE_WORKFLOW_RUN or not pr_number:
@@ -394,10 +401,11 @@ def save_coverage_data_files(
         coverage_path=config.COVERAGE_PATH
     )
 
-    github.add_job_summary(
-        content=f"## Coverage report\n\n{markdown_report}",
-        github_step_summary=config.GITHUB_STEP_SUMMARY,
-    )
+    if config.WRITE_JOB_SUMMARY:
+        github.add_job_summary(
+            content=f"## Coverage report\n\n{markdown_report}",
+            github_step_summary=config.GITHUB_STEP_SUMMARY,
+        )
 
     github_host = github.extract_github_host(config.GITHUB_BASE_URL)
     url_getter = functools.partial(

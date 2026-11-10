@@ -63,6 +63,8 @@ class Config:
     MINIMUM_GREEN: decimal.Decimal = decimal.Decimal(100)
     MINIMUM_ORANGE: decimal.Decimal = decimal.Decimal(70)
     MERGE_COVERAGE_FILES: bool = False
+    COMMENT_ON_PR: bool = True
+    WRITE_JOB_SUMMARY: bool = True
     ANNOTATE_MISSING_LINES: bool = False
     ANNOTATION_TYPE: str = "warning"
     MAX_FILES_IN_COMMENT: int = 25
@@ -91,6 +93,14 @@ class Config:
 
     @classmethod
     def clean_merge_coverage_files(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
+    def clean_comment_on_pr(cls, value: str) -> bool:
+        return str_to_bool(value)
+
+    @classmethod
+    def clean_write_job_summary(cls, value: str) -> bool:
         return str_to_bool(value)
 
     @classmethod
