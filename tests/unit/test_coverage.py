@@ -290,7 +290,7 @@ def test_parse_line_number_diff_line(git, line_number_diff_line, expected):
     assert result == expected
 
 
-def test_get_added_lines(git):
+def test_get_added_lines():
     diff = """diff --git a/action.yml b/action.yml
 deleted file mode 100644
 index 42249d1..0000000
@@ -303,34 +303,45 @@ diff --git a/README.md b/README.md
 index 1f1d9a4..e69de29 100644
 --- a/README.md
 +++ b/README.md
-@@ -1 +1 @@
+@@ -1,4 +1,3 @@
 -# coverage-comment
 -coverage-comment
-@@ -3,2 +3,4 @@
++# Coverage comment
+ context
+ context
+@@ -8,5 +7,7 @@ section
+ context
 -foo
 -bar
 +foo1
 +bar1
+ context
 +foo2
 +bar2
---- a/foo.txt
+ context
+\\ No newline at end of file
+diff --git a/foo.txt b/foo.txt
+new file mode 100644
+--- /dev/null
 +++ b/foo.txt
-@@ -0,0 +1 @@
+@@ -0,0 +1,2 @@
 +bar
++++ b/not-a-file-header.txt
+diff --git a/bar.txt b/bar.txt
 --- a/bar.txt
 +++ b/bar.txt
-@@ -8 +7,0 @@
+@@ -7,3 +7,2 @@
+ context
 -foo
+ context
 diff --git a/coverage_comment/annotations.py b/coverage_comment/annotations2.py
 similarity index 100%
 rename from coverage_comment/annotations.py
 rename to coverage_comment/annotations2.py
 """
-    git.register("fetch origin main --depth=1000")
-    git.register("diff --unified=0 FETCH_HEAD...HEAD", stdout=diff)
     assert coverage.get_added_lines(diff=diff) == {
-        pathlib.Path("README.md"): [1, 3, 4, 5, 6],
-        pathlib.Path("foo.txt"): [1],
+        pathlib.Path("README.md"): [1, 8, 9, 11, 12],
+        pathlib.Path("foo.txt"): [1, 2],
     }
 
 
