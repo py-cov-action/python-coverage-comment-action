@@ -99,6 +99,16 @@ inputs:
     description: >
       If true, will run `coverage combine` before reading the `.coverage` file.
     default: false
+  COMMENT_ON_PR:
+    description: >
+      If false, will not comment on the pull request (nor write the comment file
+      for the workflow_run step). The job summary, annotations and outputs are
+      unaffected.
+    default: true
+  WRITE_JOB_SUMMARY:
+    description: >
+      If false, will not write the coverage report to the job summary.
+    default: true
   ANNOTATE_MISSING_LINES:
     description: >
       If true, will create an annotation on every line with missing coverage on a pull request.
@@ -188,6 +198,8 @@ runs:
     MINIMUM_GREEN: ${{ inputs.MINIMUM_GREEN }}
     MINIMUM_ORANGE: ${{ inputs.MINIMUM_ORANGE }}
     MERGE_COVERAGE_FILES: ${{ inputs.MERGE_COVERAGE_FILES }}
+    COMMENT_ON_PR: ${{ inputs.COMMENT_ON_PR }}
+    WRITE_JOB_SUMMARY: ${{ inputs.WRITE_JOB_SUMMARY }}
     ANNOTATE_MISSING_LINES: ${{ inputs.ANNOTATE_MISSING_LINES }}
     ANNOTATION_TYPE: ${{ inputs.ANNOTATION_TYPE }}
     VERBOSE: ${{ inputs.VERBOSE }}

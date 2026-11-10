@@ -644,6 +644,99 @@ def test_action__pull_request__force_store_comment(
     assert output == get_expected_output(comment_written=True, reference_coverage=True)
 
 
+def test_action__pull_request__comment_disabled(
+    pull_request_config,
+    session,
+    in_integration_env,
+    output_file,
+    summary_file,
+    git,
+    fake_process,
+):
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
+    )
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+
+    result = main.action(
+        config=pull_request_config(
+            COMMENT_ON_PR=False,
+            GITHUB_OUTPUT=output_file,
+            GITHUB_STEP_SUMMARY=summary_file,
+        ),
+        github_session=session,
+        http_session=session,
+        git=git,
+    )
+    assert result == 0
+
+    assert not pathlib.Path("python-coverage-comment-action.txt").exists()
+    assert "Coverage for the whole project is 77.77%" in summary_file.read_text()
+
+    output = {
+        key: value
+        for key, value in (
+            line.split("=") for line in output_file.read_text().strip().splitlines()
+        )
+    }
+    assert output == get_expected_output(
+        comment_written=False, reference_coverage=False
+    )
+
+
+def test_action__pull_request__job_summary_disabled(
+    pull_request_config,
+    session,
+    in_integration_env,
+    summary_file,
+    git,
+    fake_process,
+):
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar",
+        json={"default_branch": "main", "visibility": "public"},
+    )
+    session.register(
+        "GET",
+        "/repos/py-cov-action/foobar/contents/data.json",
+        match_params={"ref": "python-coverage-comment-action-data"},
+        status_code=404,
+    )
+    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+    session.register("GET", "/user", json={"login": "foo"})
+    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
+    session.register(
+        "POST", "/repos/py-cov-action/foobar/issues/2/comments", status_code=200
+    )
+
+    fake_process.pass_command(["coverage", "combine"])
+    fake_process.pass_command(["coverage", "json", "-o", "-"])
+
+    result = main.action(
+        config=pull_request_config(
+            WRITE_JOB_SUMMARY=False, GITHUB_STEP_SUMMARY=summary_file
+        ),
+        github_session=session,
+        http_session=session,
+        git=git,
+    )
+    assert result == 0
+
+    assert summary_file.read_text() == ""
+
+
 def test_action__pull_request__post_comment__no_marker(
     pull_request_config,
     session,
@@ -772,7 +865,9 @@ def test_action__pull_request__post_comment__template_error(
     assert get_logs("ERROR", "There was a rendering error")
 
 
+@pytest.mark.parametrize("write_job_summary", [True, False])
 def test_action__push__default_branch(
+    write_job_summary,
     push_config,
     session,
     in_integration_env,
@@ -820,7 +915,9 @@ def test_action__push__default_branch(
     )
 
     result = main.action(
-        config=push_config(GITHUB_STEP_SUMMARY=summary_file),
+        config=push_config(
+            GITHUB_STEP_SUMMARY=summary_file, WRITE_JOB_SUMMARY=write_job_summary
+        ),
         github_session=session,
         http_session=session,
         git=git,
@@ -850,6 +947,10 @@ See more details and ready-to-copy-paste-markdown at:
     assert log == expected
 
     summary_content = summary_file.read_text()
+
+    if not write_job_summary:
+        assert summary_content == ""
+        return
 
     assert "## Coverage report" in summary_content
     assert "Name" in summary_content
