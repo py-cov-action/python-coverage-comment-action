@@ -2,7 +2,7 @@
 # - Dockerfile
 # - .github/workflows/ci.yml (the image tags of the push-to-registry job)
 
-FROM python:3.14-slim
+FROM python:3.15-slim
 
 RUN set -eux; \
     apt-get update; \
