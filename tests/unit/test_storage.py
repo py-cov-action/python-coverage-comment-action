@@ -1,10 +1,37 @@
 from __future__ import annotations
 
 import pathlib
+import subprocess as process
 
 import pytest
 
 from coverage_comment import files, storage, subprocess
+
+
+@pytest.mark.parametrize(
+    "returncode,reason,expected",
+    [
+        (1, "[rejected] (fetch first)", True),
+        (1, "[rejected] (non-fast-forward)", True),
+        (1, "[remote rejected] (pre-receive hook declined)", False),
+        (1, "[rejected] (stale info)", False),
+        (128, "[rejected] (fetch first)", False),
+        (1, "[rejected] (unknown reason)", False),
+    ],
+)
+def test_only_concurrent_rejections_for_the_requested_branch_are_retried(
+    returncode, reason, expected
+):
+    error = subprocess.GitError.from_called_process_error(
+        process.CalledProcessError(
+            returncode,
+            ["git", "push"],
+            output=f"!\trefs/heads/foo:refs/heads/foo\t{reason}\n",
+            stderr="synthetic",
+        )
+    )
+    assert storage.is_concurrent_push(error, "foo") is expected
+    assert storage.is_concurrent_push(error, "different-branch") is False
 
 
 def test_checked_out_branch(git):
@@ -113,7 +140,10 @@ def test_commit_operations(git, in_tmp_path):
     # (yes, it's missing the quotes, but this is just an artifact from our test
     # double)
     registered = git.register("commit --message 'ci: Update coverage data'")
-    git.register("--config-env=http.extraheader=GIT_EXTRA_HEADER push origin foo")
+    git.register("rev-parse HEAD", stdout="abc123")
+    git.register(
+        "--config-env=http.extraheader=GIT_EXTRA_HEADER push --porcelain origin foo"
+    )
 
     # __exit__ of checked_out_branch
     git.register("switch bar")

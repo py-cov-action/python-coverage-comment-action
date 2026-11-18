@@ -23,6 +23,7 @@ COMMIT_ENVIRONMENT = {
     "GIT_COMMITTER_EMAIL": GITHUB_ACTIONS_BOT_EMAIL,
 }
 GIT_COMMIT_MESSAGE = "ci: Update coverage data"
+MAX_PUSH_ATTEMPTS = 3
 
 
 @contextlib.contextmanager
@@ -65,10 +66,85 @@ def checked_out_branch(git: subprocess.Git, branch: str, token: str):
 
     try:
         yield
+    except subprocess.GitError:
+        git.reset("--hard")
+        raise
     finally:
         log.debug(f"Back to checkout of {current_checkout}")
         detach = ["--detach"] if not is_on_a_branch else []
         git.switch(*detach, current_checkout)
+
+
+def is_concurrent_push(error: subprocess.GitError, branch: str) -> bool:
+    if error.returncode != 1:
+        return False
+    ref = f"refs/heads/{branch}:refs/heads/{branch}"
+    return any(
+        line.split("\t") == ["!", ref, f"[rejected] ({reason})"]
+        for line in error.stdout.splitlines()
+        for reason in ("fetch first", "non-fast-forward")
+    )
+
+
+def push_operations(
+    operations: list[files.Operation], git: subprocess.Git, branch: str, token: str
+):
+    publication = git.rev_parse("HEAD").strip()
+    for attempt in range(MAX_PUSH_ATTEMPTS):
+        try:
+            git.push("--porcelain", "origin", branch, token=token)
+        except subprocess.GitError as error:
+            if (
+                not is_concurrent_push(error, branch)
+                or attempt == MAX_PUSH_ATTEMPTS - 1
+            ):
+                raise
+            log.info(
+                "Coverage branch advanced; integrating the publication before retrying"
+            )
+            git.fetch("origin", branch, token=token)
+            git.reset("--hard", "FETCH_HEAD")
+            try:
+                git.merge_base("--is-ancestor", publication, "HEAD")
+            except subprocess.GitError as error:
+                if error.returncode != 1:
+                    raise
+                already_published = False
+            else:
+                already_published = True
+            if not already_published:
+                git.merge(
+                    "--no-commit",
+                    "--no-ff",
+                    "--strategy=ours",
+                    "--allow-unrelated-histories",
+                    publication,
+                    env=COMMIT_ENVIRONMENT,
+                )
+            # Replace each operation's whole snapshot, retaining remote-only paths.
+            # ReplaceDir sources have already been moved; replay from the commit.
+            for operation in operations:
+                path = str(operation.path)
+                if git.ls_tree("--name-only", publication, "--", path).strip():
+                    git.restore(
+                        "--source", publication, "--staged", "--worktree", "--", path
+                    )
+                else:
+                    git.rm("-r", "--ignore-unmatch", "--", path)
+            if already_published:
+                try:
+                    git.diff("--staged", "--exit-code")
+                except subprocess.GitError as error:
+                    if error.returncode != 1:
+                        raise
+                else:
+                    log.info(
+                        "Publication is already stored and its snapshot is unchanged."
+                    )
+                    return
+            git.commit("--message", GIT_COMMIT_MESSAGE, env=COMMIT_ENVIRONMENT)
+        else:
+            return
 
 
 def commit_operations(
@@ -93,8 +169,9 @@ def commit_operations(
 
         try:
             git.diff("--staged", "--exit-code")
-        except subprocess.GitError:
-            pass  # All good, command returns 1 if there's diff, 0 otherwise
+        except subprocess.GitError as error:
+            if error.returncode != 1:
+                raise
         else:
             log.info("No change detected, skipping.")
             return
@@ -105,7 +182,7 @@ def commit_operations(
             GIT_COMMIT_MESSAGE,
             env=COMMIT_ENVIRONMENT,
         )
-        git.push("origin", branch, token=token)
+        push_operations(operations=operations, git=git, branch=branch, token=token)
 
         log.info("Files saved")
 
