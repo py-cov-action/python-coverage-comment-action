@@ -4,7 +4,7 @@ You're welcome to contribute, though I can't promise the experience will be as s
 
 ### Things to know:
 
-- Python3.14
+- Python3.15
 - Use [uv](https://docs.astral.sh/uv/)
 - Launch tests with `pytest`, config is in setup.cfg
 - All linters and formatters are configured to run through `prek`.
