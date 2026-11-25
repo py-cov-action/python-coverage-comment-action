@@ -59,6 +59,13 @@ These files include:
 
 See [an example](https://github.com/py-cov-action/python-coverage-comment-action-v3-example)
 
+Concurrent updates to the coverage branch are retried up to three push attempts.
+Each successful publication replaces its report paths as a whole snapshot,
+preserves independently updated paths, and keeps both publications in Git
+history. Reports at the same path reflect the last successful publication,
+not source-commit or coverage timestamps. Other push failures and exhausted
+retries remain action failures.
+
 ### Determining the mode
 
 By default, the action will attempt to pick the appropriate mode based on the
